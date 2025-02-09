@@ -1,0 +1,13 @@
+2024-01-04 
+
+Slime v1.1
+
+- Contrast UP.
+- Add three more animations (dash attack, turn, death2)
+- Optimizing some animations.
+
+
+- I raised the price by a dollar(2USD -> 3USD). I will continue to make pixel work, so please understand. 
+
+thank you!
+
