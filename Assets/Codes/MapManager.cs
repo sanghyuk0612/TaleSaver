@@ -39,7 +39,7 @@ public class MapManager : MonoBehaviour
 
     private void LoadMapPrefabs()
     {
-        GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map");
+        GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
         mapPrefabs.Clear();
         mapPrefabs.AddRange(loadedPrefabs);
         
@@ -50,6 +50,7 @@ public class MapManager : MonoBehaviour
         else
         {
             Debug.Log($"Successfully loaded {mapPrefabs.Count} map prefabs");
+            Debug.Log("불러온 맵의 개수 " + mapPrefabs.Count);
         }
     }
 
@@ -158,10 +159,10 @@ public class MapManager : MonoBehaviour
                 CopyTilemapToTarget(sourceTilemap, offset);
                 
                 // 동일한 offset으로 Ground 생성
-                SpawnGround(offset, bounds.size.x);
+                //sSpawnGround(offset, bounds.size.x);
                 
                 // 다음 맵을 위한 오프셋 계산 (간격 제거)
-                offsetX += bounds.size.x;  // '+2' 제거
+                //offsetX += bounds.size.x;  // '+2' 제거
             }
             
             Destroy(mapSection);
