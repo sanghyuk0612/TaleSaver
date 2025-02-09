@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc05665597667cb488b5e6682c15de8c, type: 3}
+  m_Name: DamageMultiplierData
+  m_EditorClassIdentifier: 
+  stageMultipliers:
+  - 1
+  - 1
+  - 1
+  - 1.05
+  - 1.05
+  - 1.1
+  - 1.1
+  - 1.15
+  - 1.15
+  - 1.25
+  - 1
+  chapterMultipliers:
+  - 1
+  - 1
+  - 1.44
+  - 1.68
+  baseDamageMultiplier: 1

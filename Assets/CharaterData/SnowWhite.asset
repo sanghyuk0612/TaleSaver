@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f9ab830d02ec4bf090efefc2f4c109a, type: 3}
+  m_Name: SnowWhite
+  m_EditorClassIdentifier: 
+  characterName: "\uBC31\uC124\uACF5\uC8FC"
+  characterSprite: {fileID: 518877442, guid: aeab5ce1056564ed88ad496cdf7c9adc, type: 3}
+  level: 1
+  description: "\uC124\uBA85"
+  vitality: 0
+  power: 0
+  agility: 0
+  luck: 0
