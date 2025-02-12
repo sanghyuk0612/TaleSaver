@@ -139,35 +139,59 @@ public class MapManager : MonoBehaviour
 
         // 3개의 랜덤한 맵 선택 및 생성
         List<GameObject> availablePrefabs = new List<GameObject>(mapPrefabs);
-        float offsetX = 0;
+         float offsetX = 0;
 
-        for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
+    {
+        int randomIndex = Random.Range(0, availablePrefabs.Count);
+        GameObject mapPrefab = availablePrefabs[randomIndex];
+
+        GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        currentMapSections.Add(mapSection);
+
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        if (sourceTilemap != null)
         {
-            int randomIndex = Random.Range(0, availablePrefabs.Count);
-            GameObject mapPrefab = availablePrefabs[randomIndex];
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
             
-            GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
-            currentMapSections.Add(mapSection);
+            // 타일맵 복사
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
 
-            Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
-            if (sourceTilemap != null)
-            {
-                BoundsInt bounds = sourceTilemap.cellBounds;
-                Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
-                
-                // 타일맵 복사
-                CopyTilemapToTarget(sourceTilemap, offset);
-                
-                // 동일한 offset으로 Ground 생성
-                //sSpawnGround(offset, bounds.size.x);
-                
-                // 다음 맵을 위한 오프셋 계산 (간격 제거)
-                //offsetX += bounds.size.x;  // '+2' 제거
-            }
-            
-            Destroy(mapSection);
-            availablePrefabs.RemoveAt(randomIndex);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;  
         }
+    }
+
+        // float offsetX = 0;
+
+        // for (int i = 0; i < 3; i++)
+        // {
+        //     int randomIndex = Random.Range(0, availablePrefabs.Count);
+        //     GameObject mapPrefab = availablePrefabs[randomIndex];
+            
+        //     GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        //     currentMapSections.Add(mapSection);
+
+        //     Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        //     if (sourceTilemap != null)
+        //     {
+        //         BoundsInt bounds = sourceTilemap.cellBounds;
+        //         Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+                
+        //         // 타일맵 복사
+        //         //CopyTilemapToTarget(sourceTilemap, offset);
+                
+        //         // 동일한 offset으로 Ground 생성
+        //         //sSpawnGround(offset, bounds.size.x);
+                
+        //         // 다음 맵을 위한 오프셋 계산 (간격 제거)
+        //         offsetX += bounds.size.x;  // '+2' 제거
+        //     }
+            
+        //     Destroy(mapSection);
+        //     availablePrefabs.RemoveAt(randomIndex);
+        // }
 
         //SpawnPortal();
 
@@ -177,7 +201,26 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnEntities();
         }
     }
+// ✅ **타일이 존재하는 실제 영역을 계산하는 함수**
+BoundsInt GetTileBounds(Tilemap tilemap)
+{
+    BoundsInt bounds = tilemap.cellBounds;
+    int minX = bounds.xMax, minY = bounds.yMax;
+    int maxX = bounds.xMin, maxY = bounds.yMin;
 
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
+    {
+        if (tilemap.HasTile(pos))
+        {
+            minX = Mathf.Min(minX, pos.x);
+            minY = Mathf.Min(minY, pos.y);
+            maxX = Mathf.Max(maxX, pos.x);
+            maxY = Mathf.Max(maxY, pos.y);
+        }
+    }
+
+    return new BoundsInt(minX, minY, 0, maxX - minX + 1, maxY - minY + 1, 1);
+}
     private void SpawnGround(Vector3Int offset, int width)
     {
         if (groundPrefab == null)
@@ -214,27 +257,42 @@ public class MapManager : MonoBehaviour
 
         Debug.Log($"Created ground at position: {groundPosition}, width: {width}, offset: {offset}, bottomY: {bottomY}");
     }
+    void GenerateMap()
+{
+    
+}
 
-    private void CopyTilemapToTarget(Tilemap sourceTilemap, Vector3Int offset)
+// ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
+void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
+{
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
     {
-        if (sourceTilemap == null)
-        {
-            Debug.LogWarning("Source Tilemap is null. Cannot copy tiles.");
-            return; // Tilemap이 null인 경우 메서드 종료
-        }
+        if (!source.HasTile(pos)) continue;
 
-        BoundsInt bounds = sourceTilemap.cellBounds;
-
-        foreach (Vector3Int position in bounds.allPositionsWithin)
-        {
-            TileBase tile = sourceTilemap.GetTile(position);
-            if (tile != null)
-            {
-                Vector3Int targetPosition = position + offset;
-                targetTilemap.SetTile(targetPosition, tile);
-            }
-        }
+        TileBase tile = source.GetTile(pos);
+        target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
     }
+}
+    // private void CopyTilemapToTarget(Tilemap sourceTilemap, Vector3Int offset)
+    // {
+    //     if (sourceTilemap == null)
+    //     {
+    //         Debug.LogWarning("Source Tilemap is null. Cannot copy tiles.");
+    //         return; // Tilemap이 null인 경우 메서드 종료
+    //     }
+
+    //     BoundsInt bounds = sourceTilemap.cellBounds;
+
+    //     foreach (Vector3Int position in bounds.allPositionsWithin)
+    //     {
+    //         TileBase tile = sourceTilemap.GetTile(position);
+    //         if (tile != null)
+    //         {
+    //             Vector3Int targetPosition = position + offset;
+    //             targetTilemap.SetTile(targetPosition, tile);
+    //         }
+    //     }
+    // }
 
     public void SpawnPortal()
     {
