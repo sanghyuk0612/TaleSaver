@@ -13,6 +13,7 @@ public class MapManager : MonoBehaviour
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
     private List<GameObject> droppedItems = new List<GameObject>();
+    int location;
 
     private void Awake()
     {
@@ -39,7 +40,29 @@ public class MapManager : MonoBehaviour
 
     private void LoadMapPrefabs()
     {
-        GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
+        GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
+        location =3;
+        switch(location){
+            case 0:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
+            break;
+            case 1:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Desert");
+            break;
+            case 2:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Forest");
+            break;
+            case 3:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Ice");
+            break;
+            case 4:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lab");
+            break;
+            case 5:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lava");
+            break;
+        }
+        
         mapPrefabs.Clear();
         mapPrefabs.AddRange(loadedPrefabs);
         
