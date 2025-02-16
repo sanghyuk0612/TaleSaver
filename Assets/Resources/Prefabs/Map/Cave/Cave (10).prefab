@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 942694884831707105}
   - component: {fileID: 4316980748776720640}
   - component: {fileID: 4987859738205604080}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cave (10)
-  m_TagString: Ground
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

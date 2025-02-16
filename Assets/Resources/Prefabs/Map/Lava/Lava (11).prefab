@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 9163731326065972771}
   - component: {fileID: 8114627092941288913}
   - component: {fileID: 1179342334073972924}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Lava (11)
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -37,11 +37,12 @@ public class MapManager : MonoBehaviour
         SpawnInitialEntities();
         
     }
+    GameObject wallPrefab;
 
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =1;
+        location =0;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
@@ -73,9 +74,13 @@ public class MapManager : MonoBehaviour
         {
             filteredPrefabs.Add(prefab);
         }
+        else{
+            wallPrefab =prefab;
+        }
     }
         
         mapPrefabs.Clear();
+        mapPrefabs.Add(wallPrefab);
         mapPrefabs.AddRange(filteredPrefabs);
         
         if (mapPrefabs.Count == 0)
@@ -147,11 +152,11 @@ public class MapManager : MonoBehaviour
         }
         currentMapSections.Clear();
 
-        // 기존 Ground 오브젝트들 제거
-        foreach (var ground in GameObject.FindGameObjectsWithTag("Ground"))
-        {
-            Destroy(ground);
-        }
+        // // 기존 Ground 오브젝트들 제거
+        // foreach (var ground in GameObject.FindGameObjectsWithTag("Ground"))
+        // {
+        //     Destroy(ground);
+        // }
 
         // 기존 포탈 제거
         GameObject[] portals = GameObject.FindGameObjectsWithTag("Portal");  // Portal 태그가 있다고 가정
@@ -174,25 +179,52 @@ public class MapManager : MonoBehaviour
         
         // 3개의 랜덤한 맵 선택 및 생성
         List<GameObject> availablePrefabs = new List<GameObject>(mapPrefabs);
-         float offsetX = 0;
-
-    for (int i = 0; i < 3; i++)
+        float offsetX = 0;
+        
     {
-        int randomIndex = Random.Range(0, availablePrefabs.Count);
-        GameObject mapPrefab = availablePrefabs[randomIndex];
-
+        GameObject mapPrefab = availablePrefabs[0];
         GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
         currentMapSections.Add(mapSection);
-
         Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
         if (sourceTilemap != null)
         {
             BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
             Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
-            
             // 타일맵 복사
             CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;  
+        }
+    }
 
+    for (int i = 0; i < 3; i++)
+    {
+        int randomIndex = Random.Range(1, availablePrefabs.Count);
+        GameObject mapPrefab = availablePrefabs[randomIndex];
+        GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        currentMapSections.Add(mapSection);
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        if (sourceTilemap != null)
+        {
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+            // 타일맵 복사
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;  
+        }
+    }
+    {
+        GameObject mapPrefab = availablePrefabs[0];
+        GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        currentMapSections.Add(mapSection);
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        if (sourceTilemap != null)
+        {
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+            // 타일맵 복사
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
         }
@@ -273,7 +305,6 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
     foreach (Vector3Int pos in bounds.allPositionsWithin)
     {
         if (!source.HasTile(pos)) continue;
-
         TileBase tile = source.GetTile(pos);
         target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
     }

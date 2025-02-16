@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 56992579986530999}
   - component: {fileID: 8114770694893340643}
   - component: {fileID: 3248471547446986534}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Forest (6)
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
