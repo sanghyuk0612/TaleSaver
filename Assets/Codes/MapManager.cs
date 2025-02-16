@@ -186,36 +186,6 @@ public class MapManager : MonoBehaviour
         }
     }
 
-        // float offsetX = 0;
-
-        // for (int i = 0; i < 3; i++)
-        // {
-        //     int randomIndex = Random.Range(0, availablePrefabs.Count);
-        //     GameObject mapPrefab = availablePrefabs[randomIndex];
-            
-        //     GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
-        //     currentMapSections.Add(mapSection);
-
-        //     Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
-        //     if (sourceTilemap != null)
-        //     {
-        //         BoundsInt bounds = sourceTilemap.cellBounds;
-        //         Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
-                
-        //         // 타일맵 복사
-        //         //CopyTilemapToTarget(sourceTilemap, offset);
-                
-        //         // 동일한 offset으로 Ground 생성
-        //         //sSpawnGround(offset, bounds.size.x);
-                
-        //         // 다음 맵을 위한 오프셋 계산 (간격 제거)
-        //         offsetX += bounds.size.x;  // '+2' 제거
-        //     }
-            
-        //     Destroy(mapSection);
-        //     availablePrefabs.RemoveAt(randomIndex);
-        // }
-
         //SpawnPortal();
 
         // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
@@ -296,27 +266,6 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
         target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
     }
 }
-    // private void CopyTilemapToTarget(Tilemap sourceTilemap, Vector3Int offset)
-    // {
-    //     if (sourceTilemap == null)
-    //     {
-    //         Debug.LogWarning("Source Tilemap is null. Cannot copy tiles.");
-    //         return; // Tilemap이 null인 경우 메서드 종료
-    //     }
-
-    //     BoundsInt bounds = sourceTilemap.cellBounds;
-
-    //     foreach (Vector3Int position in bounds.allPositionsWithin)
-    //     {
-    //         TileBase tile = sourceTilemap.GetTile(position);
-    //         if (tile != null)
-    //         {
-    //             Vector3Int targetPosition = position + offset;
-    //             targetTilemap.SetTile(targetPosition, tile);
-    //         }
-    //     }
-    // }
-
     public void SpawnPortal()
     {
         if (stagePortalPrefab == null)
