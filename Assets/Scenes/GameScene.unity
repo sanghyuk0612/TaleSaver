@@ -374,7 +374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c5f4430079cb841932ed48f547320e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 8643484485514713390, guid: fd6fc2388e8ab4b4d8ce8a298f11f6c0, type: 3}
+  target: {fileID: 8643483485514713390, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   smoothSpeed: 8
   offset: {x: 0, y: 0, z: 0}
 --- !u!1 &746803444
@@ -1005,7 +1005,7 @@ MonoBehaviour:
   enemyText: {fileID: 576923598}
   enemyNumber: 0
   killNumber: 0
-  Portal: {fileID: 0}
+  Portal: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
 --- !u!4 &1304119733
 Transform:
   m_ObjectHideFlags: 0
@@ -1150,8 +1150,8 @@ MonoBehaviour:
   rangedEnemyAttackCooldown: 2
   rangedEnemyProjectileSpeed: 8
   enemyProjectileKnockbackForce: 4
-  playerUIPrefab: {fileID: 6837033524123068816, guid: 0aa8535746ec92846ad97e12e43ed025, type: 3}
-  playerSpriteRenderer: {fileID: 4653082698377534761, guid: fd6fc2388e8ab4b4d8ce8a298f11f6c0, type: 3}
+  playerUIPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
+  playerSpriteRenderer: {fileID: 4653082698377534761, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   monsterNumber: {fileID: 576923598}
 --- !u!4 &1950971167
 Transform:
