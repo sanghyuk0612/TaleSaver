@@ -41,7 +41,9 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =3;
+        location =1;
+        List<GameObject> filteredPrefabs = new List<GameObject>();
+
         switch(location){
             case 0:
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
@@ -62,9 +64,19 @@ public class MapManager : MonoBehaviour
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lava");
             break;
         }
+        foreach (var prefab in loadedPrefabs)
+    {
+        string prefabPath = prefab.name; // Resources.LoadAll은 폴더 정보를 주지 않음 (이름만 가져옴)
+        
+        // Cave 관련 프리팹을 제외하는 조건 (예: "Cave_"로 시작하는 이름 제외)
+        if (!prefabPath.EndsWith("(wall)")) 
+        {
+            filteredPrefabs.Add(prefab);
+        }
+    }
         
         mapPrefabs.Clear();
-        mapPrefabs.AddRange(loadedPrefabs);
+        mapPrefabs.AddRange(filteredPrefabs);
         
         if (mapPrefabs.Count == 0)
         {
@@ -159,7 +171,7 @@ public class MapManager : MonoBehaviour
             Debug.LogError("Not enough map prefabs!");
             return;
         }
-
+        
         // 3개의 랜덤한 맵 선택 및 생성
         List<GameObject> availablePrefabs = new List<GameObject>(mapPrefabs);
          float offsetX = 0;
