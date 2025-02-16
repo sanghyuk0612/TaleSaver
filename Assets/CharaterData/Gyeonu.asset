@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: Gyeonu
   m_EditorClassIdentifier: 
   characterName: "\uACAC\uC6B0"
-  characterSprite: {fileID: 2078494679, guid: aeab5ce1056564ed88ad496cdf7c9adc, type: 3}
+  characterSprite: {fileID: 2537882373423050008, guid: edd2fcfba98a6d442bef8a98f2d18186, type: 3}
+  animatorController: {fileID: 9100000, guid: 17663820e5c35754180c593e7f37486a, type: 2}
+  jumpAnimation: {fileID: 7400000, guid: b4cf03d73c6485546b819ec7cf447da1, type: 2}
   level: 1
   description: "\uC124\uBA85"
   vitality: 0
-  power: 0
+  power: 1
   agility: 0
   luck: 0
   maxHealth: 1
