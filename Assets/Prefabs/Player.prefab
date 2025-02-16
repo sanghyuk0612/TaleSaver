@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5354624974201830981}
   - component: {fileID: 2082738595614601047}
   - component: {fileID: 8573810824455855368}
+  - component: {fileID: -920647401841779570}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -105,7 +106,6 @@ MonoBehaviour:
     m_Bits: 64
   groundCheckSize: {x: 0.4, y: 0.1}
   maxHealth: 100
-  knockbackForce: 10
   knockbackDuration: 0.2
   playerSpriteRenderer: {fileID: 4653082698377534761}
 --- !u!61 &2082738595614601047
@@ -180,3 +180,24 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!95 &-920647401841779570
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8962749516033509532}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

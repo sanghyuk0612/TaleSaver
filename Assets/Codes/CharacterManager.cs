@@ -17,6 +17,8 @@ public class CharacterManager : MonoBehaviour
 
     // 현재 선택된 캐릭터의 스프라이트를 저장할 변수
     private Sprite characterSprite;
+    public RuntimeAnimatorController characterAnimator;  // 선택된 캐릭터 애니메이터
+
 
     [Header("Panel Info")]
     public GameObject characterInfoPanel;     // 캐릭터 정보 패널
@@ -191,11 +193,25 @@ public class CharacterManager : MonoBehaviour
 
         if (characterImage.sprite == null)
         {
-            Debug.LogError("Selected character sprite is missing!"); // 스프라이트가 null인 경우 오류 로그
+            Debug.LogError("Selected character sprite is null!"); // 스프라이트가 null인 경우 오류 로그
             return; // 스프라이트가 null인 경우 메서드 종료
         }
 
+        if (selectedCharacter.animatorController == null)
+        {
+            Debug.LogError("Selected character animator is null!"); // 스프라이트가 null인 경우 오류 로그
+            return; // 애니메이터가 null인 경우 메서드 종료
+        }
+
+        if (CharacterSelectionData.Instance != null)
+        {
+            CharacterSelectionData.Instance.selectedCharacterSprite = characterSprite;
+            CharacterSelectionData.Instance.selectedCharacterAnimator = characterAnimator;
+        }
+
+
         CharacterSelectionData.Instance.selectedCharacterSprite = characterImage.sprite;
+        CharacterSelectionData.Instance.selectedCharacterAnimator = selectedCharacter.animatorController;
         CharacterSelectionData.Instance.selectedCharacterData = selectedCharacter; // 선택된 캐릭터 데이터 저장
         SceneManager.LoadScene("GameScene");
     }

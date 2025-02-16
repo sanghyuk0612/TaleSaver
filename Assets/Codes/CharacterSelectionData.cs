@@ -8,6 +8,7 @@ public class CharacterSelectionData : MonoBehaviour
 
     public Sprite selectedCharacterSprite; // 선택된 캐릭터의 스프라이트
     public CharacterData selectedCharacterData; // 선택된 캐릭터의 데이터
+    public RuntimeAnimatorController selectedCharacterAnimator;  // 선택된 캐릭터 애니메이터
 
     private void Awake()
     {
@@ -41,6 +42,7 @@ public class CharacterSelectionData : MonoBehaviour
         SetDefaultCharacterSprite(characterManager);
     }
 
+
     public void SetDefaultCharacterSprite(CharacterManager characterManager)
     {
         if (characterManager.characters.Length > 0)
@@ -53,5 +55,6 @@ public class CharacterSelectionData : MonoBehaviour
             Debug.LogWarning("No characters available in CharacterManager!");
         }
     }
+
 }
 

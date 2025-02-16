@@ -13,13 +13,16 @@ MonoBehaviour:
   m_Name: Ariel
   m_EditorClassIdentifier: 
   characterName: "\uC5D0\uB9AC\uC5BC"
-  characterSprite: {fileID: -936303169, guid: aeab5ce1056564ed88ad496cdf7c9adc, type: 3}
+  characterSprite: {fileID: 2537882373423050008, guid: 6f5febe56d7878640b005a9e9bfd5f2b, type: 3}
+  animatorController: {fileID: 9100000, guid: 511da66ad9f62eb45aa0603487c32286, type: 2}
+  jumpAnimation: {fileID: 7400000, guid: abfe7737e91a18247a9b6689f9dae707, type: 2}
   level: 1
   description: "\uC124\uBA85"
   vitality: 0
   power: 0
   agility: 0
   luck: 0
+  maxHealth: 1
   skills:
   - {fileID: 0}
   - {fileID: 0}

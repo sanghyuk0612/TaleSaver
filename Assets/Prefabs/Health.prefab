@@ -253,7 +253,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthSlider: {fileID: 7393478940977863366}
-  offset: {x: 5, y: -110, z: 0}
+  offset: {x: 5, y: -20, z: 0}
 --- !u!1 &8647955143291682034
 GameObject:
   m_ObjectHideFlags: 0
