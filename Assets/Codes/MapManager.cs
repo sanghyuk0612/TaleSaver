@@ -195,6 +195,7 @@ public class MapManager : MonoBehaviour
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
         }
+        Destroy(mapSection);
     }
 
     for (int i = 0; i < 3; i++)
@@ -213,6 +214,8 @@ public class MapManager : MonoBehaviour
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
         }
+        availablePrefabs.RemoveAt(randomIndex);
+        Destroy(mapSection);
     }
     {
         GameObject mapPrefab = availablePrefabs[0];
@@ -228,6 +231,7 @@ public class MapManager : MonoBehaviour
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
         }
+        Destroy(mapSection);
     }
 
         //SpawnPortal();
