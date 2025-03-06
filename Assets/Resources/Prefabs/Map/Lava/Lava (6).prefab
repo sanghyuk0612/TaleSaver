@@ -769,9 +769,9 @@ GameObject:
   - component: {fileID: 2869905598000850131}
   - component: {fileID: 5201020848093153696}
   - component: {fileID: 1083846041184140661}
-  m_Layer: 7
+  m_Layer: 12
   m_Name: Trap
-  m_TagString: Enemy
+  m_TagString: Trap Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -989,7 +989,6 @@ GameObject:
   - component: {fileID: 1230042655769803072}
   - component: {fileID: 7744348899530334891}
   - component: {fileID: 7733879645497753628}
-  - component: {fileID: 7890138058054788604}
   m_Layer: 6
   m_Name: Lava (6)
   m_TagString: Ground
@@ -1722,39 +1721,3 @@ TilemapRenderer:
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
   m_MaskInteraction: 0
---- !u!19719996 &7890138058054788604
-TilemapCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8100569273215796691}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_MaximumTileChangeCount: 1000
-  m_ExtrusionFactor: 0
-  m_UseDelaunayMesh: 0

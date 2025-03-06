@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5450225901153892383}
   - component: {fileID: 2556100050022164844}
   m_Layer: 12
-  m_Name: Trap
+  m_Name: Trap Tile
   m_TagString: Trap Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

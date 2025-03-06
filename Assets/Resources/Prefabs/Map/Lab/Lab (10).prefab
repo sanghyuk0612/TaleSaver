@@ -1693,7 +1693,7 @@ GameObject:
   - component: {fileID: 3210353466119988089}
   - component: {fileID: 5665027194444561379}
   m_Layer: 12
-  m_Name: Trap
+  m_Name: Trap Tile
   m_TagString: Trap Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

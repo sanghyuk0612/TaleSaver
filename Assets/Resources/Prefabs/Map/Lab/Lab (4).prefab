@@ -601,7 +601,7 @@ GameObject:
   - component: {fileID: 3517912482058700920}
   m_Layer: 12
   m_Name: Trap
-  m_TagString: Trap
+  m_TagString: Trap Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -953,7 +953,7 @@ TilemapRenderer:
   m_MaxChunkCount: 16
   m_MaxFrameAge: 16
   m_SortOrder: 0
-  m_Mode: 0
+  m_Mode: 1
   m_DetectChunkCullingBounds: 0
   m_MaskInteraction: 0
 --- !u!19719996 &3517912482058700920

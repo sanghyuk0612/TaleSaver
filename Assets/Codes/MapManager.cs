@@ -46,7 +46,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =4;
+        location =5;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
@@ -216,6 +216,7 @@ public class MapManager : MonoBehaviour
         GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
         currentMapSections.Add(mapSection);
         Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        
         if (sourceTilemap != null)
         {
             BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
@@ -223,26 +224,24 @@ public class MapManager : MonoBehaviour
             // 타일맵 복사
             GameObject instance = Instantiate(mapPrefab);
             // 자식 타일맵을 찾는 로직을 추가할 수 있습니다.
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
             foreach (Transform child in instance.transform)
             {
                 if (child.GetComponent<Tilemap>())
                 {
-                    Debug.Log(child.tag);
+                    
                     if(child.tag=="Half Tile"){
                         Tilemap halfTile = child.GetComponent<Tilemap>();
                         CopyTilemapToTarget(halfTile, HalfTilemap,bounds,offset);
                     }
-
                     if(child.tag== "Trap Tile"){
-                        Debug.Log("트랩체크");
                         Tilemap TrapTile = child.GetComponent<Tilemap>();
-                        Debug.Log("이게 뭐지"+TrapTile);
                         CopyTilemapToTarget(TrapTile, TrapTilemap ,bounds,offset);
                     }
                 }
             }
 
-            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            
             Debug.Log("타일맵의 태그"+ mapSection.tag);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
@@ -279,6 +278,27 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnEntities();
         }
     }
+
+// ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
+void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
+{
+
+    bool test = false;
+    Debug.Log(source.name + "의 태그: " + source.tag);
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
+    {
+        if (!source.HasTile(pos)) {
+            continue;
+        }
+        test = true;
+        TileBase tile = source.GetTile(pos);
+        
+        target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
+    }
+    if(!test){
+        Debug.Log(source.name+"가 합쳐지지않음");
+    }
+}
 // ✅ **타일이 존재하는 실제 영역을 계산하는 함수**
 BoundsInt GetTileBounds(Tilemap tilemap)
 {
@@ -340,19 +360,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
     
 }
 
-// ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
-void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
-{
-    foreach (Vector3Int pos in bounds.allPositionsWithin)
-    {
-        if (!source.HasTile(pos)) {
-            continue;
-        }
-        TileBase tile = source.GetTile(pos);
-        
-        target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
-    }
-}
+
 // }
 // void CopyTilemapToTargetWithTag(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset, string tag)
 // {
