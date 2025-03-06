@@ -4,21 +4,22 @@ using System.Collections;
 public class PlayerController : MonoBehaviour, IDamageable
 {
     private Rigidbody2D rb;
-
+    private SpriteRenderer spriteRenderer;
+    
     [Header("Ground Check")]
     public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.4f, 0.1f);
-
+    
     [Header("Jump Settings")]
     private int remainingJumps;
     private bool hasJumped;
-
+    
     [Header("Dash Settings")]
     private bool canDash = true;
     private float dashCooldownTimer = 0f;
     private bool isDashing = false;
-
+    
     [Header("Platform Drop")]
     private Coroutine currentDashCoroutine;
     private Collider2D playerCollider;
@@ -51,15 +52,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float knockbackTimer = 0f;
 
     [Header("Sprite Render Settings")]
-    private SpriteRenderer spriteRenderer;
 
-    [Header("Animator Settings")]
-    private Animator playerAnimator;
-    string characterName;
-    string satyAnimName;
-    string jumpAnimName;
-    string runAnimName;
-    string dashAnimName;
+    public SpriteRenderer playerSpriteRenderer;  // 캐릭터의 SpriteRenderer
+
 
     void Start()
     {
@@ -79,36 +74,35 @@ public class PlayerController : MonoBehaviour, IDamageable
         rb.gravityScale = GameManager.Instance.playerGravityScale;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         rb.drag = 0f;
-
+        
         spriteRenderer = GetComponent<SpriteRenderer>();
         remainingJumps = maxJumpCount;
         playerCollider = GetComponent<Collider2D>();
         IsDead = false;
 
-        playerAnimator = GetComponent<Animator>();
-        ApplyCharacterAnimator();
-
         // GameManager에서 저장된 상태 복원
         GameManager.Instance.RestorePlayerState(this);
-
+        
         Debug.Log($"Player initialized with health: {currentHealth}");  // 디버그용
-
+        
         // CharacterSelectionData에서 선택된 캐릭터의 스프라이트를 가져와서 적용
         if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterSprite != null)
         {
-            spriteRenderer.sprite = CharacterSelectionData.Instance.selectedCharacterSprite;
+            playerSpriteRenderer.sprite = CharacterSelectionData.Instance.selectedCharacterSprite;
         }
         else
         {
             Debug.LogError("Selected character sprite is missing!");
         }
+        //// PlayerUI 프리팹을 찾아서 인스턴스화
+        //GameObject playerUI = Instantiate(GameManager.Instance.playerUIPrefab); // GameManager에서 PlayerUI 프리팹을 가져온다고 가정
+        //playerUI.GetComponent<PlayerUI>().SetPlayer(this); // PlayerUI에 플레이어를 설정
     }
-
 
     void FixedUpdate()
     {
         CheckGround();
-
+        
         // 넉백 중이면 플레이어 입력 무시
         if (isKnockedBack)
         {
@@ -138,25 +132,15 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Update()
     {
-        characterName = CharacterSelectionData.Instance.selectedCharacterData.animatorController.name;
-
-
         float moveInput = Input.GetAxisRaw("Horizontal");
         if (moveInput != 0)
         {
             spriteRenderer.flipX = moveInput < 0;
-            runAnimName = $"{characterName}_Run";
-            playerAnimator.Play(runAnimName);
-            playerAnimator.SetTrigger("Run");
         }
 
         // 점프 입력 처리
-        if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
+        if (!GameManager.Instance.IsPlayerInRange&&Input.GetButtonDown("Jump"))
         {
-            jumpAnimName = $"{characterName}_Jump";
-            playerAnimator.Play(jumpAnimName);
-            playerAnimator.SetTrigger("Jump");
-
             // 땅에 있을 때 점프
             if (IsGrounded)
             {
@@ -197,9 +181,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 대시 실행
         if (Input.GetKeyDown(KeyCode.Q) && canDash)
         {
-            dashAnimName = $"{characterName}_Dash";
-            playerAnimator.Play(dashAnimName);
-            playerAnimator.SetTrigger("Dash");
             Dash();
         }
 
@@ -207,11 +188,11 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (Input.GetAxisRaw("Vertical") < 0 && IsGrounded && canDropDown)
         {
             // 감지 위를 더 크게 설정하고 플레이어 발 위치에서 체크
-            Vector2 feetPosition = new Vector2(transform.position.x,
+            Vector2 feetPosition = new Vector2(transform.position.x, 
                 transform.position.y - GetComponent<Collider2D>().bounds.extents.y);
-
+            
             Collider2D[] colliders = Physics2D.OverlapCircleAll(feetPosition, 0.3f, groundLayer);
-
+            
             foreach (Collider2D col in colliders)
             {
                 if (col.CompareTag("OneWayPlatform"))
@@ -238,7 +219,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             0f,                     // 회전 각도
             Vector2.down,           // 방향
             groundCheckDistance,    // 거리
-            groundLayer
+            groundLayer            
         );
 
         bool wasGrounded = IsGrounded;  // 이전 상태 저장
@@ -249,9 +230,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             remainingJumps = maxJumpCount; // 점프 횟수 초기화
             hasJumped = false; // 점프 상태 초기화
-            satyAnimName = $"{characterName}_Stay";
-            playerAnimator.Play(satyAnimName);
-            playerAnimator.SetTrigger("Stay");
         }
 
         // 상태 변경 시 로그 출력
@@ -269,11 +247,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         // 현재 바라보는 방향 확인 (spriteRenderer.flipX 기준)
         float dashDirection = spriteRenderer.flipX ? -1f : 1f;
-
+        
         // 현재 속도를 초기화하고 대시 방향으로 힘을 가함
         rb.velocity = Vector2.zero;
         rb.AddForce(new Vector2(dashDirection * dashForce, 0f), ForceMode2D.Impulse);
-        isDashing = true;
 
         // 대시 코루틴 시작
         StartCoroutine(DashCoroutine());
@@ -287,10 +264,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     private IEnumerator DashCoroutine()
     {
         isDashing = true;
-
+        
         // 대시 지속 시간
         yield return new WaitForSeconds(0.35f);
-
+        
         isDashing = false;
     }
 
@@ -313,25 +290,25 @@ public class PlayerController : MonoBehaviour, IDamageable
             // BoxCast 시작 위치 계산
             Vector2 boxCastOrigin = new Vector2(
                 transform.position.x,
-                transform.position.y - (GetComponent<Collider2D>().bounds.extents.y - groundCheckSize.y / 2)
+                transform.position.y - (GetComponent<Collider2D>().bounds.extents.y - groundCheckSize.y/2)
             );
 
             // BoxCast 영역 시각
             Gizmos.color = Color.green;
-
+            
             // 시작 위치의 박스
             Gizmos.DrawWireCube(boxCastOrigin, groundCheckSize);
-
+            
             // 끝 위치의 박스
             Vector2 endPosition = boxCastOrigin + Vector2.down * groundCheckDistance;
             Gizmos.DrawWireCube(endPosition, groundCheckSize);
-
+            
             // BoxCast 경로
-            Vector2 leftStart = boxCastOrigin + new Vector2(-groundCheckSize.x / 2, 0);
+            Vector2 leftStart = boxCastOrigin + new Vector2(-groundCheckSize.x/2, 0);
             Vector2 leftEnd = leftStart + Vector2.down * groundCheckDistance;
-            Vector2 rightStart = boxCastOrigin + new Vector2(groundCheckSize.x / 2, 0);
+            Vector2 rightStart = boxCastOrigin + new Vector2(groundCheckSize.x/2, 0);
             Vector2 rightEnd = rightStart + Vector2.down * groundCheckDistance;
-
+            
             Gizmos.DrawLine(leftStart, leftEnd);
             Gizmos.DrawLine(rightStart, rightEnd);
         }
@@ -339,9 +316,9 @@ public class PlayerController : MonoBehaviour, IDamageable
         // OverlapCircle 범위 시각화
         if (GetComponent<Collider2D>() != null)
         {
-            Vector2 feetPosition = new Vector2(transform.position.x,
+            Vector2 feetPosition = new Vector2(transform.position.x, 
                 transform.position.y - GetComponent<Collider2D>().bounds.extents.y);
-
+            
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(feetPosition, 0.3f);
         }
@@ -359,34 +336,28 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
-    private void OnEnable()
-    {
-        ApplyCharacterAnimator();
-    }
-
-
     private IEnumerator DisableCollisionCoroutine(Collider2D platformCollider)
     {
         Physics2D.IgnoreCollision(playerCollider, platformCollider, true);
         rb.velocity = new Vector2(rb.velocity.x, -2f);
-
+        
         // 다른 플랫폼에 착지하거나 0.5초가 지날 때까지 대기
         float timer = 0;
         bool hasLanded = false;
-
+        
         while (timer < 0.5f && !hasLanded)
         {
             timer += Time.deltaTime;
-
+            
             // 새로운 플랫폼에 착지했는지 확인
             if (IsGrounded && !Physics2D.GetIgnoreCollision(playerCollider, platformCollider))
             {
                 hasLanded = true;
             }
-
+            
             yield return null;
         }
-
+        
         Physics2D.IgnoreCollision(playerCollider, platformCollider, false);
         canDropDown = true;  // 아래키 입력 다시 활성화
         Debug.Log("플랫폼 통과 완료 - 아래키 입력 가능");
@@ -427,7 +398,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             ApplyKnockback(knockbackDirection, knockbackForce);
         }
-
+        
         if (currentHealth <= 0)
         {
             Die();
@@ -438,7 +409,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         isKnockedBack = true;
         knockbackTimer = knockbackDuration;
-
+        
         rb.velocity = Vector2.zero;
         rb.AddForce(direction.normalized * force, ForceMode2D.Impulse);
     }
@@ -457,11 +428,10 @@ public class PlayerController : MonoBehaviour, IDamageable
                 projectile.SetActive(false);
             }
         }
-
+        
         // 선택사항: 플레이어 캐릭터 비활성화 또는 사망 애니메이션 재생
         // gameObject.SetActive(false);
-        // playerAnimator.SetTrigger("Death");
-
+        
         // 선택사항: 게임오버 UI 표시
         // GameManager.Instance.ShowGameOver();
     }
@@ -484,21 +454,5 @@ public class PlayerController : MonoBehaviour, IDamageable
         currentHealth = newHealth;
         Debug.Log($"Player health updated to: {currentHealth}");
     }
-
-    private void ApplyCharacterAnimator()
-    {
-        if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterAnimator != null)
-        {
-            CharacterData selectedCharacter = CharacterSelectionData.Instance.selectedCharacterData;
-
-            if (selectedCharacter != null)
-            {
-                playerAnimator.runtimeAnimatorController = selectedCharacter.animatorController; // 애니메이터 컨트롤러 할당
-
-                // 애니메이션 상태를 전환
-                playerAnimator.Play($"{selectedCharacter.characterName}_Idle");
-            }
-        }
-    }
-
 }
+

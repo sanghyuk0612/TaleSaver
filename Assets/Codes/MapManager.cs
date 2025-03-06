@@ -13,6 +13,7 @@ public class MapManager : MonoBehaviour
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
     private List<GameObject> droppedItems = new List<GameObject>();
+    private float right;
     int location;
 
     private void Awake()
@@ -42,7 +43,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =0;
+        location =3;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
@@ -230,6 +231,7 @@ public class MapManager : MonoBehaviour
             CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
+            right = offsetX;
         }
         Destroy(mapSection);
     }
@@ -331,7 +333,7 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
             float groundY = lastGround.transform.position.y;
             
             Vector3 portalPosition = new Vector3(
-                groundRight - 2f,  // 오른쪽 끝에서 2칸 왼쪽
+                right - 2f,  // 오른쪽 끝에서 2칸 왼쪽
                 groundY + 1.5f,    // Ground 위로 1.5칸
                 0
             );
