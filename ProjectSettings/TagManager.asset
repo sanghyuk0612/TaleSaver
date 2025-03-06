@@ -13,6 +13,11 @@ TagManager:
   - Boss
   - Item
   - Half Tile
+  - Point
+  - SpawnPoint
+  - HalfTile
+  - Trap
+  - Trap Tile
   layers:
   - Default
   - TransparentFX
@@ -26,7 +31,7 @@ TagManager:
   - EnemyProjectile
   - DroppedItem
   - Half Tile
-  - 
+  - Trap Tile
   - 
   - 
   - 

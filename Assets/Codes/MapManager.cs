@@ -8,6 +8,8 @@ public class MapManager : MonoBehaviour
     public static MapManager Instance { get; private set; }
     
     public Tilemap targetTilemap;
+    public Tilemap TrapTilemap;
+    public Tilemap HalfTilemap;
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject groundPrefab;
     [SerializeField] private GameObject playerPrefab;
@@ -34,7 +36,7 @@ public class MapManager : MonoBehaviour
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
 
-        LoadMapPrefabs();
+        
         GenerateStage();
         SpawnInitialEntities();
         
@@ -44,7 +46,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =6;
+        location =4;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
@@ -78,8 +80,11 @@ public class MapManager : MonoBehaviour
         if (!prefabPath.EndsWith("(wall)")) 
         {
             filteredPrefabs.Add(prefab);
+            // 프리팹을 인스턴스화하여 게임 오브젝트를 생성
+            
         }
         else{
+            
             wallPrefab =prefab;
         }
     }
@@ -175,6 +180,7 @@ public class MapManager : MonoBehaviour
         {
             targetTilemap.ClearAllTiles();
         }
+        LoadMapPrefabs();
 
         if (mapPrefabs.Count < 3)
         {
@@ -215,10 +221,32 @@ public class MapManager : MonoBehaviour
             BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
             Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
             // 타일맵 복사
+            GameObject instance = Instantiate(mapPrefab);
+            // 자식 타일맵을 찾는 로직을 추가할 수 있습니다.
+            foreach (Transform child in instance.transform)
+            {
+                if (child.GetComponent<Tilemap>())
+                {
+                    Debug.Log(child.tag);
+                    if(child.tag=="Half Tile"){
+                        Tilemap halfTile = child.GetComponent<Tilemap>();
+                        CopyTilemapToTarget(halfTile, HalfTilemap,bounds,offset);
+                    }
+
+                    if(child.tag== "Trap Tile"){
+                        Debug.Log("트랩체크");
+                        Tilemap TrapTile = child.GetComponent<Tilemap>();
+                        Debug.Log("이게 뭐지"+TrapTile);
+                        CopyTilemapToTarget(TrapTile, TrapTilemap ,bounds,offset);
+                    }
+                }
+            }
+
             CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
             Debug.Log("타일맵의 태그"+ mapSection.tag);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
+            Destroy(instance);
         }
         availablePrefabs.RemoveAt(randomIndex);
         Destroy(mapSection);
@@ -317,46 +345,50 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
 {
     foreach (Vector3Int pos in bounds.allPositionsWithin)
     {
-        if (!source.HasTile(pos)) continue;
+        if (!source.HasTile(pos)) {
+            continue;
+        }
         TileBase tile = source.GetTile(pos);
+        
         target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
     }
 }
-void CopyTilemapToTargetWithTag(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset, string tag)
-{
-    foreach (Vector3Int pos in bounds.allPositionsWithin)
-    {
-        if (!source.HasTile(pos)) continue;
-        TileBase tile = source.GetTile(pos);
+// }
+// void CopyTilemapToTargetWithTag(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset, string tag)
+// {
+//     foreach (Vector3Int pos in bounds.allPositionsWithin)
+//     {
+//         if (!source.HasTile(pos)) continue;
+//         TileBase tile = source.GetTile(pos);
 
-        // 태그에 따른 추가 로직
-        if (tag == "TargetHalfGround")
-        {
-            // 예: HalfGround는 Y 위치를 조정하여 반높이로 처리
-            Vector3Int adjustedPos = pos + offset - bounds.min;
-            adjustedPos.y -= 1; // 반높이로 낮춤
-            target.SetTile(adjustedPos, tile);
-        }
-        else if (tag == "TargetSpawnPoint")
-        {
-            // 예: SpawnPoint는 특정 위치에만 적용
-            Vector3Int adjustedPos = pos + offset - bounds.min;
-            if (adjustedPos.x == offset.x + bounds.size.x / 2) // 중앙에만 배치
-                target.SetTile(adjustedPos, tile);
-        }
-        else if (tag == "TargetSpike")
-        {
-            // 예: Spike는 위험 지역으로 표시 (커스텀 타일 사용 가능)
-            Vector3Int adjustedPos = pos + offset - bounds.min;
-            target.SetTile(adjustedPos, tile); // 스파이크 타일로 대체 가능
-        }
-        else
-        {
-            // 기본 처리 (Ground, Grid 등)
-            target.SetTile(pos + offset - bounds.min, tile);
-        }
-    }
-}
+//         // 태그에 따른 추가 로직
+//         if (tag == "TargetHalfGround")
+//         {
+//             // 예: HalfGround는 Y 위치를 조정하여 반높이로 처리
+//             Vector3Int adjustedPos = pos + offset - bounds.min;
+//             adjustedPos.y -= 1; // 반높이로 낮춤
+//             target.SetTile(adjustedPos, tile);
+//         }
+//         else if (tag == "TargetSpawnPoint")
+//         {
+//             // 예: SpawnPoint는 특정 위치에만 적용
+//             Vector3Int adjustedPos = pos + offset - bounds.min;
+//             if (adjustedPos.x == offset.x + bounds.size.x / 2) // 중앙에만 배치
+//                 target.SetTile(adjustedPos, tile);
+//         }
+//         else if (tag == "TargetSpike")
+//         {
+//             // 예: Spike는 위험 지역으로 표시 (커스텀 타일 사용 가능)
+//             Vector3Int adjustedPos = pos + offset - bounds.min;
+//             target.SetTile(adjustedPos, tile); // 스파이크 타일로 대체 가능
+//         }
+//         else
+//         {
+//             // 기본 처리 (Ground, Grid 등)
+//             target.SetTile(pos + offset - bounds.min, tile);
+//         }
+//     }
+// }
     public void SpawnPortal()
     {
         if (stagePortalPrefab == null)
@@ -404,7 +436,7 @@ void CopyTilemapToTargetWithTag(Tilemap source, Tilemap target, BoundsInt bounds
         // 플레이어 소환
         if (playerPrefab != null)
         {
-            Vector3 playerSpawnPosition = new Vector3(2f, 2f, 0f);
+            Vector3 playerSpawnPosition = new Vector3(2f, 4f, 0f);
             GameObject player = Instantiate(playerPrefab, playerSpawnPosition, Quaternion.identity);
             
             // 메인 카메라 찾기
