@@ -44,7 +44,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =3;
+        location =6;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
@@ -65,6 +65,9 @@ public class MapManager : MonoBehaviour
             break;
             case 5:
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lava");
+            break;
+            case 6:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Test");
             break;
         }
         foreach (var prefab in loadedPrefabs)
@@ -213,6 +216,7 @@ public class MapManager : MonoBehaviour
             Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
             // 타일맵 복사
             CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            Debug.Log("타일맵의 태그"+ mapSection.tag);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
         }
@@ -230,7 +234,7 @@ public class MapManager : MonoBehaviour
             Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
             // 타일맵 복사
             CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
-            Debug.Log("타일맵의 태그"+ mapSection.tag);
+            
             //CopyTilemapToTargetWithTag(sourceTilemap, targetTilemap, bounds, offset, mapSection.tag);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
