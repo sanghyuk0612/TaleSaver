@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class MapManager : MonoBehaviour
 {
@@ -229,6 +230,8 @@ public class MapManager : MonoBehaviour
             Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
             // 타일맵 복사
             CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            Debug.Log("타일맵의 태그"+ mapSection.tag);
+            //CopyTilemapToTargetWithTag(sourceTilemap, targetTilemap, bounds, offset, mapSection.tag);
             // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
             offsetX += bounds.size.x;  
             right = offsetX;
@@ -313,6 +316,41 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
         if (!source.HasTile(pos)) continue;
         TileBase tile = source.GetTile(pos);
         target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
+    }
+}
+void CopyTilemapToTargetWithTag(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset, string tag)
+{
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
+    {
+        if (!source.HasTile(pos)) continue;
+        TileBase tile = source.GetTile(pos);
+
+        // 태그에 따른 추가 로직
+        if (tag == "TargetHalfGround")
+        {
+            // 예: HalfGround는 Y 위치를 조정하여 반높이로 처리
+            Vector3Int adjustedPos = pos + offset - bounds.min;
+            adjustedPos.y -= 1; // 반높이로 낮춤
+            target.SetTile(adjustedPos, tile);
+        }
+        else if (tag == "TargetSpawnPoint")
+        {
+            // 예: SpawnPoint는 특정 위치에만 적용
+            Vector3Int adjustedPos = pos + offset - bounds.min;
+            if (adjustedPos.x == offset.x + bounds.size.x / 2) // 중앙에만 배치
+                target.SetTile(adjustedPos, tile);
+        }
+        else if (tag == "TargetSpike")
+        {
+            // 예: Spike는 위험 지역으로 표시 (커스텀 타일 사용 가능)
+            Vector3Int adjustedPos = pos + offset - bounds.min;
+            target.SetTile(adjustedPos, tile); // 스파이크 타일로 대체 가능
+        }
+        else
+        {
+            // 기본 처리 (Ground, Grid 등)
+            target.SetTile(pos + offset - bounds.min, tile);
+        }
     }
 }
     public void SpawnPortal()
