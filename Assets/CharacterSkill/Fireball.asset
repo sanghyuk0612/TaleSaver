@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fireball
   m_EditorClassIdentifier: 
   skillName: Fireball
-  skillDamage: 20
+  skillDamage: 100
   skillCooldown: 10
   effectRadius: 20
   effectType: 0
