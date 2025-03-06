@@ -32,6 +32,7 @@ public class MeleeEnemy : MonoBehaviour
     public float baseHealth = 100f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
+    public float currentHealth; // 현재 체력
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
@@ -52,6 +53,8 @@ public class MeleeEnemy : MonoBehaviour
         // 체력과 공격력 초기화
         float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
         calculatedHealth = baseHealth * healthMultiplierValue;
+        currentHealth = calculatedHealth;
+        Debug.Log($"MeleeEnemy spawned with current health: {currentHealth}");
 
         attackDamage = Mathf.RoundToInt(baseDamage * damageMultiplier.GetDamageMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter));
 
@@ -180,7 +183,7 @@ public class MeleeEnemy : MonoBehaviour
         if (itemPrefab == null)
         {
             Debug.LogError("Item prefab is not assigned.");
-            return; // itemPrefab이 null이면 �서드 종료
+            return; // itemPrefab이 null이면 메서드 종료
         }
 
         string itemName = inventoryManager.GetItemNameById(0);
@@ -242,5 +245,24 @@ public class MeleeEnemy : MonoBehaviour
                 }
             }
         }
+    }
+
+    // 체력을 변경하는 메서드 예시
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage; // 데미지를 받아 현재 체력 감소
+        Debug.Log($"MeleeEnemy took damage: {damage}. Current health: {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die(); // 체력이 0 이하가 되면 사망 처리
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("MeleeEnemy died.");
+        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
+        gameObject.SetActive(false);
     }
 }

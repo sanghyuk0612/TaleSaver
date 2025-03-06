@@ -21,8 +21,7 @@ public class RangedEnemy : MonoBehaviour
     public float baseHealth = 80f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth; // 계산된 체력
-    
-    
+    public float currentHealth; // 현재 체력
 
     private float nextAttackTime;
     private Rigidbody2D rb;
@@ -46,6 +45,7 @@ public class RangedEnemy : MonoBehaviour
         // 체력과 공격력 초기화
         float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
         calculatedHealth = baseHealth * healthMultiplierValue;
+        currentHealth = calculatedHealth;
 
         attackDamage = Mathf.RoundToInt(baseDamage * damageMultiplier.GetDamageMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter));
 
@@ -92,6 +92,8 @@ public class RangedEnemy : MonoBehaviour
         firePoint = firePointObj.transform;
         firePoint.SetParent(transform);
         firePoint.localPosition = new Vector3(0f, 0f, 0f); // 발사 위치 고정
+
+        Debug.Log($"RangedEnemy spawned with current health: {currentHealth}");
     }
 
     // 새로 스폰되는 Enemy들과도 충돌을 무시하기 위한 트리거 체크
@@ -202,4 +204,23 @@ public class RangedEnemy : MonoBehaviour
 
     // 현재 플레이어가 공격 범위 안에 있는지 확인하는 프로퍼티
     public bool IsPlayerInRange => isPlayerInRange;
+
+    // 체력을 변경하는 메서드 예시
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage; // 데미지를 받아 현재 체력 감소
+        Debug.Log($"RangedEnemy took damage: {damage}. Current health: {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die(); // 체력이 0 이하가 되면 사망 처리
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("RangedEnemy died.");
+        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
+        gameObject.SetActive(false);
+    }
 }
