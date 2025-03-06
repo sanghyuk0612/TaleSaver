@@ -55,11 +55,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     [Header("Animator Settings")]
     private Animator playerAnimator;
-    string characterName;
-    string satyAnimName;
-    string jumpAnimName;
-    string runAnimName;
-    string dashAnimName;
 
     void Start()
     {
@@ -101,6 +96,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         else
         {
             Debug.LogError("Selected character sprite is missing!");
+
         }
     }
 
@@ -138,23 +134,23 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Update()
     {
-        characterName = CharacterSelectionData.Instance.selectedCharacterData.animatorController.name;
-
-
         float moveInput = Input.GetAxisRaw("Horizontal");
         if (moveInput != 0)
         {
             spriteRenderer.flipX = moveInput < 0;
-            runAnimName = $"{characterName}_Run";
-            playerAnimator.Play(runAnimName);
-            playerAnimator.SetTrigger("Run");
+            //playerAnimator.SetTrigger("Run");
+            playerAnimator.SetBool("IsRunning", true);
         }
+        else
+        {
+            //playerAnimator.SetTrigger("Stay");
+            playerAnimator.SetBool("IsRunning", false);
+        }
+
 
         // 점프 입력 처리
         if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
         {
-            jumpAnimName = $"{characterName}_Jump";
-            playerAnimator.Play(jumpAnimName);
             playerAnimator.SetTrigger("Jump");
 
             // 땅에 있을 때 점프
@@ -197,8 +193,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 대시 실행
         if (Input.GetKeyDown(KeyCode.Q) && canDash)
         {
-            dashAnimName = $"{characterName}_Dash";
-            playerAnimator.Play(dashAnimName);
             playerAnimator.SetTrigger("Dash");
             Dash();
         }
@@ -247,11 +241,9 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 땅에 착지했을 때 점프 횟수 초기화
         if (!wasGrounded && IsGrounded)
         {
+            playerAnimator.SetTrigger("Stay");
             remainingJumps = maxJumpCount; // 점프 횟수 초기화
             hasJumped = false; // 점프 상태 초기화
-            satyAnimName = $"{characterName}_Stay";
-            playerAnimator.Play(satyAnimName);
-            playerAnimator.SetTrigger("Stay");
         }
 
         // 상태 변경 시 로그 출력
@@ -267,6 +259,8 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Dash()
     {
+        playerAnimator.SetTrigger("Dash");
+
         // 현재 바라보는 방향 확인 (spriteRenderer.flipX 기준)
         float dashDirection = spriteRenderer.flipX ? -1f : 1f;
 
@@ -460,10 +454,10 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         // 선택사항: 플레이어 캐릭터 비활성화 또는 사망 애니메이션 재생
         // gameObject.SetActive(false);
-        // playerAnimator.SetTrigger("Death");
+        playerAnimator.SetTrigger("Death");
 
         // 선택사항: 게임오버 UI 표시
-        // GameManager.Instance.ShowGameOver();
+        //GameManager.Instance.ShowGameOver();
     }
 
     public void RestoreHealth(int health) //체력 회복하는 함수 아님. 데이터에서 플레이어의 체력 불러오는 함수
@@ -496,8 +490,16 @@ public class PlayerController : MonoBehaviour, IDamageable
                 playerAnimator.runtimeAnimatorController = selectedCharacter.animatorController; // 애니메이터 컨트롤러 할당
 
                 // 애니메이션 상태를 전환
-                playerAnimator.Play($"{selectedCharacter.characterName}_Idle");
+                playerAnimator.SetTrigger("Stay");
             }
+            else
+            {
+                Debug.Log("Selected Character is null");
+            }
+        }
+        else
+        {
+            Debug.Log("Selected Character Data is null");
         }
     }
 
