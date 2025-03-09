@@ -234,10 +234,11 @@ public class MapManager : MonoBehaviour
                         Tilemap halfTile = child.GetComponent<Tilemap>();
                         CopyTilemapToTarget(halfTile, HalfTilemap,bounds,offset);
                     }
-                    if(child.tag== "Trap Tile"){
+                    if (child.tag == "Trap Tile"){   
                         Tilemap TrapTile = child.GetComponent<Tilemap>();
-                        CopyTilemapToTarget(TrapTile, TrapTilemap ,bounds,offset);
-                    }
+                        CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
+                        }
+
                 }
             }
 
@@ -298,6 +299,9 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
     if(!test){
         Debug.Log(source.name+"가 합쳐지지않음");
     }
+}
+BoundsInt GetTrapBounds(Tilemap tilemap){
+    return tilemap.cellBounds; // 최적화된 범위 반환
 }
 // ✅ **타일이 존재하는 실제 영역을 계산하는 함수**
 BoundsInt GetTileBounds(Tilemap tilemap)
