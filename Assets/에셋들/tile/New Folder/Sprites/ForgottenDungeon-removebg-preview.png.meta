@@ -387,11 +387,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 50
-        y: 130
+        y: 136
         width: 14
-        height: 14
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        height: 8
+      alignment: 2
+      pivot: {x: 0.5, y: 1}
       border: {x: 0, y: 0, z: 6, w: 0}
       outline: []
       physicsShape:
@@ -1276,12 +1276,12 @@ TextureImporter:
       name: ForgottenDungeon-removebg-preview_55
       rect:
         serializedVersion: 2
-        x: 113
-        y: 65
-        width: 14
-        height: 14
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 114
+        y: 69
+        width: 11
+        height: 11
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape:
