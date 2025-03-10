@@ -15,8 +15,6 @@ TagManager:
   - Half Tile
   - Point
   - SpawnPoint
-  - HalfTile
-  - Trap
   - Trap Tile
   layers:
   - Default

@@ -46,7 +46,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =3;
+        location =4;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
@@ -239,6 +239,7 @@ public class MapManager : MonoBehaviour
                         CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
                         }
                     if(child.tag == "SpawnPoint"){//스폰포인트
+                        Debug.Log("스폰포인트");
 
                     }
 
@@ -274,7 +275,7 @@ public class MapManager : MonoBehaviour
         Destroy(mapSection);
     }
 
-        //SpawnPortal();
+        SpawnPortal();
 
         // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
         if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
@@ -367,43 +368,6 @@ BoundsInt GetTileBounds(Tilemap tilemap)
     
 }
 
-
-// }
-// void CopyTilemapToTargetWithTag(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset, string tag)
-// {
-//     foreach (Vector3Int pos in bounds.allPositionsWithin)
-//     {
-//         if (!source.HasTile(pos)) continue;
-//         TileBase tile = source.GetTile(pos);
-
-//         // 태그에 따른 추가 로직
-//         if (tag == "TargetHalfGround")
-//         {
-//             // 예: HalfGround는 Y 위치를 조정하여 반높이로 처리
-//             Vector3Int adjustedPos = pos + offset - bounds.min;
-//             adjustedPos.y -= 1; // 반높이로 낮춤
-//             target.SetTile(adjustedPos, tile);
-//         }
-//         else if (tag == "TargetSpawnPoint")
-//         {
-//             // 예: SpawnPoint는 특정 위치에만 적용
-//             Vector3Int adjustedPos = pos + offset - bounds.min;
-//             if (adjustedPos.x == offset.x + bounds.size.x / 2) // 중앙에만 배치
-//                 target.SetTile(adjustedPos, tile);
-//         }
-//         else if (tag == "TargetSpike")
-//         {
-//             // 예: Spike는 위험 지역으로 표시 (커스텀 타일 사용 가능)
-//             Vector3Int adjustedPos = pos + offset - bounds.min;
-//             target.SetTile(adjustedPos, tile); // 스파이크 타일로 대체 가능
-//         }
-//         else
-//         {
-//             // 기본 처리 (Ground, Grid 등)
-//             target.SetTile(pos + offset - bounds.min, tile);
-//         }
-//     }
-// }
     public void SpawnPortal()
     {
         if (stagePortalPrefab == null)
@@ -423,7 +387,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
             
             Vector3 portalPosition = new Vector3(
                 right - 2f,  // 오른쪽 끝에서 2칸 왼쪽
-                groundY + 1.5f,    // Ground 위로 1.5칸
+                groundY + 2.5f,    // Ground 위로 2.5칸
                 0
             );
             
