@@ -46,29 +46,29 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =5;
+        location =3;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch(location){
-            case 0:
+            case 0:  //동굴
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
             break;
-            case 1:
+            case 1: //사막
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Desert");
             break;
-            case 2:
+            case 2: //숲
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Forest");
             break;
-            case 3:
+            case 3: //얼음
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Ice");
             break;
-            case 4:
+            case 4: //연구실
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lab");
             break;
-            case 5:
+            case 5: //용암
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lava");
             break;
-            case 6:
+            case 6: //테스트
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Test");
             break;
         }
@@ -238,6 +238,9 @@ public class MapManager : MonoBehaviour
                         Tilemap TrapTile = child.GetComponent<Tilemap>();
                         CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
                         }
+                    if(child.tag == "SpawnPoint"){//스폰포인트
+
+                    }
 
                 }
             }
