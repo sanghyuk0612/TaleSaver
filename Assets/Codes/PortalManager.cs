@@ -34,9 +34,10 @@ public class PortalManager : MonoBehaviour
     public void killEnemy(int i){
         killNumber+=i;
         enemyNumber-=i;
-        if(killNumber>=10){
+        if(killNumber>=2){
             MapManager.Instance.SpawnPortal();
         }
+        enemyText.text = enemyNumber.ToString();
     }
 
     // Update is called once per frame
