@@ -13,6 +13,8 @@ public class MapManager : MonoBehaviour
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
     private List<GameObject> droppedItems = new List<GameObject>();
+    private float right;
+    int location;
 
     private void Awake()
     {
@@ -36,12 +38,51 @@ public class MapManager : MonoBehaviour
         SpawnInitialEntities();
         
     }
+    GameObject wallPrefab;
 
     private void LoadMapPrefabs()
     {
-        GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map");
+        GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
+        location =3;
+        List<GameObject> filteredPrefabs = new List<GameObject>();
+
+        switch(location){
+            case 0:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
+            break;
+            case 1:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Desert");
+            break;
+            case 2:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Forest");
+            break;
+            case 3:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Ice");
+            break;
+            case 4:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lab");
+            break;
+            case 5:
+            loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Lava");
+            break;
+        }
+        foreach (var prefab in loadedPrefabs)
+    {
+        string prefabPath = prefab.name; // Resources.LoadAll은 폴더 정보를 주지 않음 (이름만 가져옴)
+        
+        // Cave 관련 프리팹을 제외하는 조건 (예: "Cave_"로 시작하는 이름 제외)
+        if (!prefabPath.EndsWith("(wall)")) 
+        {
+            filteredPrefabs.Add(prefab);
+        }
+        else{
+            wallPrefab =prefab;
+        }
+    }
+        
         mapPrefabs.Clear();
-        mapPrefabs.AddRange(loadedPrefabs);
+        mapPrefabs.Add(wallPrefab);
+        mapPrefabs.AddRange(filteredPrefabs);
         
         if (mapPrefabs.Count == 0)
         {
@@ -50,6 +91,7 @@ public class MapManager : MonoBehaviour
         else
         {
             Debug.Log($"Successfully loaded {mapPrefabs.Count} map prefabs");
+            Debug.Log("불러온 맵의 개수 " + mapPrefabs.Count);
         }
     }
 
@@ -111,11 +153,11 @@ public class MapManager : MonoBehaviour
         }
         currentMapSections.Clear();
 
-        // 기존 Ground 오브젝트들 제거
-        foreach (var ground in GameObject.FindGameObjectsWithTag("Ground"))
-        {
-            Destroy(ground);
-        }
+        // // 기존 Ground 오브젝트들 제거
+        // foreach (var ground in GameObject.FindGameObjectsWithTag("Ground"))
+        // {
+        //     Destroy(ground);
+        // }
 
         // 기존 포탈 제거
         GameObject[] portals = GameObject.FindGameObjectsWithTag("Portal");  // Portal 태그가 있다고 가정
@@ -135,38 +177,64 @@ public class MapManager : MonoBehaviour
             Debug.LogError("Not enough map prefabs!");
             return;
         }
-
+        
         // 3개의 랜덤한 맵 선택 및 생성
         List<GameObject> availablePrefabs = new List<GameObject>(mapPrefabs);
         float offsetX = 0;
-
-        for (int i = 0; i < 3; i++)
+        
+    {
+        GameObject mapPrefab = availablePrefabs[0];
+        GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        currentMapSections.Add(mapSection);
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        if (sourceTilemap != null)
         {
-            int randomIndex = Random.Range(0, availablePrefabs.Count);
-            GameObject mapPrefab = availablePrefabs[randomIndex];
-            
-            GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
-            currentMapSections.Add(mapSection);
-
-            Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
-            if (sourceTilemap != null)
-            {
-                BoundsInt bounds = sourceTilemap.cellBounds;
-                Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
-                
-                // 타일맵 복사
-                CopyTilemapToTarget(sourceTilemap, offset);
-                
-                // 동일한 offset으로 Ground 생성
-                SpawnGround(offset, bounds.size.x);
-                
-                // 다음 맵을 위한 오프셋 계산 (간격 제거)
-                offsetX += bounds.size.x;  // '+2' 제거
-            }
-            
-            Destroy(mapSection);
-            availablePrefabs.RemoveAt(randomIndex);
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+            // 타일맵 복사
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;  
         }
+        Destroy(mapSection);
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        int randomIndex = Random.Range(1, availablePrefabs.Count);
+        GameObject mapPrefab = availablePrefabs[randomIndex];
+        GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        currentMapSections.Add(mapSection);
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        if (sourceTilemap != null)
+        {
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+            // 타일맵 복사
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;  
+        }
+        availablePrefabs.RemoveAt(randomIndex);
+        Destroy(mapSection);
+    }
+    {
+        GameObject mapPrefab = availablePrefabs[0];
+        GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
+        currentMapSections.Add(mapSection);
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        if (sourceTilemap != null)
+        {
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+            // 타일맵 복사
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;  
+            right = offsetX;
+        }
+        Destroy(mapSection);
+    }
 
         //SpawnPortal();
 
@@ -176,7 +244,26 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnEntities();
         }
     }
+// ✅ **타일이 존재하는 실제 영역을 계산하는 함수**
+BoundsInt GetTileBounds(Tilemap tilemap)
+{
+    BoundsInt bounds = tilemap.cellBounds;
+    int minX = bounds.xMax, minY = bounds.yMax;
+    int maxX = bounds.xMin, maxY = bounds.yMin;
 
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
+    {
+        if (tilemap.HasTile(pos))
+        {
+            minX = Mathf.Min(minX, pos.x);
+            minY = Mathf.Min(minY, pos.y);
+            maxX = Mathf.Max(maxX, pos.x);
+            maxY = Mathf.Max(maxY, pos.y);
+        }
+    }
+
+    return new BoundsInt(minX, minY, 0, maxX - minX + 1, maxY - minY + 1, 1);
+}
     private void SpawnGround(Vector3Int offset, int width)
     {
         if (groundPrefab == null)
@@ -213,28 +300,21 @@ public class MapManager : MonoBehaviour
 
         Debug.Log($"Created ground at position: {groundPosition}, width: {width}, offset: {offset}, bottomY: {bottomY}");
     }
+    void GenerateMap()
+{
+    
+}
 
-    private void CopyTilemapToTarget(Tilemap sourceTilemap, Vector3Int offset)
+// ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
+void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
+{
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
     {
-        if (sourceTilemap == null)
-        {
-            Debug.LogWarning("Source Tilemap is null. Cannot copy tiles.");
-            return; // Tilemap이 null인 경우 메서드 종료
-        }
-
-        BoundsInt bounds = sourceTilemap.cellBounds;
-
-        foreach (Vector3Int position in bounds.allPositionsWithin)
-        {
-            TileBase tile = sourceTilemap.GetTile(position);
-            if (tile != null)
-            {
-                Vector3Int targetPosition = position + offset;
-                targetTilemap.SetTile(targetPosition, tile);
-            }
-        }
+        if (!source.HasTile(pos)) continue;
+        TileBase tile = source.GetTile(pos);
+        target.SetTile(pos + offset - bounds.min, tile); // 공백을 제거하고 복사
     }
-
+}
     public void SpawnPortal()
     {
         if (stagePortalPrefab == null)
@@ -253,7 +333,7 @@ public class MapManager : MonoBehaviour
             float groundY = lastGround.transform.position.y;
             
             Vector3 portalPosition = new Vector3(
-                groundRight - 2f,  // 오른쪽 끝에서 2칸 왼쪽
+                right - 2f,  // 오른쪽 끝에서 2칸 왼쪽
                 groundY + 1.5f,    // Ground 위로 1.5칸
                 0
             );
