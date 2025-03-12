@@ -16,6 +16,8 @@ public class MapManager : MonoBehaviour
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
     private List<GameObject> droppedItems = new List<GameObject>();
+
+    
     private float right;
     int location;
 
