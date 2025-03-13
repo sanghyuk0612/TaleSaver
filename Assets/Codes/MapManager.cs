@@ -19,7 +19,7 @@ public class MapManager : MonoBehaviour
 
     
     private float right;
-    int location;
+    public int location;
 
     private void Awake()
     {
