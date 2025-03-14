@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterName: "\uC544\uC11C\uC655"
   characterSprite: {fileID: -1526825567, guid: aeab5ce1056564ed88ad496cdf7c9adc, type: 3}
+  animatorController: {fileID: 0}
   level: 1
   description: "\uC124\uBA85 "
   vitality: 0
   power: 0
   agility: 0
   luck: 0
+  maxHealth: 0
+  isUnlocked: 0
+  requiredSteelPieces: 2
+  requiredBookPages: 2
+  skills: []

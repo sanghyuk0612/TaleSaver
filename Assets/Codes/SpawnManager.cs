@@ -43,7 +43,7 @@ public class SpawnManager : MonoBehaviour
         // 근접 적 스폰 (약간 왼쪽에)
         if (meleeEnemyPrefab != null)
         {
-            Vector3 meleePosition = baseSpawnPosition + new Vector3(-2f, 0f, 0f);
+            Vector3 meleePosition = baseSpawnPosition + new Vector3(-5f, 2f, 0f);
             PortalManager.Instance.updateEnemy(1);
             Instantiate(meleeEnemyPrefab, meleePosition, Quaternion.identity);
             Debug.Log("Melee Enemy spawned at: " + meleePosition);
