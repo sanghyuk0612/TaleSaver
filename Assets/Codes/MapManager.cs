@@ -10,6 +10,7 @@ public class MapManager : MonoBehaviour
     public Tilemap targetTilemap;
     public Tilemap TrapTilemap;
     public Tilemap HalfTilemap;
+    public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject groundPrefab;
     [SerializeField] private GameObject playerPrefab;
@@ -37,7 +38,6 @@ public class MapManager : MonoBehaviour
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
-
         
         GenerateStage();
         SpawnInitialEntities();
@@ -142,6 +142,8 @@ public class MapManager : MonoBehaviour
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();
+        //기존 스폰포인트 초기화
+        spawnPoints.Clear();
 
         // 기존 타일맵이 존재하는지 확인
         if (targetTilemap == null)
@@ -241,8 +243,9 @@ public class MapManager : MonoBehaviour
                         CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
                         }
                     if(child.tag == "SpawnPoint"){//스폰포인트
+                        Tilemap SpawnPoint = child.GetComponent<Tilemap>();
                         Debug.Log("스폰포인트");
-
+                        GetSpawnPoint(SpawnPoint,bounds,offset);
                     }
 
                 }
@@ -285,7 +288,24 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnEntities();
         }
     }
-
+void GetSpawnPoint(Tilemap source,  BoundsInt bounds, Vector3Int offset){
+    Debug.Log(source.name + "의 태그: " + source.tag);
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
+    {
+        if (!source.HasTile(pos)) {
+            continue;
+        }
+        spawnPoints.Add(pos + offset - bounds.min); // 위치 저장
+    }
+}
+void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        foreach (Vector3 pos in spawnPoints)
+        {
+            Gizmos.DrawWireSphere(pos, 0.5f); // 원형 그리기
+        }
+    }
 // ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
 void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
 {
