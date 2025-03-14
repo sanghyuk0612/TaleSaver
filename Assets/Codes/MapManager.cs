@@ -151,6 +151,9 @@ public class MapManager : MonoBehaviour
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();
+        targetTilemap.ClearAllTiles();
+        TrapTilemap.ClearAllTiles();
+        HalfTilemap.ClearAllTiles();
         //기존 스폰포인트 초기화
         spawnPoints.Clear();
 
