@@ -273,6 +273,8 @@ public class CharacterManager : MonoBehaviour
             selectButton.interactable = true;
             upgradeButton.interactable = true;
             unlockButton.gameObject.SetActive(false); // 해금 버튼 숨김
+            unlockConditionText.text = $"해금 완료!!";
+
         }
         else
         {

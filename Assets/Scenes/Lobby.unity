@@ -6973,14 +6973,13 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 2
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uD544\uC694\uD55C \uAE30\uACC4\uC7AC\uB8CC :\n\uD544\uC694\uD55C \uD398\uC774\uC9C0
-    : "
+  m_Text: "\uD574\uAE08 \uC644\uB8CC!"
 --- !u!222 &2023482906
 CanvasRenderer:
   m_ObjectHideFlags: 0
