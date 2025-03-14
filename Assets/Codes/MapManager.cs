@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Collections;
 
 public class MapManager : MonoBehaviour
 {
@@ -10,6 +10,7 @@ public class MapManager : MonoBehaviour
     public Tilemap targetTilemap;
     public Tilemap TrapTilemap;
     public Tilemap HalfTilemap;
+    public float responTime;
     public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject groundPrefab;
@@ -41,7 +42,16 @@ public class MapManager : MonoBehaviour
         
         GenerateStage();
         SpawnInitialEntities();
-        
+        StartCoroutine(RepeatFunction());
+    }
+    // IEnumerator를 반환하는 메서드
+    IEnumerator RepeatFunction()
+    {
+        while (true) // 무한 반복
+        {
+            yield return new WaitForSeconds(responTime); // 10초 대기
+            SpawnManager.Instance.SpawnEntities();
+        }
     }
     GameObject wallPrefab;
 
@@ -466,9 +476,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
 
         // SpawnManager를 통해 적 소환
         SpawnManager.Instance.SpawnEntities();
-        SpawnManager.Instance.SpawnEntities();
-        SpawnManager.Instance.SpawnEntities();
-        SpawnManager.Instance.SpawnEntities();
+
     }
 
     public void DestroyAllEnemies()
