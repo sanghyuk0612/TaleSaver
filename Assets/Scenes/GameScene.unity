@@ -1013,9 +1013,11 @@ MonoBehaviour:
   targetTilemap: {fileID: 952985895}
   TrapTilemap: {fileID: 540763756}
   HalfTilemap: {fileID: 1770090413}
+  responTime: 10
+  spawnPoints: []
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
-  groundPrefab: {fileID: 0}
   playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
+  location: 0
 --- !u!4 &951659765
 Transform:
   m_ObjectHideFlags: 0
