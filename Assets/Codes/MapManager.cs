@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Collections;
 
 public class MapManager : MonoBehaviour
 {
@@ -10,14 +10,17 @@ public class MapManager : MonoBehaviour
     public Tilemap targetTilemap;
     public Tilemap TrapTilemap;
     public Tilemap HalfTilemap;
+    public float responTime;
+    public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
-    [SerializeField] private GameObject groundPrefab;
     [SerializeField] private GameObject playerPrefab;
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
     private List<GameObject> droppedItems = new List<GameObject>();
+
+    
     private float right;
-    int location;
+    public int location;
 
     private void Awake()
     {
@@ -30,16 +33,24 @@ public class MapManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    
     void Start()
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
-
         
         GenerateStage();
         SpawnInitialEntities();
-        
+        StartCoroutine(RepeatFunction());
+    }
+    // IEnumerator를 반환하는 메서드
+    IEnumerator RepeatFunction()
+    {
+        while (true) // 무한 반복
+        {
+            yield return new WaitForSeconds(responTime); // 10초 대기
+            SpawnManager.Instance.SpawnEntities();
+        }
     }
     GameObject wallPrefab;
 
@@ -140,6 +151,8 @@ public class MapManager : MonoBehaviour
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();
+        //기존 스폰포인트 초기화
+        spawnPoints.Clear();
 
         // 기존 타일맵이 존재하는지 확인
         if (targetTilemap == null)
@@ -162,11 +175,6 @@ public class MapManager : MonoBehaviour
         }
         currentMapSections.Clear();
 
-        // // 기존 Ground 오브젝트들 제거
-        // foreach (var ground in GameObject.FindGameObjectsWithTag("Ground"))
-        // {
-        //     Destroy(ground);
-        // }
 
         // 기존 포탈 제거
         GameObject[] portals = GameObject.FindGameObjectsWithTag("Portal");  // Portal 태그가 있다고 가정
@@ -239,8 +247,9 @@ public class MapManager : MonoBehaviour
                         CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
                         }
                     if(child.tag == "SpawnPoint"){//스폰포인트
+                        Tilemap SpawnPoint = child.GetComponent<Tilemap>();
                         Debug.Log("스폰포인트");
-
+                        GetSpawnPoint(SpawnPoint,bounds,offset);
                     }
 
                 }
@@ -281,9 +290,29 @@ public class MapManager : MonoBehaviour
         if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
         {
             SpawnManager.Instance.SpawnEntities();
+            SpawnManager.Instance.SpawnEntities();
+            SpawnManager.Instance.SpawnEntities();
+            SpawnManager.Instance.SpawnEntities();
         }
     }
-
+void GetSpawnPoint(Tilemap source,  BoundsInt bounds, Vector3Int offset){
+    Debug.Log(source.name + "의 태그: " + source.tag);
+    foreach (Vector3Int pos in bounds.allPositionsWithin)
+    {
+        if (!source.HasTile(pos)) {
+            continue;
+        }
+        spawnPoints.Add(pos + offset - bounds.min); // 위치 저장
+    }
+}
+void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        foreach (Vector3 pos in spawnPoints)
+        {
+            Gizmos.DrawWireSphere(pos, 0.5f); // 원형 그리기
+        }
+    }
 // ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
 void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
 {
@@ -303,9 +332,6 @@ void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vecto
     if(!test){
         Debug.Log(source.name+"가 합쳐지지않음");
     }
-}
-BoundsInt GetTrapBounds(Tilemap tilemap){
-    return tilemap.cellBounds; // 최적화된 범위 반환
 }
 // ✅ **타일이 존재하는 실제 영역을 계산하는 함수**
 BoundsInt GetTileBounds(Tilemap tilemap)
@@ -327,46 +353,8 @@ BoundsInt GetTileBounds(Tilemap tilemap)
 
     return new BoundsInt(minX, minY, 0, maxX - minX + 1, maxY - minY + 1, 1);
 }
-    private void SpawnGround(Vector3Int offset, int width)
-    {
-        if (groundPrefab == null)
-        {
-            Debug.LogError("Ground Prefab not assigned!");
-            return;
-        }
+   
 
-        // 타일맵의 바닥 위치 계산
-        BoundsInt targetBounds = targetTilemap.cellBounds;
-        int bottomY = targetBounds.min.y;  // 타일맵의 가장 아래 Y 좌표
-
-        // Ground의 위치 계산 (타일맵의 바닥을 따라)
-        Vector3 groundPosition = new Vector3(
-            offset.x - 5f,           // 왼쪽으로 5칸 이동
-            bottomY + 0.5f,          // 위로 0.5 이동
-            0
-        );
-
-        GameObject ground = Instantiate(groundPrefab, groundPosition, Quaternion.identity);
-        
-        // Ground의 pivot이 중앙에 있으므로, 위치를 왼쪽으로 조정
-        ground.transform.position = new Vector3(
-            groundPosition.x + (width / 2f),  // 너비의 절반만큼 오른쪽으로 이동
-            groundPosition.y,
-            0
-        );
-
-        // Ground의 크기 설정
-        Vector3 scale = ground.transform.localScale;
-        scale.x = width;    // 타일맵 너비만큼
-        scale.y = 1;        // 높이는 1로 고정
-        ground.transform.localScale = scale;
-
-        Debug.Log($"Created ground at position: {groundPosition}, width: {width}, offset: {offset}, bottomY: {bottomY}");
-    }
-    void GenerateMap()
-{
-    
-}
 
     public void SpawnPortal()
     {
@@ -445,6 +433,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
 
         // SpawnManager를 통해 적 소환
         SpawnManager.Instance.SpawnEntities();
+
     }
 
     public void DestroyAllEnemies()

@@ -195,7 +195,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             
             foreach (Collider2D col in colliders)
             {
-                if (col.CompareTag("OneWayPlatform"))
+                if (col.CompareTag("Half Tile"))
                 {
                     canDropDown = false;  // 아래키 입력 비활성화
                     StartCoroutine(DisableCollisionCoroutine(col));
