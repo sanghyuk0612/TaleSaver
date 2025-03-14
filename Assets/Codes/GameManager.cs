@@ -247,7 +247,7 @@ public class GameManager : MonoBehaviour
         {
             // 맵의 왼쪽 시작 지점으로 플레이어 이동
             Vector3 startPosition = MapManager.Instance.GetStartPosition();
-            player.transform.position = startPosition;
+            player.transform.position = new Vector3(2f, 4f, 0f);
         }
     }
 

@@ -33,7 +33,7 @@ public class MapManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    
     void Start()
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
@@ -354,7 +354,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
     return new BoundsInt(minX, minY, 0, maxX - minX + 1, maxY - minY + 1, 1);
 }
    
-   
+
 
     public void SpawnPortal()
     {
