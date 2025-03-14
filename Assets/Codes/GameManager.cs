@@ -273,7 +273,8 @@ public class GameManager : MonoBehaviour
         
         // 플레이어 위치 리셋
         ResetPlayerPosition();
-        
+        PortalManager.Instance.enemyNumber=0;
+        PortalManager.Instance.enemyText.text = "0";
         // 새로운 적 스폰
         SpawnManager.Instance.SpawnEntities();
     }
