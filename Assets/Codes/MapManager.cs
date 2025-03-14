@@ -286,6 +286,9 @@ public class MapManager : MonoBehaviour
         if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
         {
             SpawnManager.Instance.SpawnEntities();
+            SpawnManager.Instance.SpawnEntities();
+            SpawnManager.Instance.SpawnEntities();
+            SpawnManager.Instance.SpawnEntities();
         }
     }
 void GetSpawnPoint(Tilemap source,  BoundsInt bounds, Vector3Int offset){
@@ -385,10 +388,6 @@ BoundsInt GetTileBounds(Tilemap tilemap)
 
         Debug.Log($"Created ground at position: {groundPosition}, width: {width}, offset: {offset}, bottomY: {bottomY}");
     }
-    void GenerateMap()
-{
-    
-}
 
     public void SpawnPortal()
     {
@@ -466,6 +465,9 @@ BoundsInt GetTileBounds(Tilemap tilemap)
         }
 
         // SpawnManager를 통해 적 소환
+        SpawnManager.Instance.SpawnEntities();
+        SpawnManager.Instance.SpawnEntities();
+        SpawnManager.Instance.SpawnEntities();
         SpawnManager.Instance.SpawnEntities();
     }
 
