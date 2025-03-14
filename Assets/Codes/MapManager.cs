@@ -32,6 +32,8 @@ public class MapManager : MonoBehaviour
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
+        // 게임오버 UI 요소들 자동으로 찾아서 연결
+        GameManager.Instance.FindAndConnectGameOverUI();
 
         LoadMapPrefabs();
         GenerateStage();

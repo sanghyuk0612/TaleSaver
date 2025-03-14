@@ -45,6 +45,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     // 플레이어 사망 상태를 저장하는 static 변수 추가
     public static bool IsDead { get; private set; }
 
+    // 입력 처리 가능 여부를 저장하는 변수 추가
+    private bool canProcessInput = true;
+
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackDuration = 0.2f;
     private bool isKnockedBack = false;
@@ -60,6 +63,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     string jumpAnimName;
     string runAnimName;
     string dashAnimName;
+
+    string deadAnimName;
 
     void Start()
     {
@@ -109,6 +114,12 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         CheckGround();
 
+        // 사망 상태이거나 입력 처리가 불가능한 경우 입력 무시
+        if (IsDead || !canProcessInput)
+        {
+            return;
+        }
+
         // 넉백 중이면 플레이어 입력 무시
         if (isKnockedBack)
         {
@@ -138,8 +149,13 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Update()
     {
-        characterName = CharacterSelectionData.Instance.selectedCharacterData.animatorController.name;
+        // 사망 상태이거나 입력 처리가 불가능한 경우 입력 무시
+        if (IsDead || !canProcessInput)
+        {
+            return;
+        }
 
+        characterName = CharacterSelectionData.Instance.selectedCharacterData.animatorController.name;
 
         float moveInput = Input.GetAxisRaw("Horizontal");
         if (moveInput != 0)
@@ -447,6 +463,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         Debug.Log("Player died!");
         IsDead = true; // 사망 상태 설정
+        canProcessInput = false; // 입력 처리 불가능 상태로 설정
+        
+        // 현재 속도를 0으로 설정하여 움직임 중지
+        rb.velocity = Vector2.zero;
 
         // 모든 활성화된 EnemyProjectile 찾기 및 비활성화
         GameObject[] projectiles = GameObject.FindGameObjectsWithTag("EnemyProjectile");
@@ -458,12 +478,32 @@ public class PlayerController : MonoBehaviour, IDamageable
             }
         }
 
-        // 선택사항: 플레이어 캐릭터 비활성화 또는 사망 애니메이션 재생
-        // gameObject.SetActive(false);
-        // playerAnimator.SetTrigger("Death");
+        // 모든 활성화된 Enemy 찾기 및 비활성화
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies)
+        {
+            if (enemy.activeInHierarchy)
+            {
+                enemy.SetActive(false);
+            }
+        }
 
-        // 선택사항: 게임오버 UI 표시
-        // GameManager.Instance.ShowGameOver();
+        deadAnimName = $"{characterName}_Death";
+        playerAnimator.Play(deadAnimName);
+        playerAnimator.SetTrigger("Death");
+
+        // 게임오버 UI 표시 (약간의 딜레이 후)
+        StartCoroutine(ShowGameOverWithDelay(1.5f));
+    }
+
+    // 딜레이 후 게임오버 UI 표시
+    private IEnumerator ShowGameOverWithDelay(float delay)
+    {
+        // 지정된 시간만큼 대기
+        yield return new WaitForSeconds(delay);
+        
+        // 게임오버 UI 표시
+        GameManager.Instance.ShowGameOver();
     }
 
     public void RestoreHealth(int health) //체력 회복하는 함수 아님. 데이터에서 플레이어의 체력 불러오는 함수

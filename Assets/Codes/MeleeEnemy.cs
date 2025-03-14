@@ -262,6 +262,7 @@ public class MeleeEnemy : MonoBehaviour
     private void Die()
     {
         Debug.Log("MeleeEnemy died.");
+        PortalManager.Instance.killEnemy(1);
         // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
         gameObject.SetActive(false);
     }
