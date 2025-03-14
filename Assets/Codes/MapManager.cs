@@ -10,7 +10,7 @@ public class MapManager : MonoBehaviour
     public Tilemap targetTilemap;
     public Tilemap TrapTilemap;
     public Tilemap HalfTilemap;
-    public float responTime;
+    public float responTime=10;
     public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject playerPrefab;
