@@ -35,7 +35,7 @@ public class MapManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     void Start()
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
