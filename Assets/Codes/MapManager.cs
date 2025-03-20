@@ -150,6 +150,9 @@ public class MapManager : MonoBehaviour
 
     public void GenerateStage()
     {
+        TrapTilemap.ClearAllTiles();
+        HalfTilemap.ClearAllTiles();
+
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();

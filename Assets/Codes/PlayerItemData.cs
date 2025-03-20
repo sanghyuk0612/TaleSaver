@@ -39,8 +39,8 @@ public class PlayerItemData
         goldPrice = 165;
         battery = 0;
         money = 0;
-        steelPiece = 0;
-        bookPage = 0;
+        steelPiece = 1;
+        bookPage = 1;
         items = new List<int>(); // 빈 리스트로 초기화
         itemPriceRange[0,0] = 1; //돌 최저가
         itemPriceRange[0,1] = 5; //돌 최고가

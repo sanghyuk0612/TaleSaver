@@ -270,7 +270,10 @@ public class GameManager : MonoBehaviour
         
         // 모든 적 제거
         DestroyAllEnemies();
-        
+
+        // 모든 드랍템 제거
+        DestroyAllDroppedItems();
+
         // 플레이어 위치 리셋
         ResetPlayerPosition();
         PortalManager.Instance.enemyNumber=0;
@@ -288,6 +291,14 @@ public class GameManager : MonoBehaviour
         foreach (var enemy in FindObjectsOfType<RangedEnemy>())
         {
             Destroy(enemy.gameObject);
+        }
+    }
+
+    private void DestroyAllDroppedItems()
+    {
+        foreach (var items in FindObjectsOfType<DroppedItem>())
+        {
+            Destroy(items.gameObject);
         }
     }
 

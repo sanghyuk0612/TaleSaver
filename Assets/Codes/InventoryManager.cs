@@ -66,7 +66,13 @@ public class InventoryManager : MonoBehaviour
             case 6: // 배터리
                 inventory.battery += quantity;
                 break;
-            case 7: // 새로운 아이템 추가, 이 경우 quantity가 아이템의 아이디
+            case 7: //기계 조각
+                inventory.steelPiece += quantity;
+                break;
+            case 8: //캐릭터 페이지(찢어진 동화책)
+                inventory.bookPage += quantity;
+                break;
+            case 9: //새로운 아이템추가, 이경우 quaitiy가 아이템의 아이디
                 inventory.items.Add(quantity);
                 break;
         }
@@ -99,6 +105,12 @@ public class InventoryManager : MonoBehaviour
                 break;
             case 6: // 배터리
                 inventory.battery -= quantity;
+                break;
+            case 7: //기계 조각
+                inventory.steelPrice -= quantity;
+                break;
+            case 8: //캐릭터 페이지
+                inventory.bookPage -= quantity;
                 break;
         }
     }

@@ -22,11 +22,13 @@ public class DroppedItem : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             Debug.Log("Player collided with dropped item!");
-            // 인벤토리에 아이템 추가
-            InventoryManager inventoryManager = InventoryManager.Instance; // Singleton 인스턴스 사용
-            if (inventoryManager != null)
+            if (InventoryManager.Instance != null)
             {
-                inventoryManager.AddItem(itemId, quantity); // itemName을 제거하고 itemId와 quantity만 전달
+                InventoryManager.Instance.AddItem(itemId, quantity);
+            }
+            else
+            {
+                Debug.LogError("InventoryManager 인스턴스를 찾을 수 없음!");
             }
 
             // 아이템 제거
