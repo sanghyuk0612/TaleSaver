@@ -178,12 +178,12 @@ public class RangedEnemy : MonoBehaviour
     {
         // x축 방향으로만 이동하도록 수정
         float directionX = playerTransform.position.x > transform.position.x ? 1f : -1f;
-        rb.velocity = new Vector2(directionX * moveSpeed, 0f);
+        rb.velocity = new Vector2(directionX * moveSpeed, rb.velocity.y); // Y속도 유지
     }
 
     void StopMoving()
     {
-        rb.velocity = Vector2.zero;
+        rb.velocity = new Vector2(0,rb.velocity.y);
     }
 
     void UpdateFacingDirection()

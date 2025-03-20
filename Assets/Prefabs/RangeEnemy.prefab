@@ -54,7 +54,7 @@ MonoBehaviour:
   baseHealth: 80
   healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
-  itemPrefab: {fileID: 8044234074128147666, guid: 5c9944f6524634fb6887103db97b7143, type: 3}
+  currentHealth: 0
 --- !u!212 &5980722727141011568
 SpriteRenderer:
   m_ObjectHideFlags: 0
