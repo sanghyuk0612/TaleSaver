@@ -734,6 +734,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meleeEnemyPrefab: {fileID: 8372166154551508869, guid: 8d5bdd52dec08c840a107532559e9a76, type: 3}
   rangedEnemyPrefab: {fileID: 1651906025392740170, guid: 5b3750462f1a61a4fa83e1a05b0dc11d, type: 3}
+  BossPrefab: {fileID: 0}
 --- !u!4 &951144598
 Transform:
   m_ObjectHideFlags: 0
@@ -781,10 +782,12 @@ MonoBehaviour:
   targetTilemap: {fileID: 952985895}
   TrapTilemap: {fileID: 540763756}
   HalfTilemap: {fileID: 1770090413}
+  portalPosition: {x: 0, y: 0, z: 0}
   responTime: 10
+  isBoss: 0
   spawnPoints: []
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
-  playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
+  playerPrefab: {fileID: 8962749516033509532, guid: 05975baec60b82c4eb6e926ba2c019f8, type: 3}
   location: 0
 --- !u!4 &951659765
 Transform:
@@ -1033,6 +1036,25 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
+--- !u!251 &952985899
+PlatformEffector2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952985892}
+  m_Enabled: 1
+  m_UseColliderMask: 1
+  m_ColliderMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RotationalOffset: 0
+  m_UseOneWay: 0
+  m_UseOneWayGrouping: 0
+  m_SurfaceArc: 180
+  m_UseSideFriction: 0
+  m_UseSideBounce: 0
+  m_SideArc: 1
 --- !u!1 &970196008
 GameObject:
   m_ObjectHideFlags: 0
@@ -1300,25 +1322,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 986266005}
   m_CullTransparentMesh: 1
---- !u!251 &952985899
-PlatformEffector2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 952985892}
-  m_Enabled: 1
-  m_UseColliderMask: 1
-  m_ColliderMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RotationalOffset: 0
-  m_UseOneWay: 0
-  m_UseOneWayGrouping: 0
-  m_SurfaceArc: 180
-  m_UseSideFriction: 0
-  m_UseSideBounce: 0
-  m_SideArc: 1
 --- !u!1 &1088104506
 GameObject:
   m_ObjectHideFlags: 0
