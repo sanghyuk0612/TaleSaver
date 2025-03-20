@@ -499,7 +499,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec4242b7e7dd5c6468fcc863e8e14c6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meleeEnemyPrefab: {fileID: 7066774727544269206, guid: e2c1686a8e03a3840b718cb3ebbea061, type: 3}
+  meleeEnemyPrefab: {fileID: 7066774727544269206, guid: b080fcda2fa68314fa0a98ebfa89a69a, type: 3}
   rangedEnemyPrefab: {fileID: 0}
 --- !u!4 &951144598
 Transform:

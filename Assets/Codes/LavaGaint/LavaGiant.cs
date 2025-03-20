@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class LavaGaint : MonoBehaviour
 {
@@ -42,6 +43,7 @@ public class LavaGaint : MonoBehaviour
     [Header("Attack")]
     public int dashForce = 30;
     public int dashCooltime = 3;
+    public int dashDemage= 30;
     
 
     void Start()
@@ -103,11 +105,12 @@ public class LavaGaint : MonoBehaviour
             Debug.LogError("InventoryManager not found in the scene.");
             return; // InventoryManager가 없으면 메서드 종료
         }
+        canMove = true;
 
         inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
     }
     Vector2 direction;
-
+    bool canMove;
     void Update()
     {
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
@@ -118,11 +121,24 @@ public class LavaGaint : MonoBehaviour
             return;
         }
         direction = (playerTransform.position - transform.position).normalized;
+        skillTimer+=Time.deltaTime;
+        int skillNum;
+        if (skillTimer >= skillInterval) // 1분마다 한번씩 랜덤으로 스킬 실행
+        {
+            skillNum = Random.Range(0,4);// 스킬 4개
+            skillTimer = 0f; // 타이머 초기화
+            mySkill(skillNum);
+        }
 
         // 플레이어와의 거리 체크
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
         // x축 방향으로만 이동
-            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);   
+        if(canMove){
+            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+        }
+        else{
+            rb.velocity =new Vector2(0, rb.velocity.y);
+        }
             // 스프라이트 방향 전환
             if (direction.x > 0 && !isFacingRight)
             {
@@ -132,22 +148,9 @@ public class LavaGaint : MonoBehaviour
             {
                 Flip();
             }
-        
-        // 대시 쿨다운 체크
-        if (!canDash)
-        {
-            dashCooldownTimer -= Time.deltaTime;
-            if (dashCooldownTimer <= 0)
-            {
-                canDash = true;
-                Debug.Log("Dash is ready!");
-            }
+        if(isDashing){
+            rb.velocity = new Vector2(direction.x * dashForce, rb.velocity.y);
         }
-        if(canDash&&Mathf.Abs(distanceToPlayer)>=3 ){ //일정 거리 이상 멀어지면 돌진 패턴
-        
-            Dash();
-        }
-
         // 체력 체크
         if (calculatedHealth <= 0)
         {
@@ -163,36 +166,104 @@ public class LavaGaint : MonoBehaviour
             CheckDeath();
         }
     }
+    private float skillTimer = 0f;
+    private float skillInterval = 10f;
+    void mySkill(int skillNum){
+        //skillNum = Random.Range(0,3);
+        skillNum=1;
+        //캐스팅 시간
+        StartCoroutine(StopMovement(1f));
+        Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
+        switch (skillNum)
+    {
+        case 0:
+            Dash();
+            break;
+        case 1:
+            CircularAttack();
+            break;
+        case 2:
+            RaserAttack();
+            break;
+        default:
+            Debug.Log("잘못된 스킬 번호");
+            break;
+    }
+        Debug.Log("스킬"+skillNum+ "실행");
+    }
+public GameObject circularAttackEffectPrefab; // 원형 공격 이펙트 프리팹
+
+private void CircularAttack()
+{
+    StopMovement(0.5f);
+    // 이펙트 생성
+    if (circularAttackEffectPrefab != null)
+    {
+        GameObject effect = Instantiate(circularAttackEffectPrefab, transform.position, Quaternion.identity);
+        Destroy(effect, 0.5f); // 0.5초 후 이펙트 제거
+        Debug.Log("이펙트 출력");
+    }
+    Debug.Log("원형 공격 사용");
+}
+public GameObject RaserEffectPrefab;
+private void RaserAttack()
+{
+    StartCoroutine(StopMovement(1.5f)); // 몬스터 멈추기
+
+    // 방향 벡터 정규화
+    Vector2 shootDirection = direction.normalized;
+
+    // 이펙트 생성 (플레이어 방향으로)
+    if (RaserEffectPrefab != null)
+    {
+
+        // 레이저 이펙트 생성
+        GameObject effect = Instantiate(RaserEffectPrefab, transform.position+new Vector3(5*direction.x,0,0), Quaternion.identity);
+        
+        // 이펙트 이동 (속도 조절 가능)
+        Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
+        if (effectRb != null)
+        {
+            effectRb.velocity = shootDirection * 5f; // 속도 조절
+        }
+
+        Destroy(effect, 1.5f); // 1.5초 후 이펙트 제거
+    }
+
+    Debug.Log("레이저 공격 사용");
+}
+private IEnumerator StopMovement(float stopDuration)
+    {
+        canMove =false;
+        Debug.Log("보스몬스터 정지");
+        yield return new WaitForSeconds(stopDuration);
+        canMove =true; // 원래 속도로 복귀
+    }
+
     private bool canDash = true;
     private float dashCooldownTimer = 0f;
     private bool isDashing = false;
-    private float dashCooldown=2f;
     private void Dash(){
         
         float dashDirection = direction.x>=0 ? 1f : -1f;
         // 현재 속도를 초기화하고 대시 방향으로 힘을 가함
         // 대시 속도 설정
-        
-
-        rb.AddForce(new Vector2(dashDirection * dashForce, 1f), ForceMode2D.Impulse);
-
+        // 대시 속도 직접 설정
         // 대시 코루틴 시작
-        //StartCoroutine(DashCoroutine());
-
+        StartCoroutine(DashCoroutine());
         // 쿨다운 시작
         canDash = false;
-        dashCooldownTimer = dashCooldown;
         Debug.Log($"보스몬스터 대쉬사용");
     }
 
     private IEnumerator DashCoroutine()
     {
         isDashing = true;
-        
+        int tmp = baseDamage;
+        baseDamage = dashDemage;
         // 대시 지속 시간
-        yield return new WaitForSeconds(0.35f);
-        rb.velocity = Vector2.zero;
-        
+        yield return new WaitForSeconds(0.3f);
+        baseDamage = tmp;
         isDashing = false;
     }
     
