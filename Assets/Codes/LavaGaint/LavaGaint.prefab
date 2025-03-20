@@ -55,17 +55,17 @@ MonoBehaviour:
   groundCheckSize: {x: 0.5, y: 0.1}
   compositeCollider: {fileID: 0}
   baseDamage: 10
-  damageMultiplier: {fileID: 0}
+  damageMultiplier: {fileID: 11400000, guid: 346e44b35f0a47541abd528d6e601d2e, type: 2}
   attackDamage: 0
   baseHealth: 100
-  healthMultiplier: {fileID: 0}
+  healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
   itemPrefab: {fileID: 0}
   dashForce: 30
   dashCooltime: 3
   dashDemage: 30
-  circularAttackEffectPrefab: {fileID: 0}
-  RaserEffectPrefab: {fileID: 0}
+  circularAttackEffectPrefab: {fileID: 3415900879390828816, guid: a4e1ed99dea1bf34683a954e88257162, type: 3}
+  RaserEffectPrefab: {fileID: 5605060386581786699, guid: 2880d106368995d4ebb8f71197cbb1ab, type: 3}
 --- !u!212 &122197634965626083
 SpriteRenderer:
   m_ObjectHideFlags: 0

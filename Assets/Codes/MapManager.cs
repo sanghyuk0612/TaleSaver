@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public class MapManager : MonoBehaviour
 {
     public static MapManager Instance { get; private set; }
@@ -10,7 +10,9 @@ public class MapManager : MonoBehaviour
     public Tilemap targetTilemap;
     public Tilemap TrapTilemap;
     public Tilemap HalfTilemap;
+    public Vector3 portalPosition;
     public float responTime=10;
+    public bool isBoss=false;
     public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject playerPrefab;
@@ -41,8 +43,15 @@ public class MapManager : MonoBehaviour
         
         GenerateStage();
         SpawnInitialEntities();
-        StartCoroutine(RepeatFunction());
+        if (SceneManager.GetActiveScene().name=="BossStage"){
+            SpawnManager.Instance.SpawnBoss();
+        }
+        else{
+            StartCoroutine(RepeatFunction());
+        }
+        
     }
+
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
     {
@@ -289,14 +298,11 @@ public class MapManager : MonoBehaviour
 
         SpawnPortal();
 
-        // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
-        if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
-        {
-            SpawnManager.Instance.SpawnEntities();
-            SpawnManager.Instance.SpawnEntities();
-            SpawnManager.Instance.SpawnEntities();
-            SpawnManager.Instance.SpawnEntities();
-        }
+        // // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
+        // if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
+        // {
+        //     SpawnManager.Instance.SpawnEntities();
+        // }
     }
 void GetSpawnPoint(Tilemap source,  BoundsInt bounds, Vector3Int offset){
     Debug.Log(source.name + "의 태그: " + source.tag);
@@ -376,7 +382,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
             float groundRight = lastGround.transform.position.x + (lastGround.transform.localScale.x / 2f);
             float groundY = lastGround.transform.position.y;
             
-            Vector3 portalPosition = new Vector3(
+            portalPosition = new Vector3(
                 right - 2f,  // 오른쪽 끝에서 2칸 왼쪽
                 groundY + 2.5f,    // Ground 위로 2.5칸
                 0
@@ -435,7 +441,11 @@ BoundsInt GetTileBounds(Tilemap tilemap)
         }
 
         // SpawnManager를 통해 적 소환
-        SpawnManager.Instance.SpawnEntities();
+        if (SceneManager.GetActiveScene().name!="BossStage"){
+            SpawnManager.Instance.SpawnEntities();
+        }
+
+        
 
     }
 
