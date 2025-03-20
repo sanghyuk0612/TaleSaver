@@ -787,7 +787,7 @@ MonoBehaviour:
   isBoss: 0
   spawnPoints: []
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
-  playerPrefab: {fileID: 8962749516033509532, guid: 05975baec60b82c4eb6e926ba2c019f8, type: 3}
+  playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   location: 0
 --- !u!4 &951659765
 Transform:
