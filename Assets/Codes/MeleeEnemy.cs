@@ -24,6 +24,7 @@ public class MeleeEnemy : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    private Animator animator;
     private Transform playerTransform;
     private bool isGrounded;
     private bool isFacingRight = true;
@@ -36,7 +37,6 @@ public class MeleeEnemy : MonoBehaviour
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
-    private InventoryManager inventoryManager;
 
     void Start()
     {
@@ -91,18 +91,7 @@ public class MeleeEnemy : MonoBehaviour
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
     }
-
-    private void Awake()
-    {
-        if (InventoryManager.Instance == null)
-        {
-            Debug.LogError("InventoryManager not found in the scene.");
-            return; // InventoryManager가 없으면 메서드 종료
-        }
-
-        inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
-    }
-
+   
     void Update()
     {
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
@@ -143,73 +132,41 @@ public class MeleeEnemy : MonoBehaviour
         // 체력 체크
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            Debug.Log("Debug: Monster health set to 0 manually.");
+            calculatedHealth = 0;
+            Die();
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
-            calculatedHealth = 0;
-            CheckDeath();
+            Die();
         }
     }
-    //테스트용 
-    // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
-    private void CheckDeath()
+
+    public void ApplyMonsterData(MonsterData data)
     {
-        if (calculatedHealth <= 0)
-        {
-            DropItem();
-            Destroy(gameObject);
-        }
+        // 몬스터 데이터 적용
+        baseHealth = data.health;
+        baseDamage = data.damage;
+        moveSpeed = data.moveSpeed;
+
+        // 스프라이트 및 애니메이션 적용
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+
+        if (spriteRenderer != null)
+            spriteRenderer.sprite = data.monsterSprite;
+
+        if (animator != null)
+            animator.runtimeAnimatorController = data.animatorController;
     }
 
     void Flip()
     {
         isFacingRight = !isFacingRight;
         spriteRenderer.flipX = !isFacingRight;
-    }
-
-    void DropItem()
-    {
-        if (inventoryManager == null)
-        {
-            Debug.LogError("InventoryManager is not initialized.");
-            return; // inventoryManager가 null이면 메서드 종료
-        }
-
-        if (itemPrefab == null)
-        {
-            Debug.LogError("Item prefab is not assigned.");
-            return; // itemPrefab이 null이면 메서드 종료
-        }
-
-        string itemName = inventoryManager.GetItemNameById(0);
-        
-        // 랜덤 ID 생성 (0~4 중 하나)
-        int randomId = Random.Range(0, 5);
-
-        // 드랍 위치
-        Vector3 dropPosition = transform.position;
-
-        // 아이템 생성
-        GameObject droppedItem = Instantiate(itemPrefab, dropPosition, Quaternion.identity);
-
-        // 아이템 초기화
-        DroppedItem itemComponent = droppedItem.GetComponent<DroppedItem>();
-        if (itemComponent != null)
-        {
-            itemName = inventoryManager.GetItemNameById(randomId); // ID에 따른 이름
-            itemComponent.Initialize(randomId, itemName);
-        }
-        else
-        {
-            Debug.LogError("DroppedItem component not found on the instantiated item.");
-        }
-
-        Debug.Log($"Dropped {itemName} at {dropPosition}");
     }
 
     // 디버그용 시각화
@@ -261,6 +218,9 @@ public class MeleeEnemy : MonoBehaviour
 
     private void Die()
     {
+        DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
+        droppedItem.DropItem();
+
         Debug.Log("MeleeEnemy died.");
         // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
         gameObject.SetActive(false);

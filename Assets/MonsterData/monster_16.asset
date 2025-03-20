@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b2cd2986db1643ae80456e44a2c75ff, type: 3}
+  m_Name: monster_16
+  m_EditorClassIdentifier: 
+  monsterName: monster_16
+  health: 100
+  damage: 10
+  moveSpeed: 2.5
+  monsterSprite: {fileID: 1455713515717355252, guid: b79d505e4aa174cc6901a7489aea4876, type: 3}
+  animatorController: {fileID: 9100000, guid: 9945e05c60cc44970a15f79420a65c93, type: 2}

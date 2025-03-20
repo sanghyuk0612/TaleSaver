@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 540763752}
   m_Layer: 6
   m_Name: TargetTrap
-  m_TagString: Half Tile
+  m_TagString: Trap Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -785,6 +785,7 @@ MonoBehaviour:
   spawnPoints: []
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
   playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
+  monsterDatabase: {fileID: 11400000, guid: 98360ad6df22b481db7847b7d76e55c5, type: 2}
   location: 0
 --- !u!4 &951659765
 Transform:

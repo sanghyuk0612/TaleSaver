@@ -16,9 +16,12 @@ public class MapManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
-    private List<GameObject> droppedItems = new List<GameObject>();
 
-    
+    [Header("Monster Database")]
+    public MonsterDatabase monsterDatabase;
+    private List<MonsterData> currentMonsterList; // 현재 맵에서 사용할 몬스터 목록
+
+
     private float right;
     public int location;
 
@@ -42,6 +45,8 @@ public class MapManager : MonoBehaviour
         GenerateStage();
         SpawnInitialEntities();
         StartCoroutine(RepeatFunction());
+
+        LoadMonsterDataForMap();
     }
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
@@ -57,10 +62,10 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location =4;
+        location = 5;
         List<GameObject> filteredPrefabs = new List<GameObject>();
-
-        switch(location){
+        
+        switch (location){
             case 0:  //동굴
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
             break;
@@ -113,6 +118,39 @@ public class MapManager : MonoBehaviour
             Debug.Log($"Successfully loaded {mapPrefabs.Count} map prefabs");
             Debug.Log("불러온 맵의 개수 " + mapPrefabs.Count);
         }
+    }
+
+    private void LoadMonsterDataForMap()
+    {
+        string mapName = GetMapNameFromLocation(location);
+        currentMonsterList = monsterDatabase.GetMonstersForMap(mapName);
+        Debug.Log($"Loaded {currentMonsterList.Count} monsters for {mapName}");
+    }
+
+    // 특정 맵에 맞는 몬스터 데이터 가져오기
+    private string GetMapNameFromLocation(int loc)
+    {
+        switch (loc)
+        {
+            case 0: return "Cave";
+            case 1: return "Desert";
+            case 2: return "Forest";
+            case 3: return "Ice";
+            case 4: return "Lab";
+            case 5: return "Lava";
+            case 6: return "Test";
+            default: return "Unknown";
+        }
+    }
+
+    public MonsterData GetRandomMonsterForCurrentMap()
+    {
+        if (currentMonsterList == null || currentMonsterList.Count == 0)
+        {
+            Debug.LogWarning("No monsters available for this map!");
+            return null;
+        }
+        return currentMonsterList[Random.Range(0, currentMonsterList.Count)];
     }
 
     private float GetMapWidth(Tilemap tilemap)

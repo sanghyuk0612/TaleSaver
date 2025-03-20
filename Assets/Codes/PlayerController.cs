@@ -46,6 +46,9 @@ public class PlayerController : MonoBehaviour, IDamageable
     // 플레이어 사망 상태를 저장하는 static 변수 추가
     public static bool IsDead { get; private set; }
 
+    private bool isInTrap = false; // 트랩 안에 있는지 여부
+    private Coroutine trapDamageCoroutine;
+
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackDuration = 0.2f;
     private bool isKnockedBack = false;
@@ -380,6 +383,42 @@ public class PlayerController : MonoBehaviour, IDamageable
             }
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Trap Tile")) // 트랩에 닿았을 때
+        {
+            if (!isInTrap) // 처음 닿았을 때만 실행
+            {
+                isInTrap = true;
+                trapDamageCoroutine = StartCoroutine(TakeTrapDamage(collision.transform.position));
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Trap Tile"))
+        {
+            isInTrap = false;
+            if (trapDamageCoroutine != null)
+            {
+                StopCoroutine(trapDamageCoroutine);
+                trapDamageCoroutine = null;
+            }
+        }
+    }
+
+    private IEnumerator TakeTrapDamage(Vector3 trapPosition)
+    {
+        while (isInTrap)
+        {
+            Vector2 knockbackDirection = (transform.position - trapPosition).normalized; // 트랩 반대 방향으로 밀려남
+            TakeDamage(10, knockbackDirection, 5f); // 데미지 + 넉백 추가
+            yield return new WaitForSeconds(2f); // 대기
+        }
+    }
+
 
     // IDamageable 인터페이스 구현
     public void TakeDamage(int damage, Vector2 knockbackDirection, float knockbackForce)

@@ -345,7 +345,6 @@ public class CharacterManager : MonoBehaviour
         }
 
         // PlayerPrefs에서 캐릭터 속성 로드
-        character.maxHealth = 
         character.level = PlayerPrefs.GetInt("CharacterLevel_" + currentCharacterIndex, 1);
         character.vitality = PlayerPrefs.GetInt("CharacterVitality_" + currentCharacterIndex, 0);
         character.power = PlayerPrefs.GetInt("CharacterPower_" + currentCharacterIndex, 0);
