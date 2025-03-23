@@ -14,6 +14,21 @@ public class SaveManager : MonoBehaviour
         savePath = Path.Combine(Application.persistentDataPath, "saveFile.json");
     }
 
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        savePath = Path.Combine(Application.persistentDataPath, "playerInventory.json");
+    }
+
     public void SaveData(PlayerItemData data)
     {
         string json = JsonUtility.ToJson(data, true); // JSON 변환

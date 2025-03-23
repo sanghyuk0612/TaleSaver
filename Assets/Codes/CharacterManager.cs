@@ -8,12 +8,12 @@ using UnityEngine.SceneManagement;
 public class CharacterManager : MonoBehaviour
 {
     [Header("Character Data Info")]
-    public CharacterData[] characters;        // 모든 캐릭터 데이터 배열
-    private string[] characterNames = { "Character1", "Gyeonu", "Character3", "Character4", "Character5", "Character6", "Character7" }; // 캐릭터 이름 배열
+    public CharacterData[] characters;        // 캐릭터 데이터 배열
     public Image characterImage;              // 캐릭터 이미지
     public Text characterNameText;            // 캐릭터 이름 텍스트
     public Text descriptionText;              // 캐릭터 설명 텍스트
     public Text levelText;                    // 캐릭터 레벨 텍스트
+    public Text unlockConditionText;          // 캐릭터 해금조건 텍스트
 
     // 현재 선택된 캐릭터의 스프라이트를 저장할 변수
     private Sprite characterSprite;
@@ -40,19 +40,16 @@ public class CharacterManager : MonoBehaviour
     public Button luckUpgradeButton;      // Luck 업그레이드 버튼
 
     [Header("Buttons")]
-    public Button characterButton1;
-    public Button characterButton2;
-    public Button characterButton3;
-    public Button characterButton4;
-    public Button characterButton5;
-    public Button characterButton6;
-    public Button characterButton7;
+    public Transform characterContainer;  // 캐릭터 버튼들이 들어갈 부모 컨테이너
     public Button backButton;
     public Button selectButton;
     public Button upgradeButton;
+    public Button unlockButton;
     public Button closeUpgradeButton;         // 업그레이드 창 닫기 버튼
 
     private int currentCharacterIndex = 0;
+    private List<Button> characterButtons = new List<Button>(); // 동적 버튼 리스트
+
     private float[] skillCooldownTimers; // 스킬 쿨타임 타이머
 
     private SkillManager skillManager;
@@ -77,21 +74,62 @@ public class CharacterManager : MonoBehaviour
         // 초기 캐릭터 로드
         LoadCharacter(0);
 
-        // 버튼 리스너 설정
-        characterButton1.onClick.AddListener(() => ShowCharacterInfo(0));
-        characterButton2.onClick.AddListener(() => ShowCharacterInfo(1));
-        characterButton3.onClick.AddListener(() => ShowCharacterInfo(2));
-        characterButton4.onClick.AddListener(() => ShowCharacterInfo(3));
-        characterButton5.onClick.AddListener(() => ShowCharacterInfo(4));
-        characterButton6.onClick.AddListener(() => ShowCharacterInfo(5));
-        characterButton7.onClick.AddListener(() => ShowCharacterInfo(6));
+        // 캐릭터 데이터 초기화
+        foreach (var character in characters)
+        {
+            int index = Array.IndexOf(characters, character);
 
+            character.level = PlayerPrefs.GetInt("CharacterLevel_" + index, 1);
+            character.vitality = PlayerPrefs.GetInt("CharacterVitality_" + index, 0);
+            character.power = PlayerPrefs.GetInt("CharacterPower_" + index, 0);
+            character.agility = PlayerPrefs.GetInt("CharacterAgility_" + index, 0);
+            character.luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
+            
+            // 캐릭터 잠금 상태 로드
+            character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + index, index == 1 ? 1 : 0) == 1;
+        }
 
+        unlockButton.onClick.AddListener(() => TryUnlockCharacter(currentCharacterIndex));
         backButton.onClick.AddListener(HideCharacterInfo);
         selectButton.onClick.AddListener(OnSelectButtonClick);
         upgradeButton.onClick.AddListener(ShowUpgradePanel);
+        closeUpgradeButton.onClick.AddListener(CloseUpgradePanel);
 
-        closeUpgradeButton.onClick.AddListener(CloseUpgradePanel); // 업그레이드 창 닫기 버튼에 이벤트 추가
+        Button[] existingButtons = characterContainer.GetComponentsInChildren<Button>();
+
+        if (existingButtons.Length != characters.Length)
+        {
+            Debug.LogError($"⚠️ 버튼 개수({existingButtons.Length})와 캐릭터 개수({characters.Length})가 맞지 않습니다!");
+            return;
+        }
+
+        characterButtons = new List<Button>();
+
+        for (int i = 0; i < existingButtons.Length; i++)
+        {
+            int index = i;
+            Button button = existingButtons[i];
+
+            Text buttonText = button.GetComponentInChildren<Text>(); // 버튼의 텍스트
+            Image buttonImage = button.GetComponent<Image>(); // 버튼 자체의 이미지
+
+            if (buttonText != null)
+            {
+                buttonText.text = characters[index].characterName;
+            }
+
+            // 캐릭터가 잠겨 있으면 버튼을 어둡게 처리
+            if (!characters[index].isUnlocked)
+            {
+                buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f); // 어두운 색상 적용
+            }
+
+            // 버튼 클릭 이벤트 추가
+            button.onClick.AddListener(() => ShowCharacterInfo(index));
+
+            // 리스트에 추가
+            characterButtons.Add(button);
+        }
 
         // CharacterSelectionData에 스프라이트 설정 요청
         CharacterSelectionData.Instance.SetDefaultCharacterSprite(this);
@@ -228,28 +266,66 @@ public class CharacterManager : MonoBehaviour
 
     public void ShowCharacterInfo(int index)
     {
+        CharacterData character = characters[currentCharacterIndex];
         characterInfoPanel.SetActive(true);
-        characterButton1.interactable = false;
-        characterButton2.interactable = false;
-        characterButton3.interactable = false;
-        characterButton4.interactable = false;
-        characterButton5.interactable = false;
-        characterButton6.interactable = false;
-        characterButton7.interactable = false;
-
+        SetCharacterButtonsInteractable(false);
         LoadCharacter(index);
+
+        if (characters[index].isUnlocked)
+        {
+            selectButton.interactable = true;
+            upgradeButton.interactable = true;
+            unlockButton.gameObject.SetActive(false); // 해금 버튼 숨김
+            unlockConditionText.text = $"해금 완료!!";
+
+        }
+        else
+        {
+            selectButton.interactable = false;
+            upgradeButton.interactable = false;
+            unlockButton.gameObject.SetActive(true); // 해금 버튼 표시
+            unlockConditionText.text = $"필요한 기계조각 : {character.requiredSteelPieces}\n필요한 페이지 : {character.requiredBookPages}";
+
+        }
     }
 
     public void HideCharacterInfo()
     {
         characterInfoPanel.SetActive(false);
-        characterButton1.interactable = true;
-        characterButton2.interactable = true;
-        characterButton3.interactable = true;
-        characterButton4.interactable = true;
-        characterButton5.interactable = true;
-        characterButton6.interactable = true;
-        characterButton7.interactable = true;
+        SetCharacterButtonsInteractable(true);
+    }
+
+    public void TryUnlockCharacter(int index)
+    {
+        CharacterData character = characters[index];
+
+        if (InventoryManager.Instance.inventory.bookPage >= character.requiredBookPages && InventoryManager.Instance.inventory.steelPiece >= character.requiredSteelPieces)
+        {
+            InventoryManager.Instance.inventory.bookPage -= character.requiredBookPages;
+            InventoryManager.Instance.inventory.steelPiece -= character.requiredSteelPieces;
+
+            character.isUnlocked = true;
+            Debug.Log($"{character.characterName}이(가) 해금되었습니다!");
+
+            UnlockCharacter(index);
+            ShowCharacterInfo(index); // UI 갱신
+        }
+        else
+        {
+            Debug.Log("재료가 부족합니다!");
+        }
+    }
+
+    private void UnlockCharacter(int index)
+    {
+        Button[] Buttons = characterContainer.GetComponentsInChildren<Button>();
+        Button characterButton = Buttons[index];
+
+        Image buttonImage = characterButton.GetComponent<Image>();
+        buttonImage.color = Color.white;
+
+        PlayerPrefs.SetInt("CharacterUnlocked_" + index, 1);
+        PlayerPrefs.Save();
     }
 
     public void LoadCharacter(int index)
@@ -262,6 +338,8 @@ public class CharacterManager : MonoBehaviour
 
         currentCharacterIndex = index;
         CharacterData character = characters[index];
+        characterImage.sprite = character.characterSprite;
+        characterImage.color = character.isUnlocked ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
 
         if (character == null)
         {
@@ -276,6 +354,7 @@ public class CharacterManager : MonoBehaviour
         character.power = PlayerPrefs.GetInt("CharacterPower_" + currentCharacterIndex, 0);
         character.agility = PlayerPrefs.GetInt("CharacterAgility_" + currentCharacterIndex, 0);
         character.luck = PlayerPrefs.GetInt("CharacterLuck_" + currentCharacterIndex, 0);
+        // character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + currentCharacterIndex, currentCharacterIndex == 1 ? 1 : 0) == 1;
 
         // 스킬 로드
         LoadCharacterSkills(character);
@@ -344,6 +423,7 @@ public class CharacterManager : MonoBehaviour
     {
         characterInfoPanel.SetActive(false); // 캐릭터 정보 창 숨기기
         upgradePanel.SetActive(true);
+        SetCharacterButtonsInteractable(false);
         LoadUpgradePanel();
     }
 
@@ -464,6 +544,15 @@ public class CharacterManager : MonoBehaviour
         characterInfoPanel.SetActive(true);  // 캐릭터 정보 창 다시 표시
         LoadCharacter(currentCharacterIndex); // 현재 선택된 캐릭터 정보 다시 로드
     }
+
+    private void SetCharacterButtonsInteractable(bool state)
+    {
+        foreach (Button button in characterButtons)
+        {
+            button.interactable = state;
+        }
+    }
+
 
     // 캐릭터 속성을 PlayerPrefs에 저장하는 메서드
     private void SaveCharacterStats()

@@ -176,7 +176,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             // 땅에 있을 때 점프
             if (IsGrounded)
             {
-                rb.velocity = new Vector2(rb.velocity.x, 0f);
+                rb.velocity = new Vector2(rb.velocity.x, 2f);
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 remainingJumps = maxJumpCount; // 점프 횟수 초기화
                 hasJumped = false; // 점프 상태 초기화

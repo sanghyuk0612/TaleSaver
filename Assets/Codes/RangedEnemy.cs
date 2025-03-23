@@ -166,7 +166,9 @@ public class RangedEnemy : MonoBehaviour
         EnemyProjectile projectileComponent = projectile.GetComponent<EnemyProjectile>();
         if (projectileComponent != null)
         {
-            Vector2 direction = (playerTransform.position - spawnPosition).normalized;
+            // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
+            Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
+            Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
             projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
             projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
         }
