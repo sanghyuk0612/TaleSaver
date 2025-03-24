@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6779117439693362523}
   - component: {fileID: 5066276085163331414}
   m_Layer: 0
-  m_Name: UnderAttack
+  m_Name: DownAttack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

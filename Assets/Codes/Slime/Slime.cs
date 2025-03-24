@@ -45,7 +45,8 @@ public class Slime : MonoBehaviour
     public int dashCooltime = 3;
     public int dashDemage= 30;
     public GameObject SlimeSmashPrefab; // 원형 공격 이펙트 프리팹
-    public GameObject DownAttack;
+    public GameObject DownAttackPrefab;
+    public GameObject FrontAttackPrefab;
     
 
     
@@ -174,7 +175,7 @@ public class Slime : MonoBehaviour
     private float skillInterval = 10f;
     void mySkill(int skillNum){
         //skillNum = Random.Range(0,3);
-        skillNum=2;
+        skillNum=3;
         //캐스팅 시간
         StartCoroutine(StopMovement(1f));
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
@@ -187,7 +188,10 @@ public class Slime : MonoBehaviour
             SmashAttack();
             break;
         case 2:
-            UnderAttack();
+            DownAttack();
+            break;
+        case 3:
+            FrontAttack();
             break;
         default:
             Debug.Log("잘못된 스킬 번호");
@@ -195,6 +199,20 @@ public class Slime : MonoBehaviour
     }
         Debug.Log("스킬"+skillNum+ "실행");
     }
+private void FrontAttack(){
+    //StopMovement(0.5f);
+    // 이펙트 생성
+    if (FrontAttackPrefab != null)
+    {
+        GameObject effect = Instantiate(FrontAttackPrefab, transform.position+new Vector3(1*direction.x,0,0), Quaternion.identity);
+        effect.transform.SetParent(transform);
+        StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
+        
+        Destroy(effect, 0.5f); // 0.5초 후 이펙트 제거
+        Debug.Log("이펙트 출력");
+    }
+    Debug.Log("휘두르기 사용");
+}
 
 private void SmashAttack()
 {
@@ -209,7 +227,7 @@ private void SmashAttack()
     Debug.Log("원형 공격 사용");
 }
 
-private void UnderAttack()
+private void DownAttack()
 {
     StartCoroutine(StopMovement(1.5f)); // 몬스터 멈추기
 
@@ -217,11 +235,11 @@ private void UnderAttack()
     Vector2 shootDirection = direction.normalized;
 
     // 이펙트 생성 (플레이어 방향으로)
-    if (DownAttack != null)
+    if (DownAttackPrefab != null)
     {
 
         // 레이저 이펙트 생성
-        GameObject effect = Instantiate(DownAttack, transform.position+new Vector3(2*direction.x,-1,0), Quaternion.identity);
+        GameObject effect = Instantiate(DownAttackPrefab, transform.position+new Vector3(2*direction.x,-1,0), Quaternion.identity);
         
         // 이펙트 이동 (속도 조절 가능)
         Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
@@ -253,19 +271,19 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 속도 설정
         // 대시 속도 직접 설정
         // 대시 코루틴 시작
-        StartCoroutine(DashCoroutine());
+        StartCoroutine(DashCoroutine(0.3f));
         // 쿨다운 시작
         canDash = false;
         Debug.Log($"보스몬스터 대쉬사용");
     }
 
-    private IEnumerator DashCoroutine()
+    private IEnumerator DashCoroutine(float dashTime)
     {
         isDashing = true;
         int tmp = baseDamage;
         baseDamage = dashDemage;
         // 대시 지속 시간
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(dashTime);
         baseDamage = tmp;
         isDashing = false;
     }
