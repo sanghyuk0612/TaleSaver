@@ -44,8 +44,16 @@ public class LoginPanelManager : MonoBehaviour
 
     public void OnClickSignup()
     {
+        Debug.Log("회원가입 버튼 눌림"); // ?? 이거 안 뜨면 버튼 연결 안 된 거야
+
         string email = emailInput.text;
         string password = passwordInput.text;
+
+        if (authManager == null)
+        {
+            Debug.LogError("authManager가 null입니다! Inspector 연결 누락");
+            return;
+        }
 
         authManager.SignUp(email, password);
     }

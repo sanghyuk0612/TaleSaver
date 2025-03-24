@@ -1,0 +1,23 @@
+{
+    "project_info": {
+        "project_id": "tale-saver",
+        "project_number": "870744593385",
+        "name": "TaleSaver"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:870744593385:web:3c65b1a42e1ec62fc27178",
+                "android_client_info": {
+                    "package_name": "com.talesaver.desktop"
+                }
+            },
+            "api_key": [
+                {
+                    "current_key": "AIzaSyCTEXMlsJSGF7lIdVt-Hn9BITyx_8Pyu20"
+                }
+            ]
+        }
+    ],
+    "configuration_version": "1"
+}
