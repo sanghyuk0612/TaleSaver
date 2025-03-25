@@ -132,7 +132,7 @@ public class Slime : MonoBehaviour
         {
             skillNum = Random.Range(0,4);// 스킬 4개
             skillTimer = 0f; // 타이머 초기화
-            mySkill(skillNum);
+            StartCoroutine(mySkill(skillNum));
         }
 
         // 플레이어와의 거리 체크
@@ -172,13 +172,21 @@ public class Slime : MonoBehaviour
         }
     }
     private float skillTimer = 0f;
-    private float skillInterval = 10f;
-    void mySkill(int skillNum){
-        //skillNum = Random.Range(0,3);
-        skillNum=3;
+    public float skillInterval = 3f;
+    public int custumSkillnum=0;
+   IEnumerator mySkill(int skillNum){
+        
+        if (custumSkillnum==7){
+            skillNum = Random.Range(0,4);
+        }
+        else{
+            skillNum=custumSkillnum;
+        }
+        
         //캐스팅 시간
         StartCoroutine(StopMovement(1f));
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
+        yield return new WaitForSeconds(1f);
         switch (skillNum)
     {
         case 0:
@@ -216,20 +224,21 @@ private void FrontAttack(){
 
 private void SmashAttack()
 {
-    StopMovement(0.5f);
+    StartCoroutine(StopMovement(0.5f));
     // 이펙트 생성
     if (SlimeSmashPrefab != null)
     {
         GameObject effect = Instantiate(SlimeSmashPrefab, transform.position, Quaternion.identity);
+        effect.transform.SetParent(transform);
         Destroy(effect, 0.5f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
-    Debug.Log("원형 공격 사용");
+    Debug.Log("주위공격 공격 사용");
 }
 
 private void DownAttack()
 {
-    StartCoroutine(StopMovement(1.5f)); // 몬스터 멈추기
+    StartCoroutine(StopMovement(1.0f)); // 몬스터 멈추기
 
     // 방향 벡터 정규화
     Vector2 shootDirection = direction.normalized;
@@ -248,7 +257,7 @@ private void DownAttack()
             effectRb.velocity = shootDirection * 5f; // 속도 조절
         }
 
-        Destroy(effect, 1.5f); // 1.5초 후 이펙트 제거
+        Destroy(effect, 1.0f); // 1.0초 후 이펙트 제거
     }
 
     Debug.Log("슬라임 아래공격 사용");
@@ -282,6 +291,7 @@ private IEnumerator StopMovement(float stopDuration)
         isDashing = true;
         int tmp = baseDamage;
         baseDamage = dashDemage;
+        canDash = false;
         // 대시 지속 시간
         yield return new WaitForSeconds(dashTime);
         baseDamage = tmp;
