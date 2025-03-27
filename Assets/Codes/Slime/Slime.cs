@@ -44,10 +44,14 @@ public class Slime : MonoBehaviour
     public int dashForce = 30;
     public int dashCooltime = 3;
     public int dashDemage= 30;
+    public float jumpForce = 5f;
+    public float jumpHorizontalForce = 3f; // 대각선 이동을 위한 수평 힘
     public GameObject SlimeSmashPrefab; // 원형 공격 이펙트 프리팹
     public GameObject DownAttackPrefab;
     public GameObject FrontAttackPrefab;
     public Transform Pivot;
+    [Header("Animation")]
+    public Animator anim;
     
 
     
@@ -63,6 +67,7 @@ public class Slime : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         // 체력과 공격력 초기화
@@ -216,12 +221,27 @@ public class Slime : MonoBehaviour
         case 3:
             FrontAttack();
             break;
+        case 4:
+            Jump();
+            break;
         default:
             Debug.Log("잘못된 스킬 번호");
             break;
     }
         Debug.Log("스킬"+skillNum+ "실행");
     }
+private void Jump(){
+    int direc;
+    if(direction.x>0){
+        direc = 1;
+    }
+    else{
+        direc = -1;
+    }
+    Vector2 jumpVector = new Vector2(jumpHorizontalForce *direc , jumpForce);
+    rb.velocity = new Vector2(rb.velocity.x, 0); // 기존 Y축 속도를 초기화
+    rb.AddForce(jumpVector, ForceMode2D.Impulse); // 힘을 순간적으로 가함
+}
 private void FrontAttack(){
     //StopMovement(0.5f);
     // 이펙트 생성
