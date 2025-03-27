@@ -18,6 +18,7 @@ public class SkillManager : MonoBehaviour
 
     public float effectRadius = 17f; // effectRadius 변수 추가 (필요시 조정)
     private Vector3 fireballPosition; // Fireball 스킬 사용 시 위치 저장
+    private Vector3 ultimoPosition; // Ultimo 스킬 사용 시 위치 저장
 
     public void UseSkill(CharacterSkill skill, Transform characterTransform)
     {
@@ -180,6 +181,74 @@ public class SkillManager : MonoBehaviour
                 Debug.Log($"Number of enemies hit by Poison: {enemyCount}");
                 break;
                 
+            case "Ultimo":
+                // 카메라의 위치를 사용하여 현재 씬에서 Tag가 Enemy인 오브젝트 감지
+                cameraPosition = Camera.main.transform.position;
+                ultimoPosition = cameraPosition; // Ultimo 위치 저장
+                
+                // 모든 Enemy 오브젝트 찾기
+                GameObject[] enemies_ultimo = GameObject.FindGameObjectsWithTag("Enemy");
+                enemyCount = 0;
+
+                // 범위 내의 적 찾기 - 바라보는 방향 상관없이 모든 적에게 효과 적용
+                foreach (GameObject enemy in enemies_ultimo)
+                {
+                    // 카메라 위치와 적의 거리 계산
+                    Vector3 directionToEnemy = enemy.transform.position - cameraPosition;
+                    float distance = directionToEnemy.magnitude;
+
+                    // 범위 내에 있다면 방향에 상관없이 효과 적용
+                    if (distance <= skill.effectRadius)
+                    {
+                        enemyCount++;
+                        if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
+                        {
+                            // KnockBack 효과 먼저 적용
+                            Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
+                            if (enemyRb != null)
+                            {
+                                Debug.Log($"Applying knockback to MeleeEnemy: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                enemyRb.velocity = Vector2.zero;
+                                enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
+                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
+                                // 위치 고정 및 해제 코루틴 시작
+                                StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"MeleeEnemy {enemy.name} has no Rigidbody2D component!");
+                            }
+                            // 1초 후 데미지 적용
+                            StartCoroutine(DelayedDamage(meleeEnemy, skill.skillDamage, 0.5f));
+                        }
+                        else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
+                        {
+                            // KnockBack 효과 먼저 적용
+                            Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
+                            if (enemyRb != null)
+                            {
+                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                enemyRb.velocity = Vector2.zero;
+                                enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
+                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
+                                // 위치 고정 및 해제 코루틴 시작
+                                StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
+                            }
+                            // 1초 후 데미지 적용
+                            StartCoroutine(DelayedDamage(rangedEnemy, skill.skillDamage, 0.5f));
+                        }
+                    }
+                }
+
+                Debug.Log($"Number of enemies hit by Ultimo: {enemyCount}");
+                break;
+
             default: // Heal 계열 스킬
                 ApplyDefaultEffect(skill, characterTransform);
                 break;
@@ -309,11 +378,40 @@ public class SkillManager : MonoBehaviour
         }
     }
 
+    private IEnumerator DelayedDamage(MeleeEnemy enemy, float damage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemy.TakeDamage(damage);
+    }
+
+    private IEnumerator DelayedDamage(RangedEnemy enemy, float damage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemy.TakeDamage(damage);
+    }
+
+    private IEnumerator FreezePosition(Rigidbody2D rb, float freezeDelay, float unfreezeDelay)
+    {
+        // freezeDelay 초 후에 위치 고정
+        yield return new WaitForSeconds(freezeDelay);
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        Debug.Log($"Position frozen for {rb.gameObject.name}");
+        
+        // unfreezeDelay 초 후에 위치 고정 해제 (회전만 고정)
+        yield return new WaitForSeconds(unfreezeDelay);
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // 회전만 고정
+        Debug.Log($"Position unfrozen for {rb.gameObject.name}");
+    }
+
     private void OnDrawGizmos()
     {
         // 기즈모 색상 설정
         Gizmos.color = Color.blue;
         // 기즈모로 effectRadius 범위 그리기
         Gizmos.DrawWireSphere(fireballPosition, effectRadius); // Fireball 위치에 기즈모 그리기
+        
+        // Ultimo 스킬의 효과 범위 표시 (빨간색)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(ultimoPosition, effectRadius); // Ultimo 위치에 기즈모 그리기
     }
 }
