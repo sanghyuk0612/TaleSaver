@@ -213,7 +213,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meleeEnemyPrefab: {fileID: 8372166154551508869, guid: 8d5bdd52dec08c840a107532559e9a76, type: 3}
   rangedEnemyPrefab: {fileID: 1651906025392740170, guid: 5b3750462f1a61a4fa83e1a05b0dc11d, type: 3}
-  BossPrefab: {fileID: 7066774727544269206, guid: b080fcda2fa68314fa0a98ebfa89a69a, type: 3}
+  BossPrefab: {fileID: 7066774727544269206, guid: 31f22b8f25d9db54ea17870d6615ee99, type: 3}
 --- !u!4 &362523274
 Transform:
   m_ObjectHideFlags: 0
@@ -1485,6 +1485,8 @@ MonoBehaviour:
   playerUIPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   playerSpriteRenderer: {fileID: 4653082698377534761, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   monsterNumber: {fileID: 2095508048}
+  gameOverPanel: {fileID: 0}
+  restartButton: {fileID: 0}
 --- !u!4 &2041122546
 Transform:
   m_ObjectHideFlags: 0

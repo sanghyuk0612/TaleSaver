@@ -22,26 +22,7 @@ public class BossSpawnManager : MonoBehaviour
     }
     
 
-    public void SpawnEntities()
-    {
-
-        // 타일맵의 경계 가져오기
-        int ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
-        Vector3 pos = MapManager.Instance.spawnPoints[ran];
-
-        // 근접 적 스폰 (약간 왼쪽에)
-        if (BossPrefab != null)
-        {
-            PortalManager.Instance.updateEnemy(1);
-            Instantiate(BossPrefab, MapManager.Instance.portalPosition, Quaternion.identity);
-            Debug.Log("Melee Enemy spawned at: " + pos);
-        }
-        else
-        {
-            Debug.LogWarning("Melee Enemy Prefab is not assigned!");
-        }
-        // 원거리 적 스폰 (약간 오른쪽에)
-    }
+    
 
     // Start is called before the first frame update
     void Start()
