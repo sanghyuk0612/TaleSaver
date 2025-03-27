@@ -30,7 +30,7 @@ public class Slime : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Transform playerTransform;
     private bool isGrounded;
-    private bool isFacingRight = true;
+    private bool isFacingRight = false;
 
     [Header("Health")]
     public float baseHealth = 100f; // 기본 체력
@@ -147,11 +147,11 @@ public class Slime : MonoBehaviour
             rb.velocity =new Vector2(0, rb.velocity.y);
         }
             // 스프라이트 방향 전환
-            if (direction.x > 0 && !isFacingRight)
+            if (direction.x < 0 && !isFacingRight)
             {
                 Flip();
             }
-            else if (direction.x < 0 && isFacingRight)
+            else if (direction.x > 0 && isFacingRight)
             {
                 Flip();
             }
@@ -172,6 +172,19 @@ public class Slime : MonoBehaviour
             calculatedHealth = 0;
             CheckDeath();
         }
+    }
+    void Flip()
+    {
+        
+        isFacingRight = !isFacingRight;
+        //spriteRenderer.flipX = !spriteRenderer.flipX;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+        
+    }
+    private void myFlip(){
+        
     }
     private float skillTimer = 0f;
     public float skillInterval = 3f;
@@ -311,11 +324,7 @@ private IEnumerator StopMovement(float stopDuration)
         }
     }
 
-    void Flip()
-    {
-        isFacingRight = !isFacingRight;
-        spriteRenderer.flipX = !isFacingRight;
-    }
+    
 
     void DropItem()
     {
