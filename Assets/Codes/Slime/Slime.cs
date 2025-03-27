@@ -47,6 +47,7 @@ public class Slime : MonoBehaviour
     public GameObject SlimeSmashPrefab; // 원형 공격 이펙트 프리팹
     public GameObject DownAttackPrefab;
     public GameObject FrontAttackPrefab;
+    public Transform Pivot;
     
 
     
@@ -58,6 +59,7 @@ public class Slime : MonoBehaviour
         detectionRange = GameManager.Instance.meleeEnemyDetectionRange;
         knockbackForce = GameManager.Instance.meleeEnemyKnockbackForce;
         damageCooldown = GameManager.Instance.meleeEnemyDamageCooldown;
+        Pivot = transform.Find("pivot");
 
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -212,7 +214,7 @@ private void FrontAttack(){
     // 이펙트 생성
     if (FrontAttackPrefab != null)
     {
-        GameObject effect = Instantiate(FrontAttackPrefab, transform.position+new Vector3(1*direction.x,0,0), Quaternion.identity);
+        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direction.x,0,0), Quaternion.identity);
         effect.transform.SetParent(transform);
         StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
         
@@ -228,7 +230,7 @@ private void SmashAttack()
     // 이펙트 생성
     if (SlimeSmashPrefab != null)
     {
-        GameObject effect = Instantiate(SlimeSmashPrefab, transform.position, Quaternion.identity);
+        GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position, Quaternion.identity);
         effect.transform.SetParent(transform);
         Destroy(effect, 0.5f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
@@ -248,7 +250,7 @@ private void DownAttack()
     {
 
         // 레이저 이펙트 생성
-        GameObject effect = Instantiate(DownAttackPrefab, transform.position+new Vector3(2*direction.x,-1,0), Quaternion.identity);
+        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(2*direction.x,-1,0), Quaternion.identity);
         
         // 이펙트 이동 (속도 조절 가능)
         Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
