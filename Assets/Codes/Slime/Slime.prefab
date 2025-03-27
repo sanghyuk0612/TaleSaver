@@ -155,8 +155,9 @@ MonoBehaviour:
   DownAttackPrefab: {fileID: 5605060386581786699, guid: f4596d95b384735469fb4eca79edca30, type: 3}
   FrontAttackPrefab: {fileID: 5605060386581786699, guid: c7344367892154546ae8d777828ae977, type: 3}
   Pivot: {fileID: 0}
+  anim: {fileID: 0}
   skillInterval: 3
-  custumSkillnum: 4
+  custumSkillnum: 0
 --- !u!50 &8942201822892090564
 Rigidbody2D:
   serializedVersion: 4

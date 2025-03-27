@@ -123,6 +123,7 @@ public class Slime : MonoBehaviour
     }
     Vector2 direction;
     bool canMove;
+    private int direc;
     void Update()
     {
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
@@ -133,6 +134,12 @@ public class Slime : MonoBehaviour
             return;
         }
         direction = (playerTransform.position - transform.position).normalized;
+        if(direction.x>0){
+        direc = 1;
+        }
+        else{
+            direc = -1;
+        }
         skillTimer+=Time.deltaTime;
         int skillNum;
         if (skillTimer >= skillInterval) // 1분마다 한번씩 랜덤으로 스킬 실행
@@ -146,7 +153,7 @@ public class Slime : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
         // x축 방향으로만 이동
         if(canMove){
-            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+            rb.velocity = new Vector2(direc* moveSpeed, rb.velocity.y);
         }
         else{
             rb.velocity =new Vector2(0, rb.velocity.y);
@@ -161,7 +168,7 @@ public class Slime : MonoBehaviour
                 Flip();
             }
         if(isDashing){
-            rb.velocity = new Vector2(direction.x * dashForce, rb.velocity.y);
+            rb.velocity = new Vector2(direc * dashForce, rb.velocity.y);
         }
         // 체력 체크
         if (calculatedHealth <= 0)
@@ -188,6 +195,7 @@ public class Slime : MonoBehaviour
         transform.localScale = scale;
         
     }
+    
     private void myFlip(){
         
     }
@@ -207,6 +215,7 @@ public class Slime : MonoBehaviour
         StartCoroutine(StopMovement(1f));
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
         yield return new WaitForSeconds(1f);
+        anim.SetInteger("skillNum",skillNum);
         switch (skillNum)
     {
         case 0:
@@ -231,13 +240,7 @@ public class Slime : MonoBehaviour
         Debug.Log("스킬"+skillNum+ "실행");
     }
 private void Jump(){
-    int direc;
-    if(direction.x>0){
-        direc = 1;
-    }
-    else{
-        direc = -1;
-    }
+    
     Vector2 jumpVector = new Vector2(jumpHorizontalForce *direc , jumpForce);
     rb.velocity = new Vector2(rb.velocity.x, 0); // 기존 Y축 속도를 초기화
     rb.AddForce(jumpVector, ForceMode2D.Impulse); // 힘을 순간적으로 가함
@@ -283,7 +286,7 @@ private void DownAttack()
     {
 
         // 레이저 이펙트 생성
-        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(2*direction.x,-1,0), Quaternion.identity);
+        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(3*direc,-1,0), Quaternion.identity);
         
         // 이펙트 이동 (속도 조절 가능)
         Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
