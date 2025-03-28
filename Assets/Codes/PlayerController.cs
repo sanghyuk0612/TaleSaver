@@ -273,10 +273,10 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 상태 변경 시 로그 출력
         if (wasGrounded != IsGrounded)
         {
-            Debug.Log($"Ground state changed: {IsGrounded}");
+            //Debug.Log($"Ground state changed: {IsGrounded}");
             if (hit.collider != null)
             {
-                Debug.Log($"Detected ground: {hit.collider.gameObject.name}");
+                //Debug.Log($"Detected ground: {hit.collider.gameObject.name}");
             }
         }
     }

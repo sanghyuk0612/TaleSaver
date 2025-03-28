@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e32be8a70b944c449528d3f56d075ec, type: 3}
-  m_Name: Fireball
+  m_Name: BaseG
   m_EditorClassIdentifier: 
-  skillName: Fireball
-  skillDamage: 100
+  skillName: BaseG
+  skillDamage: 10
   skillCooldown: 0.3
-  effectRadius: 20
+  effectRadius: 10
   effectType: 0
   effectValue: 0
