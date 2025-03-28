@@ -15,6 +15,6 @@ MonoBehaviour:
   skillName: Fireball
   skillDamage: 100
   skillCooldown: 0.3
-  effectRadius: 20
+  effectRadius: 15
   effectType: 0
   effectValue: 0

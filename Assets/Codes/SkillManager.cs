@@ -11,6 +11,8 @@ public class SkillManager : MonoBehaviour
         hitEffectPrefab = Resources.Load<GameObject>("Prefabs/Particle/HitEffect");
         // Fireball 이펙트 프리팹 로드
         fireballEffectPrefab = Resources.Load<GameObject>("Prefabs/Particle/Fireball");
+        // Ultimo 이펙트 프리팹 로드
+        ultimoEffectPrefab = Resources.Load<GameObject>("Prefabs/Particle/Ultimo");
     }
 
     // Update is called once per frame
@@ -22,8 +24,11 @@ public class SkillManager : MonoBehaviour
     private Vector3 fireballPosition; // Fireball 스킬 사용 시 위치 저장
     private Vector3 ultimoPosition; // Ultimo 스킬 사용 시 위치 저장
     private Vector3 baseAttackPosition; // BaseG 스킬 사용 시 위치 저장
+    private Vector3 closestEnemyPosition; // 가장 가까운 적의 위치 저장
     private GameObject hitEffectPrefab; // 타격 이펙트 프리팹
     private GameObject fireballEffectPrefab; // Fireball 이펙트 프리팹
+
+    private GameObject ultimoEffectPrefab; // Ultimo 이펙트 프리팹
 
     public void UseSkill(CharacterSkill skill, Transform characterTransform)
     {
@@ -107,6 +112,7 @@ public class SkillManager : MonoBehaviour
                 // 가장 가까운 적에게 데미지 적용
                 if (closestEnemy != null)
                 {
+                    closestEnemyPosition = closestEnemy.transform.position; // 가장 가까운 적의 위치 저장
                     // 타격 이펙트 생성
                     if (hitEffectPrefab != null)
                     {
@@ -129,9 +135,16 @@ public class SkillManager : MonoBehaviour
                 break;
 
             case "Fireball":
-                // 카메라의 위치를 사용하여 현재 씬에서 Tag가 Enemy인 오브젝트 감지
-                cameraPosition = Camera.main.transform.position; // 카메라의 위치 가져오기
-                fireballPosition = cameraPosition; // Fireball 위치 저장
+                // Player(Clone) 오브젝트 찾기
+                GameObject playerObject_fireball = GameObject.Find("Player(Clone)");
+                if (playerObject_fireball == null)
+                {
+                    Debug.LogError("Player(Clone) object not found!");
+                    return;
+                }
+
+                // 플레이어의 위치를 기준으로 Fireball 위치 설정
+                fireballPosition = playerObject_fireball.transform.position;
                 
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_fireball = GameObject.FindGameObjectsWithTag("Enemy");
@@ -140,27 +153,18 @@ public class SkillManager : MonoBehaviour
                 // 캐릭터가 바라보는 방향
                 forwardDirection = characterTransform.forward;
 
-                // Player(Clone) 오브젝트 찾기
-                GameObject playerObject_fireball = GameObject.Find("Player(Clone)");
-                if (playerObject_fireball != null)
-                {
-                    SpriteRenderer spriteRenderer = playerObject_fireball.GetComponent<SpriteRenderer>();
-                    isFlipped = spriteRenderer != null && spriteRenderer.flipX;
-                    Debug.Log($"Player found - flipX: {isFlipped}, SpriteRenderer: {(spriteRenderer != null ? "Found" : "Not Found")}");
-                }
-                else
-                {
-                    Debug.LogError("Player(Clone) object not found!");
-                    return;
-                }
+                // Player의 SpriteRenderer 컴포넌트 가져오기
+                SpriteRenderer spriteRenderer = playerObject_fireball.GetComponent<SpriteRenderer>();
+                isFlipped = spriteRenderer != null && spriteRenderer.flipX;
+                Debug.Log($"Player found - flipX: {isFlipped}, SpriteRenderer: {(spriteRenderer != null ? "Found" : "Not Found")}");
 
                 // Fireball 이펙트 생성
                 if (fireballEffectPrefab != null)
                 {
                     // 캐릭터의 방향에 따라 회전 설정
-                    float rotationY = isFlipped ? 180f : 0f;
-                    GameObject fireballEffect = Instantiate(fireballEffectPrefab, fireballPosition, Quaternion.Euler(0f, rotationY, 0f));
-                    Destroy(fireballEffect, 0.4f); // 0.2초 후 이펙트 제거
+                    float rotationZ = isFlipped ? 180f : 0f;
+                    GameObject fireballEffect = Instantiate(fireballEffectPrefab, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
+                    Destroy(fireballEffect, 0.4f); // 0.4초 후 이펙트 제거
                 }
 
                 // 범위 내의 적 찾기
@@ -304,9 +308,23 @@ public class SkillManager : MonoBehaviour
                 break;
                 
             case "Ultimo":
-                // 카메라의 위치를 사용하여 현재 씬에서 Tag가 Enemy인 오브젝트 감지
-                cameraPosition = Camera.main.transform.position;
-                ultimoPosition = cameraPosition; // Ultimo 위치 저장
+                // Player(Clone) 오브젝트 찾기
+                GameObject playerObject_ultimo = GameObject.Find("Player(Clone)");
+                if (playerObject_ultimo == null)
+                {
+                    Debug.LogError("Player(Clone) object not found!");
+                    return;
+                }
+
+                // 플레이어의 위치를 기준으로 Ultimo 위치 설정
+                ultimoPosition = playerObject_ultimo.transform.position;
+
+                // Ultimo 이펙트 생성
+                if (ultimoEffectPrefab != null)
+                {
+                    GameObject ultimoEffect = Instantiate(ultimoEffectPrefab, ultimoPosition, Quaternion.identity);
+                    Destroy(ultimoEffect, 1.0f); // 1초 후 이펙트 제거
+                }
                 
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_ultimo = GameObject.FindGameObjectsWithTag("Enemy");
@@ -316,7 +334,7 @@ public class SkillManager : MonoBehaviour
                 foreach (GameObject enemy in enemies_ultimo)
                 {
                     // 카메라 위치와 적의 거리 계산
-                    Vector3 directionToEnemy = enemy.transform.position - cameraPosition;
+                    Vector3 directionToEnemy = enemy.transform.position - playerObject_ultimo.transform.position;
                     float distance = directionToEnemy.magnitude;
 
                     // 범위 내에 있다면 방향에 상관없이 효과 적용
@@ -546,7 +564,7 @@ public class SkillManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // 기즈모 색상 설정
+        // Fireball 스킬의 효과 범위 표시 (파란색)
         Gizmos.color = Color.blue;
         // 기즈모로 effectRadius 범위 그리기
         Gizmos.DrawWireSphere(fireballPosition, 15f); // Fireball 위치에 기즈모 그리기
@@ -558,5 +576,9 @@ public class SkillManager : MonoBehaviour
         // BaseG 스킬의 효과 범위 표시 (노란색)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(baseAttackPosition, 10f); // BaseG 위치에 기즈모 그리기
+
+        // BaseG 공격과 가장 가까운 적 사이의 직선 표시 (초록색)
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(baseAttackPosition, closestEnemyPosition);
     }
 }
