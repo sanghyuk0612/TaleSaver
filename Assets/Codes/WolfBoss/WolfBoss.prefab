@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1255538918715004965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 47297804589778601}
+  m_Layer: 7
+  m_Name: pivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &47297804589778601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255538918715004965}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.033, y: -0.036, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5253027807050773820}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7066774727544269206
 GameObject:
   m_ObjectHideFlags: 0
@@ -13,9 +44,10 @@ GameObject:
   - component: {fileID: 8942201822892090564}
   - component: {fileID: 857715028590235933}
   - component: {fileID: 1848237136695092566}
-  - component: {fileID: 3758092726623014415}
+  - component: {fileID: -9179091658442141954}
+  - component: {fileID: 4323631921685023803}
   m_Layer: 7
-  m_Name: LavaGaint
+  m_Name: WolfBoss
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,13 +61,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7066774727544269206}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.25, y: 1, z: 0}
-  m_LocalScale: {x: 1.8, y: 3, z: 1}
+  m_LocalRotation: {x: -0, y: -0.0015821978, z: 0, w: 0.9999988}
+  m_LocalPosition: {x: 9.52, y: 1.35, z: 0}
+  m_LocalScale: {x: 4, y: 8, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 47297804589778601}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -0.181, z: 0}
 --- !u!212 &122197634965626083
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -78,7 +111,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.4764151, g: 0.4269758, b: 0.4269758, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -147,7 +180,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 1
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.0007135868, y: 0.0011438131}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -158,7 +191,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.0021901, y: 1.0033314}
   m_EdgeRadius: 0
 --- !u!251 &1848237136695092566
 PlatformEffector2D:
@@ -179,7 +212,7 @@ PlatformEffector2D:
   m_UseSideFriction: 0
   m_UseSideBounce: 0
   m_SideArc: 90
---- !u!114 &3758092726623014415
+--- !u!114 &-9179091658442141954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -188,24 +221,51 @@ MonoBehaviour:
   m_GameObject: {fileID: 7066774727544269206}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7050d3d211ebe2f4d9094ea7498f9dba, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c9af29f81d0a2b41b9fd324b6a5df46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   groundCheckDistance: 0.2
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   groundCheckSize: {x: 0.5, y: 0.1}
   compositeCollider: {fileID: 0}
   baseDamage: 10
-  damageMultiplier: {fileID: 0}
+  damageMultiplier: {fileID: 11400000, guid: 346e44b35f0a47541abd528d6e601d2e, type: 2}
   attackDamage: 0
   baseHealth: 100
-  healthMultiplier: {fileID: 0}
+  healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
   itemPrefab: {fileID: 0}
-  dashForce: 30
+  dashForce: 15
   dashCooltime: 3
   dashDemage: 30
-  circularAttackEffectPrefab: {fileID: 0}
-  RaserEffectPrefab: {fileID: 0}
+  jumpForce: 5
+  jumpHorizontalForce: 3
+  SlimeSmashPrefab: {fileID: 3415900879390828816, guid: be3875c0bea1e074fad6cbc7d1690220, type: 3}
+  DownAttackPrefab: {fileID: 5605060386581786699, guid: 1351cce8410ee04458c6623aec3e0ad0, type: 3}
+  FrontAttackPrefab: {fileID: 5605060386581786699, guid: f8ca09712b79c1d48967be7a3b65f8c6, type: 3}
+  anim: {fileID: 0}
+  skillInterval: 3
+  custumSkillnum: 7
+--- !u!95 &4323631921685023803
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7066774727544269206}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 65047c7b8fd594546ab3fbd83c512ca5, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

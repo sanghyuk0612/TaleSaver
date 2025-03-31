@@ -73,7 +73,7 @@ public class SpawnManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Melee Enemy Prefab is not assigned!");
+            Debug.LogWarning("Boss Prefab is not assigned!");
         }
         // 원거리 적 스폰 (약간 오른쪽에)
     }
