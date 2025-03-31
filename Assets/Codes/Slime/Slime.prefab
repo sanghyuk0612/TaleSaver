@@ -146,7 +146,7 @@ MonoBehaviour:
   healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
   itemPrefab: {fileID: 0}
-  dashForce: 30
+  dashForce: 15
   dashCooltime: 3
   dashDemage: 30
   jumpForce: 20
@@ -154,10 +154,9 @@ MonoBehaviour:
   SlimeSmashPrefab: {fileID: 3415900879390828816, guid: 4fa0097b07b404e41af45216135f2094, type: 3}
   DownAttackPrefab: {fileID: 5605060386581786699, guid: f4596d95b384735469fb4eca79edca30, type: 3}
   FrontAttackPrefab: {fileID: 5605060386581786699, guid: c7344367892154546ae8d777828ae977, type: 3}
-  Pivot: {fileID: 0}
   anim: {fileID: 0}
   skillInterval: 3
-  custumSkillnum: 0
+  custumSkillnum: 7
 --- !u!50 &8942201822892090564
 Rigidbody2D:
   serializedVersion: 4

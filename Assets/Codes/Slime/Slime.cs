@@ -41,7 +41,7 @@ public class Slime : MonoBehaviour
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
     private InventoryManager inventoryManager;
     [Header("Attack")]
-    public int dashForce = 30;
+    public int dashForce = 15;
     public int dashCooltime = 3;
     public int dashDemage= 30;
     public float jumpForce = 5f;
@@ -49,7 +49,7 @@ public class Slime : MonoBehaviour
     public GameObject SlimeSmashPrefab; // 원형 공격 이펙트 프리팹
     public GameObject DownAttackPrefab;
     public GameObject FrontAttackPrefab;
-    public Transform Pivot;
+    private Transform Pivot;
     [Header("Animation")]
     public Animator anim;
     
@@ -82,6 +82,7 @@ public class Slime : MonoBehaviour
 
         // 기존 Collider는 물리적 충돌용으로 사용
         GetComponent<Collider2D>().isTrigger = false;
+        
 
         // 새로운 Trigger Collider 추가
         BoxCollider2D triggerCollider = gameObject.AddComponent<BoxCollider2D>();
@@ -108,6 +109,8 @@ public class Slime : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
+        anim.SetInteger("skillNum",9);
+        StartCoroutine(StopMovement(4f));
     }
 
     private void Awake()
@@ -205,7 +208,7 @@ public class Slime : MonoBehaviour
    IEnumerator mySkill(int skillNum){
         
         if (custumSkillnum==7){
-            skillNum = Random.Range(0,4);
+            skillNum = Random.Range(0,5);
         }
         else{
             skillNum=custumSkillnum;
@@ -215,20 +218,21 @@ public class Slime : MonoBehaviour
         StartCoroutine(StopMovement(1f));
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
         yield return new WaitForSeconds(1f);
+
         anim.SetInteger("skillNum",skillNum);
         switch (skillNum)
-    {
+        {
         case 0:
             Dash();
             break;
         case 1:
-            SmashAttack();
+            //SmashAttack();
             break;
         case 2:
-            DownAttack();
+            //DownAttack();
             break;
         case 3:
-            FrontAttack();
+            //FrontAttack();
             break;
         case 4:
             Jump();
@@ -236,8 +240,12 @@ public class Slime : MonoBehaviour
         default:
             Debug.Log("잘못된 스킬 번호");
             break;
-    }
+        }
         Debug.Log("스킬"+skillNum+ "실행");
+    }
+    public void ResetToIdle() // 애니메이션 이벤트에서 호출될 함수
+    {
+        anim.SetInteger("skillNum", 9); // Idle 상태로 변경
     }
 private void Jump(){
     
@@ -250,29 +258,33 @@ private void FrontAttack(){
     // 이펙트 생성
     if (FrontAttackPrefab != null)
     {
-        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direction.x,0,0), Quaternion.identity);
+        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direc,0.3f,0), Quaternion.identity);
         effect.transform.SetParent(transform);
-        StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
+        //StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
         
-        Destroy(effect, 0.5f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.6f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
     Debug.Log("휘두르기 사용");
+    //anim.SetInteger("skillNum",9);
 }
 
 private void SmashAttack()
 {
     StartCoroutine(StopMovement(0.5f));
     // 이펙트 생성
+    
     if (SlimeSmashPrefab != null)
     {
-        GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position, Quaternion.identity);
+        GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position+new Vector3(direc*1,0,0), Quaternion.identity);
         effect.transform.SetParent(transform);
-        Destroy(effect, 0.5f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
+    //anim.SetInteger("skillNum",9);
     Debug.Log("주위공격 공격 사용");
 }
+
 
 private void DownAttack()
 {
@@ -286,7 +298,7 @@ private void DownAttack()
     {
 
         // 레이저 이펙트 생성
-        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(3*direc,-1,0), Quaternion.identity);
+        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(3*direc,-0.7f,0), Quaternion.identity);
         
         // 이펙트 이동 (속도 조절 가능)
         Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
@@ -295,11 +307,12 @@ private void DownAttack()
             effectRb.velocity = shootDirection * 5f; // 속도 조절
         }
 
-        Destroy(effect, 1.0f); // 1.0초 후 이펙트 제거
+        Destroy(effect, 0.7f); // 1.0초 후 이펙트 제거
     }
 
     Debug.Log("슬라임 아래공격 사용");
 }
+
 private IEnumerator StopMovement(float stopDuration)
     {
         canMove =false;
@@ -318,7 +331,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 속도 설정
         // 대시 속도 직접 설정
         // 대시 코루틴 시작
-        StartCoroutine(DashCoroutine(0.3f));
+        StartCoroutine(DashCoroutine(0.5f));
         // 쿨다운 시작
         canDash = false;
         Debug.Log($"보스몬스터 대쉬사용");
@@ -333,6 +346,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 지속 시간
         yield return new WaitForSeconds(dashTime);
         baseDamage = tmp;
+        anim.SetInteger("skillNum",9);
         isDashing = false;
     }
     

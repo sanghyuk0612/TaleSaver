@@ -68,7 +68,7 @@ public class SpawnManager : MonoBehaviour
         if (BossPrefab != null)
         {
             PortalManager.Instance.updateEnemy(1);
-            Instantiate(BossPrefab, MapManager.Instance.portalPosition, Quaternion.identity);
+            Instantiate(BossPrefab, MapManager.Instance.portalPosition+new Vector3(0,25f,0), Quaternion.identity);
             Debug.Log("Boss spawned at: " + pos);
         }
         else
