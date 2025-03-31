@@ -357,6 +357,7 @@ private IEnumerator StopMovement(float stopDuration)
         {
             DropItem();
             Destroy(gameObject);
+            anim.SetTrigger("death");
         }
     }
 
