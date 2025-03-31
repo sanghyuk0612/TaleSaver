@@ -136,7 +136,7 @@ public class Slime : MonoBehaviour
             rb.velocity = new Vector2(0, rb.velocity.y);
             return;
         }
-        direction = (playerTransform.position - transform.position).normalized;
+        direction = (playerTransform.position - Pivot.position).normalized;
         if(direction.x>0){
         direc = 1;
         }
@@ -190,13 +190,12 @@ public class Slime : MonoBehaviour
     }
     void Flip()
     {
-        
         isFacingRight = !isFacingRight;
         //spriteRenderer.flipX = !spriteRenderer.flipX;
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-        
+        transform.position = transform.position + new Vector3(3*direc,0,0);
     }
     
     private void myFlip(){
