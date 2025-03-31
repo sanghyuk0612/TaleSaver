@@ -195,7 +195,6 @@ public class Wolf : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1;
         transform.localScale = scale;
-        transform.position = transform.position + new Vector3(3*direc,0,0);
     }
     
     private void myFlip(){
@@ -225,13 +224,13 @@ public class Wolf : MonoBehaviour
             Dash();
             break;
         case 1:
-            //SmashAttack();
+            SmashAttack();
             break;
         case 2:
-            //DownAttack();
+            DownAttack();
             break;
         case 3:
-            //FrontAttack();
+            FrontAttack();
             break;
         case 4:
             Jump();
