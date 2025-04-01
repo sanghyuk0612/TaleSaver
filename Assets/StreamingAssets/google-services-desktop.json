@@ -1,23 +1,39 @@
 {
-    "project_info": {
-        "project_id": "tale-saver",
-        "project_number": "870744593385",
-        "name": "TaleSaver"
-    },
-    "client": [
-        {
-            "client_info": {
-                "mobilesdk_app_id": "1:870744593385:web:3c65b1a42e1ec62fc27178",
-                "android_client_info": {
-                    "package_name": "com.talesaver.desktop"
-                }
-            },
-            "api_key": [
-                {
-                    "current_key": "AIzaSyCTEXMlsJSGF7lIdVt-Hn9BITyx_8Pyu20"
-                }
-            ]
+  "project_info": {
+    "project_number": "870744593385",
+    "project_id": "tale-saver",
+    "storage_bucket": "tale-saver.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870744593385:android:8eacb0b36305d665c27178",
+        "android_client_info": {
+          "package_name": "com.taleSaver"
         }
-    ],
-    "configuration_version": "1"
+      },
+      "oauth_client": [
+        {
+          "client_id": "870744593385-j0ui19fab0ihbkattjmplukdt7b21trg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPOeTkF5Pq7rJ4if_A-mJCNA6VdjcCBA0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "870744593385-j0ui19fab0ihbkattjmplukdt7b21trg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }
