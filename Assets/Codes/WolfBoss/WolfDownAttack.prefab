@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 8563164332735105594}
   - component: {fileID: 5318975292232428225}
   - component: {fileID: 6779117439693362523}
-  - component: {fileID: 5066276085163331414}
+  - component: {fileID: -4695864327834319523}
   m_Layer: 0
-  m_Name: DownAttack
+  m_Name: WolfDownAttack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -131,7 +131,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &5066276085163331414
+--- !u!114 &-4695864327834319523
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5605060386581786699}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15d91d0c16d7371428339060b85dd150, type: 3}
+  m_Script: {fileID: 11500000, guid: d0789db9d6fe7ae48b4c13de1a7e2472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   attackDamage: 0
