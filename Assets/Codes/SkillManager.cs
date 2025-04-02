@@ -7,7 +7,12 @@ public class SkillManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        // 타격 이펙트 프리팹 로드
+        hitEffectPrefab = Resources.Load<GameObject>("Prefabs/Particle/HitEffect");
+        // Fireball 이펙트 프리팹 로드
+        fireballEffectPrefab = Resources.Load<GameObject>("Prefabs/Particle/Fireball");
+        // Ultimo 이펙트 프리팹 로드
+        ultimoEffectPrefab = Resources.Load<GameObject>("Prefabs/Particle/Ultimo");
     }
 
     // Update is called once per frame
@@ -16,9 +21,14 @@ public class SkillManager : MonoBehaviour
         
     }
 
-    public float effectRadius = 17f; // effectRadius 변수 추가 (필요시 조정)
     private Vector3 fireballPosition; // Fireball 스킬 사용 시 위치 저장
     private Vector3 ultimoPosition; // Ultimo 스킬 사용 시 위치 저장
+    private Vector3 baseAttackPosition; // BaseG 스킬 사용 시 위치 저장
+    private Vector3 closestEnemyPosition; // 가장 가까운 적의 위치 저장
+    private GameObject hitEffectPrefab; // 타격 이펙트 프리팹
+    private GameObject fireballEffectPrefab; // Fireball 이펙트 프리팹
+
+    private GameObject ultimoEffectPrefab; // Ultimo 이펙트 프리팹
 
     public void UseSkill(CharacterSkill skill, Transform characterTransform)
     {
@@ -36,37 +46,148 @@ public class SkillManager : MonoBehaviour
 
         switch (skill.skillName)
         {
-            case "Fireball":
-                // 카메라의 위치를 사용하여 현재 씬에서 Tag가 Enemy인 오브젝트 감지
-                cameraPosition = Camera.main.transform.position; // 카메라의 위치 가져오기
-                fireballPosition = cameraPosition; // Fireball 위치 저장
-                
+            case "BaseG":
+                // Player(Clone) 오브젝트 찾기
+                GameObject playerObject = GameObject.Find("Player(Clone)");
+                if (playerObject == null)
+                {
+                    Debug.LogError("Player(Clone) object not found!");
+                    return;
+                }
+
+                baseAttackPosition = playerObject.transform.position; // 공격 위치 저장
+
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+                float closestDistance = float.MaxValue;
+                GameObject closestEnemy = null;
+
+                // Player(Clone) 오브젝트 찾기
+                SpriteRenderer baseGSpriteRenderer = playerObject.GetComponent<SpriteRenderer>();
+                isFlipped = baseGSpriteRenderer != null && baseGSpriteRenderer.flipX;
+                Debug.Log($"Player found - flipX: {isFlipped}, SpriteRenderer: {(baseGSpriteRenderer != null ? "Found" : "Not Found")}");
+
+                // 가장 가까운 적 찾기
+                foreach (GameObject enemy in enemies)
+                {
+                    // 캐릭터 위치와 적의 거리 계산
+                    Vector3 directionToEnemy = enemy.transform.position - playerObject.transform.position; // 플레이어 기준으로 적까지의 방향 벡터
+                    float distance = directionToEnemy.magnitude; // 거리 계산
+
+                    // Y좌표 차이 계산
+                    float yDifference = Mathf.Abs(enemy.transform.position.y - playerObject.transform.position.y);
+                    float maxYDifference = 2f; // 최대 허용 Y좌표 차이
+
+                    // 디버그 로그 추가
+                    Debug.Log($"Enemy: {enemy.name}, Distance: {distance}, Direction: {directionToEnemy}, isFlipped: {isFlipped}");
+
+                    // flipX 상태에 따라 거리 인식 조정
+                    if (distance <= skill.effectRadius && yDifference <= maxYDifference) // 범위 내에 있고, Y좌표 차이가 허용 범위 내인 경우
+                    {
+                        // flipX가 되어있으면 왼쪽 방향만 인식
+                        if (isFlipped && directionToEnemy.x < 0)
+                        {
+                            if (distance < closestDistance)
+                            {
+                                closestDistance = distance;
+                                closestEnemy = enemy;
+                            }
+                        }
+                        // flipX가 안되어있으면 오른쪽 방향만 인식
+                        else if (!isFlipped && directionToEnemy.x > 0)
+                        {
+                            if (distance < closestDistance)
+                            {
+                                closestDistance = distance;
+                                closestEnemy = enemy;
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log($"Enemy not in correct direction: {enemy.name}, isFlipped: {isFlipped}, Direction: {directionToEnemy.x}");
+                        }
+                    }
+                }
+
+                // 가장 가까운 적에게 데미지 적용
+                if (closestEnemy != null)
+                {
+                    closestEnemyPosition = closestEnemy.transform.position; // 가장 가까운 적의 위치 저장
+                    // 타격 이펙트 생성
+                    if (hitEffectPrefab != null)
+                    {
+                        GameObject hitEffect = Instantiate(hitEffectPrefab, closestEnemy.transform.position, Quaternion.identity);
+                        Destroy(hitEffect, 0.5f); // 0.5초 후 이펙트 제거
+                    }
+
+                    // 화면 흔들림 효과
+                    //StartCoroutine(ShakeCamera(0.02f, 0.02f));
+
+                    if (closestEnemy.TryGetComponent(out MeleeEnemy meleeEnemy))
+                    {
+                        meleeEnemy.TakeDamage(skill.skillDamage);
+                    }
+                    else if (closestEnemy.TryGetComponent(out RangedEnemy rangedEnemy))
+                    {
+                        rangedEnemy.TakeDamage(skill.skillDamage);
+                    }
+                }
+                break;
+
+            case "Fireball":
+                // Player(Clone) 오브젝트 찾기
+                GameObject playerObject_fireball = GameObject.Find("Player(Clone)");
+                if (playerObject_fireball == null)
+                {
+                    Debug.LogError("Player(Clone) object not found!");
+                    return;
+                }
+
+                // 플레이어의 위치를 기준으로 Fireball 위치 설정
+                fireballPosition = playerObject_fireball.transform.position;
+                
+                // 모든 Enemy 오브젝트 찾기
+                GameObject[] enemies_fireball = GameObject.FindGameObjectsWithTag("Enemy");
                 enemyCount = 0;
 
                 // 캐릭터가 바라보는 방향
                 forwardDirection = characterTransform.forward;
 
-                // flipX 상태 확인
-                isFlipped = characterTransform.localScale.x < 0; // flipX가 되어있는지 확인
+                // Player의 SpriteRenderer 컴포넌트 가져오기
+                SpriteRenderer spriteRenderer = playerObject_fireball.GetComponent<SpriteRenderer>();
+                isFlipped = spriteRenderer != null && spriteRenderer.flipX;
+                Debug.Log($"Player found - flipX: {isFlipped}, SpriteRenderer: {(spriteRenderer != null ? "Found" : "Not Found")}");
+
+                // Fireball 이펙트 생성
+                if (fireballEffectPrefab != null)
+                {
+                    // 캐릭터의 방향에 따라 회전 설정
+                    float rotationZ = isFlipped ? 180f : 0f;
+                    GameObject fireballEffect = Instantiate(fireballEffectPrefab, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
+                    Destroy(fireballEffect, 0.4f); // 0.4초 후 이펙트 제거
+                }
 
                 // 범위 내의 적 찾기
-                foreach (GameObject enemy in enemies)
+                foreach (GameObject enemy in enemies_fireball)
                 {
-                    // 카메라 위치와 적의 거리 계산
-                    Vector3 directionToEnemy = enemy.transform.position - cameraPosition; // 적까지의 방향 벡터
+                    // 캐릭터 위치와 적의 거리 계산
+                    Vector3 directionToEnemy = enemy.transform.position - playerObject_fireball.transform.position; // 플레이어 기준으로 적까지의 방향 벡터
                     float distance = directionToEnemy.magnitude; // 거리 계산
 
-                    // 거리와 방향을 기준으로 양수와 음수로 판단
-                    float dotProduct = Vector3.Dot(forwardDirection, directionToEnemy.normalized);
+                    // Y좌표 차이 계산
+                    float yDifference = Mathf.Abs(enemy.transform.position.y - playerObject_fireball.transform.position.y);
+                    float maxYDifference = 4f; // 최대 허용 Y좌표 차이
+
+                    // 디버그 로그 추가
+                    Debug.Log($"Enemy: {enemy.name}, Distance: {distance}, Direction: {directionToEnemy}, isFlipped: {isFlipped}, Player Position: {playerObject_fireball.transform.position}, Enemy Position: {enemy.transform.position}");
 
                     // flipX 상태에 따라 거리 인식 조정
-                    if (distance <= skill.effectRadius && dotProduct > 0) // 범위 내에 있고, 바라보는 방향에 있는 경우
+                    if (distance <= skill.effectRadius && yDifference <= maxYDifference) // 범위 내에 있고, Y좌표 차이가 허용 범위 내인 경우
                     {
                         // flipX가 되어있으면 왼쪽 방향만 인식
                         if (isFlipped && directionToEnemy.x < 0)
                         {
+                            Debug.Log($"Hit left enemy: {enemy.name}, Direction: {directionToEnemy.x}");
                             enemyCount++;
                             if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                             {
@@ -80,6 +201,7 @@ public class SkillManager : MonoBehaviour
                         // flipX가 안되어있으면 오른쪽 방향만 인식
                         else if (!isFlipped && directionToEnemy.x > 0)
                         {
+                            Debug.Log($"Hit right enemy: {enemy.name}, Direction: {directionToEnemy.x}");
                             enemyCount++;
                             if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                             {
@@ -89,6 +211,10 @@ public class SkillManager : MonoBehaviour
                             {
                                 rangedEnemy.TakeDamage(skill.skillDamage); // RangedEnemy의 currentHealth 감소
                             }
+                        }
+                        else
+                        {
+                            Debug.Log($"Enemy not in correct direction: {enemy.name}, isFlipped: {isFlipped}, Direction: {directionToEnemy.x}");
                         }
                     }
                 }
@@ -182,9 +308,23 @@ public class SkillManager : MonoBehaviour
                 break;
                 
             case "Ultimo":
-                // 카메라의 위치를 사용하여 현재 씬에서 Tag가 Enemy인 오브젝트 감지
-                cameraPosition = Camera.main.transform.position;
-                ultimoPosition = cameraPosition; // Ultimo 위치 저장
+                // Player(Clone) 오브젝트 찾기
+                GameObject playerObject_ultimo = GameObject.Find("Player(Clone)");
+                if (playerObject_ultimo == null)
+                {
+                    Debug.LogError("Player(Clone) object not found!");
+                    return;
+                }
+
+                // 플레이어의 위치를 기준으로 Ultimo 위치 설정
+                ultimoPosition = playerObject_ultimo.transform.position;
+
+                // Ultimo 이펙트 생성
+                if (ultimoEffectPrefab != null)
+                {
+                    GameObject ultimoEffect = Instantiate(ultimoEffectPrefab, ultimoPosition, Quaternion.identity);
+                    Destroy(ultimoEffect, 1.0f); // 1초 후 이펙트 제거
+                }
                 
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_ultimo = GameObject.FindGameObjectsWithTag("Enemy");
@@ -194,7 +334,7 @@ public class SkillManager : MonoBehaviour
                 foreach (GameObject enemy in enemies_ultimo)
                 {
                     // 카메라 위치와 적의 거리 계산
-                    Vector3 directionToEnemy = enemy.transform.position - cameraPosition;
+                    Vector3 directionToEnemy = enemy.transform.position - playerObject_ultimo.transform.position;
                     float distance = directionToEnemy.magnitude;
 
                     // 범위 내에 있다면 방향에 상관없이 효과 적용
@@ -403,15 +543,42 @@ public class SkillManager : MonoBehaviour
         Debug.Log($"Position unfrozen for {rb.gameObject.name}");
     }
 
+    private IEnumerator ShakeCamera(float duration, float magnitude)
+    {
+        Vector3 originalPos = Camera.main.transform.localPosition;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            Camera.main.transform.localPosition = new Vector3(x, y, originalPos.z);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        Camera.main.transform.localPosition = originalPos;
+    }
+
     private void OnDrawGizmos()
     {
-        // 기즈모 색상 설정
+        // Fireball 스킬의 효과 범위 표시 (파란색)
         Gizmos.color = Color.blue;
         // 기즈모로 effectRadius 범위 그리기
-        Gizmos.DrawWireSphere(fireballPosition, effectRadius); // Fireball 위치에 기즈모 그리기
+        Gizmos.DrawWireSphere(fireballPosition, 15f); // Fireball 위치에 기즈모 그리기
         
         // Ultimo 스킬의 효과 범위 표시 (빨간색)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(ultimoPosition, effectRadius); // Ultimo 위치에 기즈모 그리기
+        Gizmos.DrawWireSphere(ultimoPosition, 50f); // Ultimo 위치에 기즈모 그리기
+
+        // BaseG 스킬의 효과 범위 표시 (노란색)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(baseAttackPosition, 10f); // BaseG 위치에 기즈모 그리기
+
+        // BaseG 공격과 가장 가까운 적 사이의 직선 표시 (초록색)
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(baseAttackPosition, closestEnemyPosition);
     }
 }
