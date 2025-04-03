@@ -40,10 +40,26 @@ public class MapManager : MonoBehaviour
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
+        
+        // 캐릭터 로드 후 currentPlayerHealth를 maxHealth로 명시적으로 설정
+        if (GameManager.Instance.CurrentCharacter != null)
+        {
+            int characterMaxHealth = GameManager.Instance.CurrentCharacter.maxHealth;
+            // GameManager의 currentPlayerHealth와 maxHealth 설정
+            GameManager.Instance.CurrentPlayerHealth = characterMaxHealth;
+            Debug.Log($"MapManager: Character {GameManager.Instance.CurrentCharacter.characterName} loaded. Setting health to {characterMaxHealth}");
+        }
+        else
+        {
+            Debug.LogWarning("MapManager: CurrentCharacter is null! Using default health.");
+            GameManager.Instance.CurrentPlayerHealth = GameManager.Instance.playerMaxHealth;
+        }
+        
         // 게임오버 UI 요소들 자동으로 찾아서 연결
         GameManager.Instance.FindAndConnectGameOverUI();
         
         GenerateStage();
+        
         SpawnInitialEntities();
         if (SceneManager.GetActiveScene().name=="BossStage"){
             SpawnManager.Instance.SpawnBoss();

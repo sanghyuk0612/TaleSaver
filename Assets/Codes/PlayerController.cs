@@ -74,9 +74,11 @@ public class PlayerController : MonoBehaviour, IDamageable
         maxJumpCount = GameManager.Instance.playerMaxJumpCount;
         dashForce = GameManager.Instance.playerDashForce;
         dashCooldown = GameManager.Instance.playerDashCooldown;
-        maxHealth = GameManager.Instance.playerMaxHealth;
-        currentHealth = maxHealth;
-
+        
+        // 최대 체력을 캐릭터 데이터에서 가져옴
+        maxHealth = GameManager.Instance.MaxHealth;
+        Debug.Log($"PlayerController: Initialized with maxHealth: {maxHealth}");
+        
         // 컴포넌트 초기화
         rb = GetComponent<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -93,10 +95,14 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerAnimator = GetComponent<Animator>();
         ApplyCharacterAnimator();
 
+        // 체력 초기화 (RestorePlayerState에서 덮어씌워질 예정)
+        currentHealth = maxHealth;
+        Debug.Log($"PlayerController: Default health set to: {currentHealth}");
+
         // GameManager에서 저장된 상태 복원
         GameManager.Instance.RestorePlayerState(this);
 
-        Debug.Log($"Player initialized with health: {currentHealth}");  // 디버그용
+        Debug.Log($"PlayerController: After restore, health is: {currentHealth}");  // 디버그용
 
         // CharacterSelectionData에서 선택된 캐릭터의 스프라이트를 가져와서 적용
         if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterSprite != null)
@@ -508,8 +514,33 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void RestoreHealth(int health) //체력 회복하는 함수 아님. 데이터에서 플레이어의 체력 불러오는 함수
     {
-        currentHealth = Mathf.Min(maxHealth, health); // 최대 체력을 초과하지 않도록 설정
-        Debug.Log($"Health restored to: {currentHealth}");  // 디버그용
+        // 최신 maxHealth 값을 다시 가져와서 적용
+        maxHealth = GameManager.Instance.MaxHealth;
+        
+        // 초기 체력 값 로깅
+        Debug.Log($"RestoreHealth called with: health={health}, maxHealth={maxHealth}, GameManager.CurrentPlayerHealth={GameManager.Instance.CurrentPlayerHealth}");
+        
+        // 첫 번째 게임 시작 시 또는 health가 0이면 maxHealth를 사용
+        if (health <= 0)
+        {
+            currentHealth = maxHealth;
+            Debug.Log($"Health was 0 or negative, setting to maxHealth: {maxHealth}");
+        }
+        else
+        {
+            // GameManager에서 가져온 health가 maxHealth보다 크면 문제가 있음
+            if (health > maxHealth)
+            {
+                Debug.LogWarning($"Health value ({health}) is greater than maxHealth ({maxHealth}). This shouldn't happen. Limiting to maxHealth.");
+                currentHealth = maxHealth;
+            }
+            else
+            {
+                currentHealth = health;
+            }
+        }
+        
+        Debug.Log($"Health restored to: {currentHealth} (max: {maxHealth})");  // 디버그용
 
         // 슬라이더 업데이트를 위해 PlayerUI에 알림
         PlayerUI playerUI = FindObjectOfType<PlayerUI>();
