@@ -70,7 +70,7 @@ public class Store : MonoBehaviour
         Gold.text = InventoryManager.Instance.inventory.gold+"개 소유";
         Debug.Log("첫번째: "+selectedItem[0]+"두번째 : "+selectedItem[1]+"세번째 : " + selectedItem[2]);
     }
-    private void stockUpdate(){
+    public void stockUpdate(){
         prePrice[0] = InventoryManager.Instance.inventory.stonePrice;
         prePrice[1] = InventoryManager.Instance.inventory.treePrice;
         prePrice[2] = InventoryManager.Instance.inventory.skinPrice;
@@ -105,6 +105,7 @@ public class Store : MonoBehaviour
         InventoryManager.Instance.inventory.steelPrice= nowPrice[3];
         InventoryManager.Instance.inventory.goldPrice= nowPrice[4];
     }
+
     private void Update()
     {
         // 플레이어가 상호작용 범위에 있을 때 Space 바를 눌렀는지 확인
