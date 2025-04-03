@@ -72,26 +72,34 @@ public class RankingManager : MonoBehaviour
                 try
                 {
                     string playerId = document.Id; // 문서 ID
-                    string cleartime = rankingData.ContainsKey("cleartime") ? rankingData["cleartime"].ToString() : "00:00"; string playcharacter = rankingData.ContainsKey("playcharacter") ? rankingData["playcharacter"].ToString() : "Unknown";
+                    string cleartime = rankingData.ContainsKey("cleartime") ? rankingData["cleartime"].ToString() : "00:00";
+                    string playcharacter = rankingData.ContainsKey("playcharacter") ? rankingData["playcharacter"].ToString() : "Unknown";
                     string playerID = rankingData.ContainsKey("playerId") ? rankingData["playerId"].ToString() : "Unknown";
                     int rank = rankingData.ContainsKey("rank") ? System.Convert.ToInt32(rankingData["rank"]) : -1;
 
                     rankingList.Add(new PlayerData(playerID, playcharacter, cleartime, rank));
                     Debug.Log($"🏆 랭킹 데이터: Player ID: {playerID} | Rank: {rank} | Character: {playcharacter} | Clear Time: {cleartime}");
+                }
+                                catch (Exception e)
+                {
+                    Debug.LogError($"❌ 예외 발생: {e.Message}\n{e.StackTrace}");
+                }
+                
 
                     // 🔥 정렬 (cleartime이 "MM:SS" 형태이므로, 시간 변환하여 정렬 필요)
                     rankingList.Sort((a, b) => ConvertTimeToSeconds(a.clearTime).CompareTo(ConvertTimeToSeconds(b.clearTime)));
+                for (int i = 0; i < rankingList.Count; i++)
+                {
+                    rankingList[i].rank = i + 1;  // 🔥 Rank 값을 1위부터 순차적으로 설정
+                }
 
-                    Debug.Log(rankingList.Count);
+                Debug.Log(rankingList.Count);
 
                     // ✅ 정렬된 데이터 UI에 전달
                     rankingUI.UpdateRankingUI(rankingList);
 
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"❌ 예외 발생: {e.Message}\n{e.StackTrace}");
-                }
+                
+
             }
         });
     }

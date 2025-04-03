@@ -7,8 +7,15 @@ public class RankingUI : MonoBehaviour
     public GameObject rankingScorePrefab;  // 프리팹 (Inspector에서 할당)
     public Transform content;              //  Content의 Transform (스크롤뷰 안)
     private List<GameObject> rankingEntries = new List<GameObject>();  //  생성된 UI 리스트
+    //private int initialPoolSize = 1; // 초기 프리팹 개수 (1개)
 
-
+    //처음 시작할 때 프리팹 미리 생성(오브젝트 풀링)
+    private void Awake()
+    {
+        GameObject entry = Instantiate(rankingScorePrefab, content);
+        entry.SetActive(false); // 비활성화
+        rankingEntries.Add(entry);
+    }
 
     // Update is called once per frame
     public void UpdateRankingUI(List<PlayerData> rankingList)
@@ -26,56 +33,48 @@ public class RankingUI : MonoBehaviour
             return;
         }
 
-        //새 데이터 맞이하게 기존 UI 삭제
+        //(1) 초기 씬에 존재하는 RankingScore 프리팹을 찾아서 리스트에 추가
+        if (rankingEntries.Count == 0)
+        {
+            foreach (Transform child in content) // Content의 모든 자식 객체 확인
+            {
+                rankingEntries.Add(child.gameObject);
+            }
+        }
+
+        //(2) 기존 UI 프리팹을 비활성화 (렌더링되지 않도록)
         foreach (GameObject entry in rankingEntries)
         {
-            Destroy(entry);
+            entry.SetActive(false);
         }
-        rankingEntries.Clear();
-        Debug.Log("기존 랭킹 UI 삭제");
+        Debug.Log("기존 랭킹 UI 비활성화 완료");
 
 
-        foreach(var data in rankingList)
+        // 필요한 만큼 UI 활성화 또는 생성
+        for (int i = 0; i < rankingList.Count; i++)
         {
-            if (data == null)
-            {
-                Debug.LogError("PlayerData가 null입니다.");
-                continue;
-            }
-            //프리팹 생성
-            GameObject newEntry = Instantiate(rankingScorePrefab, content);
-            newEntry.transform.localScale = Vector3.one;
+            GameObject entry;
 
-            //RankingEntry 컴포넌트 가져오기
-            RankingEntry entryScript = newEntry.GetComponent<RankingEntry>();
-            if (entryScript == null)
+            if (i < rankingEntries.Count)
             {
-                Debug.LogError("RankingEntry 스크립트를 찾을 수 없습니다! 프리팹을 확인하세요.");
-                continue;
+                entry = rankingEntries[i]; // 기존에 있던 프리팹 재사용
+                entry.SetActive(true);
+            }
+            else
+            {
+                entry = Instantiate(rankingScorePrefab, content); // 부족하면 새로 생성
+                rankingEntries.Add(entry);
             }
 
-            // TextMeshProUGUI 가져오는 방식 개선
-            entryScript.playerIDText = newEntry.transform.Find("playerID")?.GetComponent<TextMeshProUGUI>();
-            entryScript.playcharacterText = newEntry.transform.Find("playcharacter")?.GetComponent<TextMeshProUGUI>();
-            entryScript.cleartimeText = newEntry.transform.Find("cleartime")?.GetComponent<TextMeshProUGUI>();
+            // UI 요소 값 설정
+            RankingEntry entryScript = entry.GetComponent<RankingEntry>();
+            entryScript.placeText.text = (i+1).ToString();
+            entryScript.playerIDText.text = rankingList[i].playerID;
+            entryScript.playcharacterText.text = rankingList[i].playcharacter;
+            entryScript.cleartimeText.text = rankingList[i].clearTime;
 
-
-            if (entryScript.playerIDText == null || entryScript.playcharacterText == null || entryScript.cleartimeText == null)
-            {
-                Debug.LogError("UI 요소를 찾을 수 없음: playerIDText, playcharacterText, cleartimeText 중 하나가 null");
-                continue;
-            }
-
-            // 값 설정
-            entryScript.playerIDText.text = data.playerID;
-            entryScript.playcharacterText.text = data.playcharacter;
-            entryScript.cleartimeText.text = data.clearTime;
-
-
-            rankingEntries.Add(newEntry);
-
-
+            Debug.Log($"UI 업데이트: {rankingList[i].playerID}, {rankingList[i].playcharacter}, {rankingList[i].clearTime}");
         }
-        Debug.Log("기존 랭킹 UI 불러오기 성공");
     }
+
 }
