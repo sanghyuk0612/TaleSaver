@@ -640,7 +640,7 @@ MonoBehaviour:
   pools:
   - key: EnemyProjectile
     prefab: {fileID: 8450934561260396868, guid: 4f4b268aead4eec4eb223d3ae3df1ba0, type: 3}
-    initialSize: 10
+    initialSize: 30
 --- !u!4 &746803446
 Transform:
   m_ObjectHideFlags: 0

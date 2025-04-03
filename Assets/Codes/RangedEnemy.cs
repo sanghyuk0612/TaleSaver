@@ -184,38 +184,14 @@ public class RangedEnemy : MonoBehaviour
     protected virtual void ShootProjectile()
     {
         // 플레이어가 죽었다면 발사하지 않음
-        if (PlayerController.IsDead || playerTransform == null) return;
+        if (PlayerController.IsDead) return;
 
-        // PoolManager가 null인지 확인
-        if (PoolManager.Instance == null)
-        {
-            Debug.LogError("PoolManager.Instance가 null입니다. Pool Manager 컴포넌트가 씬에 있는지 확인하세요.");
-            return;
-        }
-
-        // 발사체 생성 시도
-        GameObject projectile = null;
-        try
-        {
-            projectile = PoolManager.Instance.GetObject(projectileKey);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"발사체 생성 중 예외 발생: {e.Message}");
-            return;
-        }
+        GameObject projectile = PoolManager.Instance.GetObject(projectileKey);
         
         // null 체크 추가
         if (projectile == null)
         {
             Debug.LogError("발사체를 가져오는 데 실패했습니다.");
-            return;
-        }
-
-        // firePoint가 null인지 확인
-        if (firePoint == null)
-        {
-            Debug.LogError("firePoint가 null입니다.");
             return;
         }
 
@@ -228,13 +204,17 @@ public class RangedEnemy : MonoBehaviour
             // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
             Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
             Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
-            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+            
+            // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
             projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
+            
+            // 초기화는 풀 관리자 설정 후에 호출
+            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
         }
         else
         {
-            Debug.LogError("발사체에 EnemyProjectile 컴포넌트가 없습니다.");
-            projectile.SetActive(false); // 발사체를 다시 비활성화
+            Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
+            projectile.SetActive(false); // 오류 시 발사체 비활성화
         }
     }
 

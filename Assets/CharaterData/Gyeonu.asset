@@ -21,7 +21,7 @@ MonoBehaviour:
   power: 0
   agility: 0
   luck: 0
-  maxHealth: 1
+  maxHealth: 150
   isUnlocked: 1
   requiredSteelPieces: 1
   requiredBookPages: 1
