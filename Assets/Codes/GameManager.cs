@@ -62,9 +62,6 @@ public class GameManager : MonoBehaviour
         set => currentPlayerHealth = value;
     }
     
-    
-
-
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
     public SpriteRenderer playerSpriteRenderer; // 게임 캐릭터의 SpriteRenderer
@@ -77,11 +74,6 @@ public class GameManager : MonoBehaviour
     private int maxHealth;
     private float[] skillCooldownTimers;
 
-    // 게임오버 UI 관련 변수 추가
-    [Header("Game Over UI")]
-    public GameObject gameOverPanel; // 게임오버 UI 패널
-    public Button restartButton; // 재시작 버튼
-
     private void Awake()
     {
         if (Instance == null)
@@ -92,8 +84,6 @@ public class GameManager : MonoBehaviour
 
             // SkillManager 컴포넌트 추가
             skillManager = gameObject.AddComponent<SkillManager>();
-
-            
         }
         else
         {
@@ -101,52 +91,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void FindAndConnectGameOverUI()
-    {
-        // 게임오버 패널 찾기
-        if (gameOverPanel == null)
-        {
-            gameOverPanel = GameObject.Find("GameOverPanel");
-            if (gameOverPanel == null)
-            {
-                Debug.LogWarning("GameOverPanel을 찾을 수 없습니다!");
-                return;
-            }
-        }
-
-        // 재시작 버튼 찾기
-        if (restartButton == null)
-        {
-            restartButton = gameOverPanel.GetComponentInChildren<Button>();
-            if (restartButton == null)
-            {
-                Debug.LogWarning("RestartButton을 찾을 수 없습니다!");
-                return;
-            }
-        }
-
-        // 재시작 버튼에 이벤트 연결
-        restartButton.onClick.RemoveAllListeners();
-        restartButton.onClick.AddListener(RestartGame);
-
-        // 초기에는 게임오버 패널 비활성화
-        gameOverPanel.SetActive(false);
-    }
-
     private void Start()
     {
         maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : 100;
         currentHealth = maxHealth;
-        skillCooldownTimers = new float[5];
-        
-        // 게임 시작 시간 기록
-        //gameStartTime = Time.time;
-        
-        // 게임오버 UI 초기화
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-        }
+        skillCooldownTimers = new float[4];
     }
 
     private void Update()
@@ -177,11 +126,6 @@ public class GameManager : MonoBehaviour
         {
             UseSkill(3);
         }
-        // 기본 공격 (V키)
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            UseSkill(4);  // BaseG 스킬 사용 (인덱스 4)
-        }
         if (Input.GetKeyDown(KeyCode.O))
         {
             // 현재 선택된 캐릭터의 이름과 스킬 출력
@@ -197,8 +141,6 @@ public class GameManager : MonoBehaviour
         
         isPlayerInRange = false;
         currentPlayerHealth = playerMaxHealth;
-
-        
     }
 
     // 스테이지 진행 관련 메서드
@@ -314,7 +256,7 @@ public class GameManager : MonoBehaviour
         {
             // 맵의 왼쪽 시작 지점으로 플레이어 이동
             Vector3 startPosition = MapManager.Instance.GetStartPosition();
-            player.transform.position = new Vector3(2.0f, 4.0f, 0.0f);
+            player.transform.position = new Vector3(2f, 4f, 0f);
         }
     }
 
@@ -463,57 +405,5 @@ public class GameManager : MonoBehaviour
             return CurrentCharacter.characterSprite; // characterSprite가 CharacterData에 정의되어 있어야 함
         }
         return null;
-    }
-
-    // 게임오버 UI 표시 메서드
-    public void ShowGameOver()
-    {
-        if (gameOverPanel != null)
-        {
-            // 게임오버 패널 활성화
-            gameOverPanel.SetActive(true);
-            
-            /*// 점수 표시 (선택사항)
-            if (scoreText != null)
-            {
-                // 여기에 점수 계산 로직 추가
-                int score = CalculateScore();
-                scoreText.text = $"점수: {score}";
-            }
-            
-            // 생존 시간 표시 (선택사항)
-            if (timeText != null)
-            {
-                float survivalTime = Time.time - gameStartTime;
-                int minutes = Mathf.FloorToInt(survivalTime / 60);
-                int seconds = Mathf.FloorToInt(survivalTime % 60);
-                timeText.text = $"생존 시간: {minutes:00}:{seconds:00}";
-            }*/
-            
-            // 시간 일시정지 (선택사항)
-            //Time.timeScale = 0f;
-        }
-    }
-    
-    // 점수 계산 메서드 (게임에 맞게 수정 필요)
-    /*private int CalculateScore()
-    {
-        // 여기에 점수 계산 로직 구현
-        // 예: 생존 시간, 처치한 적 수, 수집한 아이템 등을 기준으로 점수 계산
-        float survivalTime = Time.time - gameStartTime;
-        int timeScore = Mathf.FloorToInt(survivalTime * 10);
-        
-        // 추가 점수 요소를 더할 수 있음
-        return timeScore;
-    }*/
-    
-    // 게임 재시작 메서드 (UI 버튼에 연결)
-    public void RestartGame()
-    {
-        // 시간 스케일 복원
-        Time.timeScale = 1f;
-        
-        // 현재 씬 다시 로드
-        SceneManager.LoadScene("Lobby");
     }
 }

@@ -84,9 +84,6 @@ public class CharacterManager : MonoBehaviour
             character.power = PlayerPrefs.GetInt("CharacterPower_" + index, 0);
             character.agility = PlayerPrefs.GetInt("CharacterAgility_" + index, 0);
             character.luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
-            
-            // 캐릭터 잠금 상태 로드
-            character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + index, index == 1 ? 1 : 0) == 1;
         }
 
         unlockButton.onClick.AddListener(() => TryUnlockCharacter(currentCharacterIndex));
@@ -348,13 +345,11 @@ public class CharacterManager : MonoBehaviour
         }
 
         // PlayerPrefs에서 캐릭터 속성 로드
-        character.maxHealth = 
         character.level = PlayerPrefs.GetInt("CharacterLevel_" + currentCharacterIndex, 1);
         character.vitality = PlayerPrefs.GetInt("CharacterVitality_" + currentCharacterIndex, 0);
         character.power = PlayerPrefs.GetInt("CharacterPower_" + currentCharacterIndex, 0);
         character.agility = PlayerPrefs.GetInt("CharacterAgility_" + currentCharacterIndex, 0);
         character.luck = PlayerPrefs.GetInt("CharacterLuck_" + currentCharacterIndex, 0);
-        // character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + currentCharacterIndex, currentCharacterIndex == 1 ? 1 : 0) == 1;
 
         // 스킬 로드
         LoadCharacterSkills(character);

@@ -12,7 +12,7 @@ public class EnemyProjectile : MonoBehaviour
     private Camera mainCamera;
     private PoolManager poolManager;
     private string poolKey;
-    
+
     private void Awake()
     {
         // GameManager에서 넉백 힘 가져오기
