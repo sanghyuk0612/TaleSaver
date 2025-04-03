@@ -64,6 +64,7 @@ public class MapManager : MonoBehaviour
         }
     }
     GameObject wallPrefab;
+    GameObject BossMapPrefab;
 
     private void LoadMapPrefabs()
     {
@@ -99,15 +100,17 @@ public class MapManager : MonoBehaviour
         string prefabPath = prefab.name; // Resources.LoadAll은 폴더 정보를 주지 않음 (이름만 가져옴)
         
         // Cave 관련 프리팹을 제외하는 조건 (예: "Cave_"로 시작하는 이름 제외)
-        if (!prefabPath.EndsWith("(wall)")) 
+        if (!prefabPath.EndsWith("(wall)")&&!prefabPath.EndsWith("boss map") ) 
         {
             filteredPrefabs.Add(prefab);
             // 프리팹을 인스턴스화하여 게임 오브젝트를 생성
-            
         }
-        else{
-            
+        else if(prefabPath.EndsWith("(wall)")){
             wallPrefab =prefab;
+        }
+        else if(prefabPath.EndsWith("boss map")){
+            Debug.Log("hi");
+            BossMapPrefab = prefab;
         }
     }
         
