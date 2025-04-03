@@ -58,6 +58,26 @@ public class MapManager : MonoBehaviour
         // 게임오버 UI 요소들 자동으로 찾아서 연결
         GameManager.Instance.FindAndConnectGameOverUI();
         
+        // PoolManager가 있는지 확인하고 필요한 풀 초기화
+        if (PoolManager.Instance != null)
+        {
+            // EnemyProjectile 풀이 없으면 생성
+            GameObject projectilePrefab = Resources.Load<GameObject>("Prefabs/EnemyProjectile");
+            if (projectilePrefab != null)
+            {
+                // 이미 풀이 있는지 확인하고 없으면 생성
+                PoolManager.Instance.CreatePool("EnemyProjectile", projectilePrefab, 20);
+            }
+            else
+            {
+                Debug.LogWarning("Resources/Prefabs/EnemyProjectile에서 발사체 프리팹을 찾을 수 없습니다!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("PoolManager.Instance가 null입니다. 객체 풀링이 작동하지 않을 수 있습니다.");
+        }
+        
         GenerateStage();
         
         SpawnInitialEntities();

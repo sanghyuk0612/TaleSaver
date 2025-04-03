@@ -184,14 +184,38 @@ public class RangedEnemy : MonoBehaviour
     protected virtual void ShootProjectile()
     {
         // 플레이어가 죽었다면 발사하지 않음
-        if (PlayerController.IsDead) return;
+        if (PlayerController.IsDead || playerTransform == null) return;
 
-        GameObject projectile = PoolManager.Instance.GetObject(projectileKey);
+        // PoolManager가 null인지 확인
+        if (PoolManager.Instance == null)
+        {
+            Debug.LogError("PoolManager.Instance가 null입니다. Pool Manager 컴포넌트가 씬에 있는지 확인하세요.");
+            return;
+        }
+
+        // 발사체 생성 시도
+        GameObject projectile = null;
+        try
+        {
+            projectile = PoolManager.Instance.GetObject(projectileKey);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"발사체 생성 중 예외 발생: {e.Message}");
+            return;
+        }
         
         // null 체크 추가
         if (projectile == null)
         {
             Debug.LogError("발사체를 가져오는 데 실패했습니다.");
+            return;
+        }
+
+        // firePoint가 null인지 확인
+        if (firePoint == null)
+        {
+            Debug.LogError("firePoint가 null입니다.");
             return;
         }
 
@@ -206,6 +230,11 @@ public class RangedEnemy : MonoBehaviour
             Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
             projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
             projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
+        }
+        else
+        {
+            Debug.LogError("발사체에 EnemyProjectile 컴포넌트가 없습니다.");
+            projectile.SetActive(false); // 발사체를 다시 비활성화
         }
     }
 
