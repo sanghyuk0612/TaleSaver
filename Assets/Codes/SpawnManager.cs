@@ -84,6 +84,26 @@ public class SpawnManager : MonoBehaviour
             {
                 rangedEnemy.ApplyMonsterData(monsterData);
             }
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(meleeEnemyPrefab, pos, Quaternion.identity);
+            Debug.Log("Melee Enemy spawned at: " + pos);
+        }
+        else
+        {
+            Debug.LogWarning("Melee Enemy Prefab is not assigned!");
+        }
+        ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
+        pos = MapManager.Instance.spawnPoints[ran];
+        Debug.Log(MapManager.Instance.spawnPoints.Count);
+        // 원거리 적 스폰 (약간 오른쪽에)
+        if (rangedEnemyPrefab != null)
+        {
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(rangedEnemyPrefab, pos, Quaternion.identity);
+            Debug.Log("Ranged Enemy spawned at: " + pos);
+        }
+        else
+        {
             Debug.LogWarning("Ranged Enemy Prefab is not assigned!");
         }
     }
