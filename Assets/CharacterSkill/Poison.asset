@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e32be8a70b944c449528d3f56d075ec, type: 3}
   m_Name: Poison
   m_EditorClassIdentifier: 
-  skillName: Posion
+  skillName: Poison
   skillDamage: 0
   skillCooldown: 15
-  effectRadius: 5
+  effectRadius: 25
   effectType: 3
   effectValue: 10

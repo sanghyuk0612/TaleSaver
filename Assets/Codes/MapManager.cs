@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public class MapManager : MonoBehaviour
 {
     public static MapManager Instance { get; private set; }
@@ -10,18 +10,17 @@ public class MapManager : MonoBehaviour
     public Tilemap targetTilemap;
     public Tilemap TrapTilemap;
     public Tilemap HalfTilemap;
-    public float responTime;
+    public Vector3 portalPosition;
+    public float responTime=10;
+    public bool isBoss=false;
     public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject playerPrefab;
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
+    private List<GameObject> droppedItems = new List<GameObject>();
 
-    [Header("Monster Database")]
-    public MonsterDatabase monsterDatabase;
-    private List<MonsterData> currentMonsterList; // 현재 맵에서 사용할 몬스터 목록
-
-
+    
     private float right;
     public int location;
 
@@ -36,18 +35,25 @@ public class MapManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
     void Start()
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
+        // 게임오버 UI 요소들 자동으로 찾아서 연결
+        GameManager.Instance.FindAndConnectGameOverUI();
         
         GenerateStage();
         SpawnInitialEntities();
-        StartCoroutine(RepeatFunction());
-
-        LoadMonsterDataForMap();
+        if (SceneManager.GetActiveScene().name=="BossStage"){
+            SpawnManager.Instance.SpawnBoss();
+        }
+        else{
+            StartCoroutine(RepeatFunction());
+        }
+        
     }
+
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
     {
@@ -62,10 +68,10 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location = 5;
+        location =4;
         List<GameObject> filteredPrefabs = new List<GameObject>();
-        
-        switch (location){
+
+        switch(location){
             case 0:  //동굴
             loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
             break;
@@ -120,39 +126,6 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void LoadMonsterDataForMap()
-    {
-        string mapName = GetMapNameFromLocation(location);
-        currentMonsterList = monsterDatabase.GetMonstersForMap(mapName);
-        Debug.Log($"Loaded {currentMonsterList.Count} monsters for {mapName}");
-    }
-
-    // 특정 맵에 맞는 몬스터 데이터 가져오기
-    private string GetMapNameFromLocation(int loc)
-    {
-        switch (loc)
-        {
-            case 0: return "Cave";
-            case 1: return "Desert";
-            case 2: return "Forest";
-            case 3: return "Ice";
-            case 4: return "Lab";
-            case 5: return "Lava";
-            case 6: return "Test";
-            default: return "Unknown";
-        }
-    }
-
-    public MonsterData GetRandomMonsterForCurrentMap()
-    {
-        if (currentMonsterList == null || currentMonsterList.Count == 0)
-        {
-            Debug.LogWarning("No monsters available for this map!");
-            return null;
-        }
-        return currentMonsterList[Random.Range(0, currentMonsterList.Count)];
-    }
-
     private float GetMapWidth(Tilemap tilemap)
     {
         BoundsInt bounds = tilemap.cellBounds;
@@ -192,6 +165,9 @@ public class MapManager : MonoBehaviour
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();
+        targetTilemap.ClearAllTiles();
+        TrapTilemap.ClearAllTiles();
+        HalfTilemap.ClearAllTiles();
         //기존 스폰포인트 초기화
         spawnPoints.Clear();
 
@@ -327,14 +303,11 @@ public class MapManager : MonoBehaviour
 
         SpawnPortal();
 
-        // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
-        if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
-        {
-            SpawnManager.Instance.SpawnEntities();
-            SpawnManager.Instance.SpawnEntities();
-            SpawnManager.Instance.SpawnEntities();
-            SpawnManager.Instance.SpawnEntities();
-        }
+        // // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
+        // if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
+        // {
+        //     SpawnManager.Instance.SpawnEntities();
+        // }
     }
 void GetSpawnPoint(Tilemap source,  BoundsInt bounds, Vector3Int offset){
     Debug.Log(source.name + "의 태그: " + source.tag);
@@ -395,6 +368,8 @@ BoundsInt GetTileBounds(Tilemap tilemap)
     return new BoundsInt(minX, minY, 0, maxX - minX + 1, maxY - minY + 1, 1);
 }
    
+
+
     public void SpawnPortal()
     {
         if (stagePortalPrefab == null)
@@ -412,7 +387,7 @@ BoundsInt GetTileBounds(Tilemap tilemap)
             float groundRight = lastGround.transform.position.x + (lastGround.transform.localScale.x / 2f);
             float groundY = lastGround.transform.position.y;
             
-            Vector3 portalPosition = new Vector3(
+            portalPosition = new Vector3(
                 right - 2f,  // 오른쪽 끝에서 2칸 왼쪽
                 groundY + 2.5f,    // Ground 위로 2.5칸
                 0
@@ -471,7 +446,11 @@ BoundsInt GetTileBounds(Tilemap tilemap)
         }
 
         // SpawnManager를 통해 적 소환
-        SpawnManager.Instance.SpawnEntities();
+        if (SceneManager.GetActiveScene().name!="BossStage"){
+            SpawnManager.Instance.SpawnEntities();
+        }
+
+        
 
     }
 
