@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class RangedEnemy : MonoBehaviour
@@ -249,11 +250,31 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
-        DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
-        droppedItem.DropItem();
+        // 애니메이션을 Dead 상태로 전환
+        if (animator != null)
+        {
+            Debug.Log("RangedEnemy Dead Animation.");
+            animator.SetTrigger("Dead");
+        }
 
         Debug.Log("RangedEnemy died.");
-        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
-        gameObject.SetActive(false);
+
+        // 5초 후 게임 오브젝트 제거
+        StartCoroutine(DestroyAfterDelay(5f));
+    }
+
+    // 일정 시간 후 몬스터 제거하는 코루틴
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject); // 완전히 삭제
+
+        // 아이템 드롭
+        if (itemPrefab != null)
+        {
+            DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
+            droppedItem.DropItem();
+        }
+
     }
 }
