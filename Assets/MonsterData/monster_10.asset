@@ -16,5 +16,6 @@ MonoBehaviour:
   health: 100
   damage: 10
   moveSpeed: 2.5
+  isRanged: 1
   monsterSprite: {fileID: -7702646972652813844, guid: 42b27b207c7a54412977aadda25ffde2, type: 3}
   animatorController: {fileID: 9100000, guid: c2e833fd12b2b4804be75ee7682c9a66, type: 2}
