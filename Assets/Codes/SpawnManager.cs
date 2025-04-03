@@ -25,16 +25,28 @@ public class SpawnManager : MonoBehaviour
     public void SpawnEntities()
     {
         if (MapManager.Instance == null)
+
+        // 타일맵의 경계 가져오기
+        int ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
+        Vector3 pos = MapManager.Instance.spawnPoints[ran];
+
+        // 근접 적 스폰 (약간 왼쪽에)
+        if (meleeEnemyPrefab != null)
         {
             Debug.LogError("MapManager instance is missing!");
             return;
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(meleeEnemyPrefab, pos, Quaternion.identity);
+            Debug.Log("Melee Enemy spawned at: " + pos);
         }
 
         MonsterData monsterData = MapManager.Instance.GetRandomMonsterForCurrentMap();
         if (monsterData == null)
+        else
         {
             Debug.LogWarning("No monster data found for this map!");
             return;
+            Debug.LogWarning("Melee Enemy Prefab is not assigned!");
         }
 
         // 스폰 위치 설정
@@ -48,6 +60,11 @@ public class SpawnManager : MonoBehaviour
         GameObject enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
 
         if (!monsterData.isRanged)
+        ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
+        pos = MapManager.Instance.spawnPoints[ran];
+        Debug.Log(MapManager.Instance.spawnPoints.Count);
+        // 원거리 적 스폰 (약간 오른쪽에)
+        if (rangedEnemyPrefab != null)
         {
             // 근거리 몬스터 설정
             MeleeEnemy meleeEnemy = enemy.GetComponent<MeleeEnemy>();
@@ -55,6 +72,9 @@ public class SpawnManager : MonoBehaviour
             {
                 meleeEnemy.ApplyMonsterData(monsterData);
             }
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(rangedEnemyPrefab, pos, Quaternion.identity);
+            Debug.Log("Ranged Enemy spawned at: " + pos);
         }
         else
         {
@@ -64,6 +84,7 @@ public class SpawnManager : MonoBehaviour
             {
                 rangedEnemy.ApplyMonsterData(monsterData);
             }
+            Debug.LogWarning("Ranged Enemy Prefab is not assigned!");
         }
     }
     public void SpawnBoss()

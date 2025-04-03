@@ -41,6 +41,7 @@ public class MeleeEnemy : MonoBehaviour
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
+    private InventoryManager inventoryManager;
 
     void Start()
     {
@@ -99,6 +100,18 @@ public class MeleeEnemy : MonoBehaviour
         platformLayer = LayerMask.GetMask("Ground", "Half Tile");
     }
    
+
+    private void Awake()
+    {
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogError("InventoryManager not found in the scene.");
+            return; // InventoryManager가 없으면 메서드 종료
+        }
+
+        inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
+    }
+
     void Update()
     {
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
@@ -154,6 +167,8 @@ public class MeleeEnemy : MonoBehaviour
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
             Die();
+            DropItem();
+            Destroy(gameObject);
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
@@ -161,10 +176,15 @@ public class MeleeEnemy : MonoBehaviour
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             Die();
+            calculatedHealth = 0;
+            CheckDeath();
         }
     }
 
     public void ApplyMonsterData(MonsterData data)
+    //테스트용 
+    // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
+    private void CheckDeath()
     {
         // 몬스터 데이터 적용
         baseHealth = data.health;
@@ -180,6 +200,11 @@ public class MeleeEnemy : MonoBehaviour
 
         if (animator != null)
             animator.runtimeAnimatorController = data.animatorController;
+        if (calculatedHealth <= 0)
+        {
+            DropItem();
+            Destroy(gameObject);
+        }
     }
 
     public void UpdateHealth(int newHealth)
@@ -192,6 +217,46 @@ public class MeleeEnemy : MonoBehaviour
     {
         isFacingRight = !isFacingRight;
         spriteRenderer.flipX = !isFacingRight;
+    }
+
+    void DropItem()
+    {
+        if (inventoryManager == null)
+        {
+            Debug.LogError("InventoryManager is not initialized.");
+            return; // inventoryManager가 null이면 메서드 종료
+        }
+
+        if (itemPrefab == null)
+        {
+            Debug.LogError("Item prefab is not assigned.");
+            return; // itemPrefab이 null이면 메서드 종료
+        }
+
+        string itemName = inventoryManager.GetItemNameById(0);
+        
+        // 랜덤 ID 생성 (0~4 중 하나)
+        int randomId = Random.Range(0, 5);
+
+        // 드랍 위치
+        Vector3 dropPosition = transform.position;
+
+        // 아이템 생성
+        GameObject droppedItem = Instantiate(itemPrefab, dropPosition, Quaternion.identity);
+
+        // 아이템 초기화
+        DroppedItem itemComponent = droppedItem.GetComponent<DroppedItem>();
+        if (itemComponent != null)
+        {
+            itemName = inventoryManager.GetItemNameById(randomId); // ID에 따른 이름
+            itemComponent.Initialize(randomId, itemName);
+        }
+        else
+        {
+            Debug.LogError("DroppedItem component not found on the instantiated item.");
+        }
+
+        Debug.Log($"Dropped {itemName} at {dropPosition}");
     }
 
     // 디버그용 시각화

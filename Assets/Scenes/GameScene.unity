@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 540763752}
   m_Layer: 6
   m_Name: TargetTrap
-  m_TagString: Trap Tile
+  m_TagString: Half Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

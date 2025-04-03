@@ -62,6 +62,9 @@ public class GameManager : MonoBehaviour
         set => currentPlayerHealth = value;
     }
     
+    
+
+
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
     public SpriteRenderer playerSpriteRenderer; // 게임 캐릭터의 SpriteRenderer
