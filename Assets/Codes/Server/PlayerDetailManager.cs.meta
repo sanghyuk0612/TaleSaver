@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Codes/Server/PlayerDetailManager.cs.meta
+guid: 4811b97e628d2cc48a07dff3740c81ab
+========
+guid: 22db43219b537924989111f7e2bdf2a8
+>>>>>>>> 937cb6d8 (SDK 재설치 전):Assets/Codes/Server/FirebaseInitializer.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

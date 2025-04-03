@@ -15,13 +15,13 @@ MonoBehaviour:
   characterName: "\uACAC\uC6B0"
   characterSprite: {fileID: 2537882373423050008, guid: edd2fcfba98a6d442bef8a98f2d18186, type: 3}
   animatorController: {fileID: 9100000, guid: 17663820e5c35754180c593e7f37486a, type: 2}
-  level: 12
+  level: 1
   description: "\uC124\uBA85"
-  vitality: 2
-  power: 3
-  agility: 3
-  luck: 2
-  maxHealth: 12
+  vitality: 0
+  power: 0
+  agility: 0
+  luck: 0
+  maxHealth: 1
   isUnlocked: 1
   requiredSteelPieces: 1
   requiredBookPages: 1
@@ -29,4 +29,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3c97aaea11d7c6b4e9767c208a8464d1, type: 2}
   - {fileID: 11400000, guid: 628190d9ba3619642937626803a6982f, type: 2}
   - {fileID: 11400000, guid: e13d77a48b365364cad83f3feb0f3ccb, type: 2}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: bcb55542178bf544a90878aa34f20edf, type: 2}
+  - {fileID: 11400000, guid: b29a74258c60ca043b66e31b4d3856f4, type: 2}

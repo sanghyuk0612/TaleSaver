@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour
     {
         maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : 100;
         currentHealth = maxHealth;
-        skillCooldownTimers = new float[4];
+        skillCooldownTimers = new float[5];
         
         // 게임 시작 시간 기록
         //gameStartTime = Time.time;
@@ -176,6 +176,11 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I))
         {
             UseSkill(3);
+        }
+        // 기본 공격 (V키)
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            UseSkill(4);  // BaseG 스킬 사용 (인덱스 4)
         }
         if (Input.GetKeyDown(KeyCode.O))
         {
