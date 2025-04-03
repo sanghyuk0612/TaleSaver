@@ -267,6 +267,7 @@ public class MeleeEnemy : MonoBehaviour
             DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
             droppedItem.DropItem();
         }
+<<<<<<< HEAD
     }
 
     // 전방에 지면이 있는지 확인하는 메서드
@@ -285,5 +286,7 @@ public class MeleeEnemy : MonoBehaviour
         Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
         
         return hit.collider != null;
+=======
+>>>>>>> parent of 90ca3a1 (Revert "Reapply "animation 중간점검"")
     }
 }
