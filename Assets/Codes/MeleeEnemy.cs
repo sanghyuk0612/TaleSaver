@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class MeleeEnemy : MonoBehaviour
@@ -27,6 +26,7 @@ public class MeleeEnemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private Transform playerTransform;
+    private bool isGrounded;
     private bool isFacingRight = true;
 
     [Header("Health")]
@@ -163,12 +163,6 @@ public class MeleeEnemy : MonoBehaviour
             animator.runtimeAnimatorController = data.animatorController;
     }
 
-    public void UpdateHealth(int newHealth)
-    {
-        currentHealth = newHealth;
-        Debug.Log($"Player health updated to: {currentHealth}");
-    }
-
     void Flip()
     {
         isFacingRight = !isFacingRight;
@@ -224,29 +218,11 @@ public class MeleeEnemy : MonoBehaviour
 
     private void Die()
     {
-        // 애니메이션을 Dead 상태로 전환
-        if (animator != null)
-        {
-            Debug.Log("MeleeEnemy Dead Animation.");
-            animator.SetTrigger("Dead");
-        }
+        DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
+        droppedItem.DropItem();
 
         Debug.Log("MeleeEnemy died.");
-
-        // 5초 후 게임 오브젝트 제거
-        StartCoroutine(DestroyAfterDelay(5f));
-    }
-
-    // 일정 시간 후 몬스터 제거하는 코루틴
-    private IEnumerator DestroyAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        Destroy(gameObject); // 완전히 삭제
-        // 아이템 드롭
-        if (itemPrefab != null)
-        {
-            DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
-            droppedItem.DropItem();
-        }
+        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
+        gameObject.SetActive(false);
     }
 }
