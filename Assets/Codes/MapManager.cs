@@ -395,8 +395,6 @@ BoundsInt GetTileBounds(Tilemap tilemap)
     return new BoundsInt(minX, minY, 0, maxX - minX + 1, maxY - minY + 1, 1);
 }
    
-
-
     public void SpawnPortal()
     {
         if (stagePortalPrefab == null)

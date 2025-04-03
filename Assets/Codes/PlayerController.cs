@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     
     [Header("Jump Settings")]
     private int remainingJumps;
-    private bool hasJumped;
+    private bool isJumping = false;
     
     [Header("Dash Settings")]
     private bool canDash = true;
@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private bool canDropDown = true;
 
     // IsGrounded 프로퍼티 추가
-    public bool IsGrounded { get; private set; }
+    public bool isGrounded { get; private set; }
 
     // 캐싱된 GameManager 설정값들
     private float moveSpeed;
@@ -55,9 +55,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     private float knockbackTimer = 0f;
 
     [Header("Sprite Render Settings")]
-
     public SpriteRenderer playerSpriteRenderer;  // 캐릭터의 SpriteRenderer
 
+    [Header("Animator Settings")]
+    private Animator playerAnimator;
 
     void Start()
     {
@@ -83,6 +84,9 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerCollider = GetComponent<Collider2D>();
         IsDead = false;
 
+        playerAnimator = GetComponent<Animator>();
+        ApplyCharacterAnimator();
+
         // GameManager에서 저장된 상태 복원
         GameManager.Instance.RestorePlayerState(this);
         
@@ -104,6 +108,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void FixedUpdate()
     {
+        if (IsDead) return; // 사망 상태면 입력 차단
         CheckGround();
         
         // 넉백 중이면 플레이어 입력 무시
@@ -135,30 +140,58 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     void Update()
     {
+        if (IsDead) return; // 사망 상태면 입력 차단
+
         float moveInput = Input.GetAxisRaw("Horizontal");
+        bool isMoving = Mathf.Abs(moveInput) > 0.1f;
+
         if (moveInput != 0)
         {
             spriteRenderer.flipX = moveInput < 0;
+            playerAnimator.SetBool("IsRunning", isMoving && !isJumping);
+
+            // 점프 입력 받기
+            if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
+            {
+                isJumping = true;
+                isGrounded = false;
+
+                // 애니메이션 트리거 실행
+                playerAnimator.SetTrigger("Jump");
+
+                rb.velocity = new Vector2(rb.velocity.x, 2f);
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                remainingJumps = maxJumpCount; // 점프 횟수 초기화
+                isJumping = false; // 점프 상태 초기화
+            }
+        }
+        else
+        {
+            //playerAnimator.SetTrigger("Stay");
+            playerAnimator.SetBool("IsRunning", false);
         }
 
         // 점프 입력 처리
         if (!GameManager.Instance.IsPlayerInRange&&Input.GetButtonDown("Jump"))
         {
+            playerAnimator.SetTrigger("Jump");
             // 땅에 있을 때 점프
-            if (IsGrounded)
+            if (isGrounded)
             {
                 rb.velocity = new Vector2(rb.velocity.x, 2f);
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 remainingJumps = maxJumpCount; // 점프 횟수 초기화
-                hasJumped = false; // 점프 상태 초기화
+                isJumping = false; // 점프 상태 초기화
             }
             // 점프를 하지 않은 상태에서 떨어질 때 점프
-            else if (remainingJumps > 0 && !hasJumped)
+            else if (remainingJumps > 0 && !isJumping)
             {
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 remainingJumps = 0; // 점프 횟수를 0으로 고정
-                hasJumped = true; // 점프 상태 설정
+                isJumping = true; // 점프 상태 설정
+                playerAnimator.SetBool("isJumping", true);
+                StartCoroutine(ResetJump());
             }
             // 땅에 있지 않을 때 더블 점프
             else if (remainingJumps > 0)
@@ -166,8 +199,11 @@ public class PlayerController : MonoBehaviour, IDamageable
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 remainingJumps--; // 점프 횟수 감소
-                hasJumped = true; // 점프 상태 설정
+                isJumping = true; // 점프 상태 설정
+                playerAnimator.SetBool("isJumping", true);
+                StartCoroutine(ResetJump());
             }
+            
         }
 
         // 대시 쿨다운 체크
@@ -184,11 +220,20 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 대시 실행
         if (Input.GetKeyDown(KeyCode.Q) && canDash)
         {
+            playerAnimator.SetTrigger("Dash");
             Dash();
         }
 
-        // 아래 방향키를 누르면 플랫폼 통과
-        if (Input.GetAxisRaw("Vertical") < 0 && IsGrounded && canDropDown)
+        // 땅에 착지했을 때 점프 횟수 초기화
+        if (!isGrounded && isGrounded)
+        {
+            playerAnimator.SetTrigger("Stay");
+            remainingJumps = maxJumpCount; // 점프 횟수 초기화
+            isJumping = false; // 점프 상태 초기화
+        }
+
+            // 아래 방향키를 누르면 플랫폼 통과
+            if (Input.GetAxisRaw("Vertical") < 0 && isGrounded && canDropDown)
         {
             // 감지 위를 더 크게 설정하고 플레이어 발 위치에서 체크
             Vector2 feetPosition = new Vector2(transform.position.x, 
@@ -225,20 +270,20 @@ public class PlayerController : MonoBehaviour, IDamageable
             groundLayer            
         );
 
-        bool wasGrounded = IsGrounded;  // 이전 상태 저장
-        IsGrounded = hit.collider != null;
+        bool wasGrounded = isGrounded;  // 이전 상태 저장
+        isGrounded = hit.collider != null;
 
         // 땅에 착지했을 때 점프 횟수 초기화
-        if (!wasGrounded && IsGrounded)
+        if (!wasGrounded && isGrounded)
         {
             remainingJumps = maxJumpCount; // 점프 횟수 초기화
-            hasJumped = false; // 점프 상태 초기화
+            isJumping = false; // 점프 상태 초기화
         }
 
         // 상태 변경 시 로그 출력
-        if (wasGrounded != IsGrounded)
+        if (wasGrounded != isGrounded)
         {
-            Debug.Log($"Ground state changed: {IsGrounded}");
+            Debug.Log($"Ground state changed: {isGrounded}");
             if (hit.collider != null)
             {
                 Debug.Log($"Detected ground: {hit.collider.gameObject.name}");
@@ -262,6 +307,14 @@ public class PlayerController : MonoBehaviour, IDamageable
         canDash = false;
         dashCooldownTimer = dashCooldown;
         Debug.Log($"Dash used! Cooldown started: {dashCooldown} seconds");
+    }
+
+    // 점프 애니메이션 복구 (착지 후)
+    IEnumerator ResetJump()
+    {
+        yield return new WaitForSeconds(0.2f);
+        isJumping = false;
+        playerAnimator.SetBool("isJumping", false);
     }
 
     private IEnumerator DashCoroutine()
@@ -353,7 +406,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             timer += Time.deltaTime;
             
             // 새로운 플랫폼에 착지했는지 확인
-            if (IsGrounded && !Physics2D.GetIgnoreCollision(playerCollider, platformCollider))
+            if (isGrounded && !Physics2D.GetIgnoreCollision(playerCollider, platformCollider))
             {
                 hasLanded = true;
             }
@@ -467,10 +520,8 @@ public class PlayerController : MonoBehaviour, IDamageable
                 projectile.SetActive(false);
             }
         }
-        
-        // 선택사항: 플레이어 캐릭터 비활성화 또는 사망 애니메이션 재생
-        // gameObject.SetActive(false);
-        
+
+        playerAnimator.SetTrigger("Death");
         // 선택사항: 게임오버 UI 표시
         // GameManager.Instance.ShowGameOver();
     }
@@ -488,6 +539,29 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
+    private void ApplyCharacterAnimator()
+    {
+        if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterAnimator != null)
+        {
+            CharacterData selectedCharacter = CharacterSelectionData.Instance.selectedCharacterData;
+
+            if (selectedCharacter != null)
+            {
+                playerAnimator.runtimeAnimatorController = selectedCharacter.animatorController; // 애니메이터 컨트롤러 할당
+
+                // 애니메이션 상태를 전환
+                playerAnimator.SetTrigger("Stay");
+            }
+            else
+            {
+                Debug.Log("Selected Character is null");
+            }
+        }
+        else
+        {
+            Debug.Log("Selected Character Data is null");
+        }
+    }
     public void UpdateHealth(int newHealth)
     {
         currentHealth = newHealth;
