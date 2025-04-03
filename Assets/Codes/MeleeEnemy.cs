@@ -229,6 +229,7 @@ public class MeleeEnemy : MonoBehaviour
         {
             Debug.Log("MeleeEnemy Dead Animation.");
             animator.SetTrigger("Dead");
+            animator.SetBool("IsDead", true);
         }
 
         Debug.Log("MeleeEnemy died.");

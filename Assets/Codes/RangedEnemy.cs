@@ -284,6 +284,7 @@ public class RangedEnemy : MonoBehaviour
         {
             Debug.Log("RangedEnemy Dead Animation.");
             animator.SetTrigger("Dead");
+            animator.SetBool("IsDead", true);
         }
 
         Debug.Log("RangedEnemy died.");

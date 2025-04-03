@@ -786,7 +786,7 @@ MonoBehaviour:
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
   playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   monsterDatabase: {fileID: 11400000, guid: 98360ad6df22b481db7847b7d76e55c5, type: 2}
-  location: 2
+  location: 4
 --- !u!4 &951659765
 Transform:
   m_ObjectHideFlags: 0
@@ -1662,6 +1662,8 @@ MonoBehaviour:
   playerUIPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   playerSpriteRenderer: {fileID: 4653082698377534761, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   monsterNumber: {fileID: 576923598}
+  gameOverPanel: {fileID: 0}
+  restartButton: {fileID: 0}
 --- !u!4 &1950971167
 Transform:
   m_ObjectHideFlags: 0

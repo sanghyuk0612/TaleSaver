@@ -62,7 +62,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs= Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location = 5;
+        location = 4;
         List<GameObject> filteredPrefabs = new List<GameObject>();
         
         switch (location){
