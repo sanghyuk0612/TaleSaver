@@ -790,10 +790,14 @@ MonoBehaviour:
   playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
 <<<<<<< HEAD
   monsterDatabase: {fileID: 11400000, guid: 98360ad6df22b481db7847b7d76e55c5, type: 2}
+<<<<<<< HEAD
   location: 2
 =======
   location: 0
 >>>>>>> parent of 7a3afcc (몬스터 에셋(애니메이션X))
+=======
+  location: 0
+>>>>>>> parent of 7195792 (Reapply "몬스터 에셋 수정(애니메이션X)")
 --- !u!4 &951659765
 Transform:
   m_ObjectHideFlags: 0
