@@ -31,12 +31,8 @@ public class RangedEnemy : MonoBehaviour
     private float nextAttackTime;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    private Animator animator;
     private Transform playerTransform;
     private bool isPlayerInRange = false;
-
-    [Header("Item Drop")]
-    [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
 
     void Start()
     {
@@ -165,32 +161,6 @@ public class RangedEnemy : MonoBehaviour
             StopMoving();
             isPlayerInRange = false;
         }
-
-        // 체력 체크
-        if (calculatedHealth <= 0)
-        {
-            Debug.Log("Debug: Monster health set to 0 manually.");
-            calculatedHealth = 0;
-            Die();
-        }
-    }
-
-    public void ApplyMonsterData(MonsterData data)
-    {
-        // 몬스터 데이터 적용
-        baseHealth = data.health;
-        baseDamage = data.damage;
-        moveSpeed = data.moveSpeed;
-
-        // 스프라이트 및 애니메이션 적용
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-
-        if (spriteRenderer != null)
-            spriteRenderer.sprite = data.monsterSprite;
-
-        if (animator != null)
-            animator.runtimeAnimatorController = data.animatorController;
     }
 
     // 전방에 지면이 있는지 확인하는 메서드
@@ -285,7 +255,6 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
-        // 애니메이션을 Dead 상태로 전환
         if (animator != null)
         {
             Debug.Log("RangedEnemy Dead Animation.");

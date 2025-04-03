@@ -99,7 +99,6 @@ public class MeleeEnemy : MonoBehaviour
         // 플랫폼 레이어 설정
         platformLayer = LayerMask.GetMask("Ground", "Half Tile");
     }
-   
 
     private void Awake()
     {
@@ -181,12 +180,17 @@ public class MeleeEnemy : MonoBehaviour
         }
     }
 
-    public void ApplyMonsterData(MonsterData data)
+    /*public void ApplyMonsterData(MonsterData data)
+    {
+
+
+    }
+    */
+
     //테스트용 
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
     private void CheckDeath()
     {
-        // 몬스터 데이터 적용
         baseHealth = data.health;
         baseDamage = data.damage;
         moveSpeed = data.moveSpeed;
@@ -195,11 +199,14 @@ public class MeleeEnemy : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        if (spriteRenderer != null)
+        if (spriteRenderer != null) {
             spriteRenderer.sprite = data.monsterSprite;
+        }
 
         if (animator != null)
+        {
             animator.runtimeAnimatorController = data.animatorController;
+        }
         if (calculatedHealth <= 0)
         {
             DropItem();
@@ -308,13 +315,11 @@ public class MeleeEnemy : MonoBehaviour
 
     private void Die()
     {
-        // 애니메이션을 Dead 상태로 전환
         if (animator != null)
         {
             Debug.Log("MeleeEnemy Dead Animation.");
             animator.SetTrigger("Dead");
         }
-
         Debug.Log("MeleeEnemy died.");
 
         // 5초 후 게임 오브젝트 제거
@@ -332,7 +337,6 @@ public class MeleeEnemy : MonoBehaviour
             DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
             droppedItem.DropItem();
         }
-<<<<<<< HEAD
     }
 
     // 전방에 지면이 있는지 확인하는 메서드
@@ -351,7 +355,5 @@ public class MeleeEnemy : MonoBehaviour
         Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
         
         return hit.collider != null;
-=======
->>>>>>> parent of 90ca3a1 (Revert "Reapply "animation 중간점검"")
     }
 }

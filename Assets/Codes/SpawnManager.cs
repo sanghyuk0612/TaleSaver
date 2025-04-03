@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;  // Tilemap 사용을 위해 추가
 public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance { get; private set; }
+
     [SerializeField] private GameObject meleeEnemyPrefab;
     [SerializeField] private GameObject rangedEnemyPrefab;
     [SerializeField] private GameObject BossPrefab;
@@ -21,14 +22,16 @@ public class SpawnManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    
 
     public void SpawnEntities()
     {
-        if (MapManager.Instance == null)
+        if (MapManager.Instance == null) {
 
-        // 타일맵의 경계 가져오기
-        int ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
-        Vector3 pos = MapManager.Instance.spawnPoints[ran];
+            // 타일맵의 경계 가져오기
+            int ran = Random.Range(0, MapManager.Instance.spawnPoints.Count);
+            Vector3 pos = MapManager.Instance.spawnPoints[ran];
+        }
 
         // 근접 적 스폰 (약간 왼쪽에)
         if (meleeEnemyPrefab != null)
@@ -42,6 +45,11 @@ public class SpawnManager : MonoBehaviour
 
         MonsterData monsterData = MapManager.Instance.GetRandomMonsterForCurrentMap();
         if (monsterData == null)
+        {
+
+
+        }
+
         else
         {
             Debug.LogWarning("No monster data found for this map!");
@@ -84,6 +92,7 @@ public class SpawnManager : MonoBehaviour
             {
                 rangedEnemy.ApplyMonsterData(monsterData);
             }
+
             PortalManager.Instance.updateEnemy(1);
             Instantiate(meleeEnemyPrefab, pos, Quaternion.identity);
             Debug.Log("Melee Enemy spawned at: " + pos);
