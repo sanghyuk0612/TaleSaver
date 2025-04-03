@@ -54,7 +54,6 @@ MonoBehaviour:
   baseHealth: 80
   healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
-  currentHealth: 0
   itemPrefab: {fileID: 8044234074128147666, guid: 5c9944f6524634fb6887103db97b7143, type: 3}
 --- !u!212 &5980722727141011568
 SpriteRenderer:
@@ -97,7 +96,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 6707565276462142591, guid: 6216cfe1c91ef47e2b647c72bb163eb8, type: 3}
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0.19758391, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -140,18 +139,18 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 1
   m_UsedByComposite: 0
-  m_Offset: {x: 0.06124276, y: -0.21129054}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.625, y: 2.3125}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.5515065, y: 1.9125303}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!50 &5410686797218692123
 Rigidbody2D:
