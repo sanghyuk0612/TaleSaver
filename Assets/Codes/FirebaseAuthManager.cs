@@ -40,9 +40,9 @@ public class FirebaseAuthManager : MonoBehaviour
         Debug.Log(" OnFirebaseInitialized 호출됨, Firebase 준비 완료!");
     }
     public bool IsLoggedIn()
-    {
-        return auth != null && auth.CurrentUser != null;
-    }
+{
+    return auth != null && auth.CurrentUser != null;
+}
 
     public void SignUp(string email, string password, Action<bool, string> callback)
     {
