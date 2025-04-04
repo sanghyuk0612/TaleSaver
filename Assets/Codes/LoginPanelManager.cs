@@ -104,7 +104,7 @@ public class LoginPanelManager : MonoBehaviour
             else
             {
                 Debug.LogError(" 회원가입 실패 콜백: " + message);
-                alertText.text = "? " + message;
+                alertText.text = " " + message;
             }
         });
     }
