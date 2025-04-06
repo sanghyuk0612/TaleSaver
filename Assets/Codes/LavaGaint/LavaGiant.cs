@@ -47,7 +47,7 @@ public class LavaGiant : MonoBehaviour
     public float jumpHorizontalForce = 3f;
     Animator anim;
     Transform Pivot;
-    public GameObject CirclePrefab;
+    public GameObject FrontAttack;
     public float jumpForce = 5f;
 
     void Start()
@@ -156,6 +156,7 @@ public class LavaGiant : MonoBehaviour
             rb.velocity = new Vector2(direc* moveSpeed, rb.velocity.y);
         }
         else{
+            anim.SetInteger("animNum",0);
             rb.velocity =new Vector2(0, rb.velocity.y);
         }
             // 스프라이트 방향 전환
@@ -204,24 +205,27 @@ public class LavaGiant : MonoBehaviour
    IEnumerator mySkill(int skillNum){
         
         if (custumSkillnum==7){
-            skillNum = Random.Range(0,5);
+            skillNum = Random.Range(0,2);
         }
         else{
             skillNum=custumSkillnum;
         }
         
         //캐스팅 시간
-        StartCoroutine(StopMovement(1f));
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
         yield return new WaitForSeconds(1f);
 
-        anim.SetInteger("skillNum",skillNum);
         switch (skillNum)
         {
         case 0:
+            
+            StartCoroutine(StopMovement(1f));
             Dash();
             break;
         case 1:
+            
+            StartCoroutine(StopMovement(1.5f));
+            anim.SetInteger("skillNum",1);
             //SmashAttack();
             break;
         case 2:
@@ -231,7 +235,7 @@ public class LavaGiant : MonoBehaviour
             //FrontAttack();
             break;
         case 4:
-            Jump();
+            //Jump();
             break;
         default:
             Debug.Log("잘못된 스킬 번호");
@@ -241,7 +245,7 @@ public class LavaGiant : MonoBehaviour
     }
     public void ResetToIdle() // 애니메이션 이벤트에서 호출될 함수
     {
-        anim.SetInteger("skillNum", 9); // Idle 상태로 변경
+        anim.SetInteger("skillNum", 0); // Idle 상태로 변경
     }
 private void Jump(){
     
@@ -249,71 +253,33 @@ private void Jump(){
     rb.velocity = new Vector2(rb.velocity.x, 0); // 기존 Y축 속도를 초기화
     rb.AddForce(jumpVector, ForceMode2D.Impulse); // 힘을 순간적으로 가함
 }
-// private void FrontAttack(){
-//     //StopMovement(0.5f);
-//     // 이펙트 생성
-//     if (FrontAttackPrefab != null)
-//     {
-//         GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direc,0.3f,0), Quaternion.identity);
-//         effect.transform.SetParent(transform);
-//         //StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
-        
-//         Destroy(effect, 0.6f); // 0.5초 후 이펙트 제거
-//         Debug.Log("이펙트 출력");
-//     }
-//     Debug.Log("휘두르기 사용");
-//     //anim.SetInteger("skillNum",9);
-// }
+
 
 private void SmashAttack()
 {
-    StartCoroutine(StopMovement(0.5f));
-    // 이펙트 생성
     
-    if (CirclePrefab != null)
+    // 이펙트 생성
+    //StartCoroutine(StopMovement(1f));
+    
+    if (FrontAttack != null)
     {
-        GameObject effect = Instantiate(CirclePrefab, Pivot.position+new Vector3(direc*1,0,0), Quaternion.identity);
+        GameObject effect = Instantiate(FrontAttack, Pivot.position+new Vector3(direc*2f,0,0), Quaternion.identity);
         effect.transform.SetParent(transform);
-        Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.3f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
     //anim.SetInteger("skillNum",9);
-    Debug.Log("주위공격 공격 사용");
+    Debug.Log("전방공격");
 }
 
 
-// private void DownAttack()
-// {
-//     StartCoroutine(StopMovement(1.0f)); // 몬스터 멈추기
 
-//     // 방향 벡터 정규화
-//     Vector2 shootDirection = direction.normalized;
-
-//     // 이펙트 생성 (플레이어 방향으로)
-//     if (DownAttackPrefab != null)
-//     {
-
-//         // 레이저 이펙트 생성
-//         GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(3*direc,-0.7f,0), Quaternion.identity);
-        
-//         // 이펙트 이동 (속도 조절 가능)
-//         Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
-//         if (effectRb != null)
-//         {
-//             effectRb.velocity = shootDirection * 5f; // 속도 조절
-//         }
-
-//         Destroy(effect, 0.7f); // 1.0초 후 이펙트 제거
-//     }
-
-//     Debug.Log("슬라임 아래공격 사용");
-// }
 
 private IEnumerator StopMovement(float stopDuration)
     {
         canMove =false;
         Debug.Log("보스몬스터 정지");
-        anim.SetInteger("animNum",0);
+        //anim.SetInteger("animNum",0);
         yield return new WaitForSeconds(stopDuration);
         canMove =true; // 원래 속도로 복귀
     }
@@ -328,7 +294,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 속도 설정
         // 대시 속도 직접 설정
         // 대시 코루틴 시작
-        StartCoroutine(DashCoroutine(0.5f));
+        StartCoroutine(DashCoroutine(0.4f));
         // 쿨다운 시작
         canDash = false;
         Debug.Log($"보스몬스터 대쉬사용");
@@ -343,7 +309,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 지속 시간
         yield return new WaitForSeconds(dashTime);
         baseDamage = tmp;
-        anim.SetInteger("skillNum",9);
+        anim.SetInteger("animNum",0);
         isDashing = false;
     }
     

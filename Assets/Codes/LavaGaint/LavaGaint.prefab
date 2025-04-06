@@ -239,11 +239,11 @@ MonoBehaviour:
   itemPrefab: {fileID: 0}
   dashForce: 30
   dashCooltime: 3
-  dashDemage: 30
+  dashDemage: 15
   jumpHorizontalForce: 3
-  CirclePrefab: {fileID: 0}
+  FrontAttack: {fileID: 5605060386581786699, guid: eb86ecefeba280f4a909d39f08518a05, type: 3}
   jumpForce: 5
-  skillInterval: 3
+  skillInterval: 4
   custumSkillnum: 0
 --- !u!95 &7876113497357996128
 Animator:
@@ -255,7 +255,7 @@ Animator:
   m_GameObject: {fileID: 7066774727544269206}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: -8572547658130143378, guid: a1dedf02add2a2945bce8871bc7c823f, type: 3}
+  m_Controller: {fileID: 9100000, guid: 8480ead84621f404d94de68cf28da068, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
