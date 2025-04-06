@@ -204,8 +204,17 @@ public class RangedEnemy : MonoBehaviour
             // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
             Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
             Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
-            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+            
+            // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
             projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
+            
+            // 초기화는 풀 관리자 설정 후에 호출
+            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+        }
+        else
+        {
+            Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
+            projectile.SetActive(false); // 오류 시 발사체 비활성화
         }
     }
 

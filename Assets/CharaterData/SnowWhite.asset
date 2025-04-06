@@ -15,12 +15,14 @@ MonoBehaviour:
   characterName: "\uBC31\uC124\uACF5\uC8FC"
   characterSprite: {fileID: 2537882373423050008, guid: 43d62424c4391a843bdbe3e6191a733e, type: 3}
   animatorController: {fileID: 9100000, guid: 3118d879a6d017e4bb64fd062d3cf186, type: 2}
-  jumpAnimation: {fileID: 7400000, guid: 5b04b8339af4cc4468dd69a557575506, type: 2}
   level: 1
   description: "\uC124\uBA85"
-  vitality: 5
-  power: 5
-  agility: 5
+  vitality: 0
+  power: 0
+  agility: 0
   luck: 0
   maxHealth: 1
+  isUnlocked: 0
+  requiredSteelPieces: 1
+  requiredBookPages: 1
   skills: []

@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     public int playerMaxJumpCount = 2;
     public float playerDashForce = 15f;
     public float playerDashCooldown = 5f;
-    public int playerMaxHealth = 100;
+    public int playerMaxHealth = 100; // 기본값으로만 사용됨
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
@@ -88,12 +88,15 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeGameState();
-
+            
             // SkillManager 컴포넌트 추가
             skillManager = gameObject.AddComponent<SkillManager>();
-
             
+            // 캐릭터 데이터 불러오기 시도
+            LoadSelectedCharacter();
+            
+            // 초기화는 캐릭터 로드 후에 수행
+            InitializeGameState();
         }
         else
         {
@@ -135,8 +138,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : 100;
+        // 현재 캐릭터의 최대 체력 설정
+        maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
         currentHealth = maxHealth;
+        
+        currentPlayerHealth = maxHealth;
+        Debug.Log($"Start: Setting currentPlayerHealth to maxHealth: {maxHealth}");
+        
         skillCooldownTimers = new float[5];
         
         // 게임 시작 시간 기록
@@ -196,9 +204,12 @@ public class GameManager : MonoBehaviour
         score = 0;
         
         isPlayerInRange = false;
-        currentPlayerHealth = playerMaxHealth;
-
         
+        // 현재 캐릭터의 maxHealth 사용 - 게임 시작 시 maxHealth와 currentPlayerHealth 일치시킴
+        int healthValue = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        currentPlayerHealth = healthValue;
+        maxHealth = healthValue;
+        Debug.Log($"Game state initialized with health: {currentPlayerHealth} / {maxHealth}");
     }
 
     // 스테이지 진행 관련 메서드
@@ -247,6 +258,36 @@ public class GameManager : MonoBehaviour
     {
         if (player != null)
         {
+            // 디버그 로그 추가 - 이 메서드가 호출되었을 때 상태 확인
+            Debug.Log($"RestorePlayerState called with currentPlayerHealth: {currentPlayerHealth}, MaxHealth: {MaxHealth}");
+            
+            // 항상 최신 체력 값을 사용하도록 단순화
+            if (CurrentCharacter != null)
+            {
+                // 체력이 최대 체력을 초과하지 않도록 확인
+                if (currentPlayerHealth > CurrentCharacter.maxHealth)
+                {
+                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    Debug.Log($"Health exceeds max health, limiting to: {currentPlayerHealth}");
+                }
+                
+                // 체력이 0 이하인 경우 최대 체력으로 설정
+                if (currentPlayerHealth <= 0)
+                {
+                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    Debug.Log($"Health was 0 or negative, setting to max health: {currentPlayerHealth}");
+                }
+            }
+            else
+            {
+                // CurrentCharacter가 null인 경우 기본값 사용
+                if (currentPlayerHealth <= 0 || currentPlayerHealth > playerMaxHealth)
+                {
+                    currentPlayerHealth = playerMaxHealth;
+                    Debug.Log($"CurrentCharacter is null, using default max health: {currentPlayerHealth}");
+                }
+            }
+            
             player.RestoreHealth(currentPlayerHealth); // 현재 체력을 복원
             Debug.Log($"Restored player health: {currentPlayerHealth}");  // 디버그용
         }
@@ -372,11 +413,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public int MaxHealth => maxHealth;
+    public int MaxHealth 
+    { 
+        get 
+        {
+            // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를, 없으면 기본값 반환
+            return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        }
+    }
 
     public int GetCurrentMaxHealth()
     {
-        return CurrentCharacter != null ? CurrentCharacter.maxHealth : 100; // 기본값 100
+        return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
     }
 
     private void LogCurrentCharacterInfo()
@@ -448,10 +496,15 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
+            
+            // 캐릭터의 maxHealth를 게임매니저의 값으로 설정
+            maxHealth = CurrentCharacter.maxHealth;
+            Debug.Log($"Character {CurrentCharacter.characterName} loaded with maxHealth: {maxHealth}");
         }
         else
         {
-            Debug.LogWarning("No character data found in CharacterSelectionData.");
+            Debug.LogWarning("No character data found in CharacterSelectionData. Using default values.");
+            maxHealth = playerMaxHealth; // 기본값 사용
         }
     }
 
