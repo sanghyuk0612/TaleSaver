@@ -496,7 +496,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
-
+            
             // 캐릭터의 maxHealth를 게임매니저의 값으로 설정
             maxHealth = CurrentCharacter.maxHealth;
             Debug.Log($"Character {CurrentCharacter.characterName} loaded with maxHealth: {maxHealth}");

@@ -151,10 +151,18 @@ public class PlayerController : MonoBehaviour, IDamageable
             playerAnimator.SetBool("IsRunning", isMoving && !isJumping);
 
             // 점프 입력 받기
-            if (Input.GetButtonDown("Jump"))
+            if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
             {
+                isJumping = true;
+                isGrounded = false;
+
                 // 애니메이션 트리거 실행
                 playerAnimator.SetTrigger("Jump");
+
+                rb.velocity = new Vector2(rb.velocity.x, 2f);
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                remainingJumps = maxJumpCount; // 점프 횟수 초기화
+                isJumping = false; // 점프 상태 초기화
             }
         }
         else
