@@ -97,8 +97,7 @@ public class MeleeEnemy : MonoBehaviour
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
-            // 정지
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            StopMoving();
             return;
         }
 
@@ -109,7 +108,8 @@ public class MeleeEnemy : MonoBehaviour
         {
             // 플레이어 방향으로 이동
             Vector2 direction = (playerTransform.position - transform.position).normalized;
-            
+            animator.SetTrigger("Walk");
+
             // x축 방향으로만 이동
             rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
             
@@ -127,6 +127,8 @@ public class MeleeEnemy : MonoBehaviour
         {
             // 플레이어가 감지 범위를 벗어나면 정지
             rb.velocity = new Vector2(0, rb.velocity.y);
+            StopMoving();
+            animator.SetTrigger("Idle");
         }
 
         // 체력 체크
@@ -157,10 +159,10 @@ public class MeleeEnemy : MonoBehaviour
         animator = GetComponent<Animator>();
 
         if (spriteRenderer != null)
-            spriteRenderer.sprite = data.monsterSprite;
+            spriteRenderer.sprite = data.GetMonsterSprite();
 
         if (animator != null)
-            animator.runtimeAnimatorController = data.animatorController;
+            animator.runtimeAnimatorController = data.GetAnimatorController(); ;
     }
 
     public void UpdateHealth(int newHealth)
@@ -222,8 +224,15 @@ public class MeleeEnemy : MonoBehaviour
         }
     }
 
+    void StopMoving()
+    {
+        rb.velocity = new Vector2(0, rb.velocity.y);
+        animator.SetTrigger("Idle");
+    }
+
     private void Die()
     {
+        StopMoving();
         // 애니메이션을 Dead 상태로 전환
         if (animator != null)
         {
@@ -235,7 +244,7 @@ public class MeleeEnemy : MonoBehaviour
         Debug.Log("MeleeEnemy died.");
 
         // 5초 후 게임 오브젝트 제거
-        StartCoroutine(DestroyAfterDelay(5f));
+        StartCoroutine(DestroyAfterDelay(1f));
     }
 
     // 일정 시간 후 몬스터 제거하는 코루틴

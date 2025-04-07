@@ -30,6 +30,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         MonsterData monsterData = MapManager.Instance.GetRandomMonsterForCurrentMap();
+        
         if (monsterData == null)
         {
             Debug.LogWarning("No monster data found for this map!");
