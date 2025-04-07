@@ -97,7 +97,6 @@ public class RangedEnemy : MonoBehaviour
         firePoint = firePointObj.transform;
         firePoint.SetParent(transform);
         firePoint.localPosition = new Vector3(0f, 0f, 0f); // 발사 위치 고정
-        animator.SetTrigger("Attack");
 
         Debug.Log($"RangedEnemy spawned with current health: {currentHealth}");
     }
@@ -128,7 +127,6 @@ public class RangedEnemy : MonoBehaviour
             {
                 MoveTowardsPlayer();
                 isPlayerInRange = false;
-                animator.SetTrigger("Walk");
             }
             else
             {
@@ -148,7 +146,6 @@ public class RangedEnemy : MonoBehaviour
         else
         {
             StopMoving();
-            animator.SetTrigger("Idle");
             isPlayerInRange = false;
         }
 
@@ -173,10 +170,10 @@ public class RangedEnemy : MonoBehaviour
         animator = GetComponent<Animator>();
 
         if (spriteRenderer != null)
-            spriteRenderer.sprite = data.GetMonsterSprite();
+            spriteRenderer.sprite = data.monsterSprite;
 
         if (animator != null)
-            animator.runtimeAnimatorController = data.GetAnimatorController(); ;
+            animator.runtimeAnimatorController = data.animatorController;
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
@@ -197,17 +194,13 @@ public class RangedEnemy : MonoBehaviour
         try
         {
             projectile = PoolManager.Instance.GetObject(projectileKey);
-            if (currentHealth > 0)
-            {
-                animator.SetTrigger("Attack");
-            }
         }
         catch (System.Exception e)
         {
             Debug.LogError($"발사체 생성 중 예외 발생: {e.Message}");
             return;
         }
-
+        
         // null 체크 추가
         if (projectile == null)
         {
@@ -237,11 +230,6 @@ public class RangedEnemy : MonoBehaviour
             Debug.LogError("발사체에 EnemyProjectile 컴포넌트가 없습니다.");
             projectile.SetActive(false); // 발사체를 다시 비활성화
         }
-        if(currentHealth <= 0)
-        {
-            projectile.SetActive(false);
-        }
-
     }
 
     void MoveTowardsPlayer()
@@ -254,7 +242,6 @@ public class RangedEnemy : MonoBehaviour
     void StopMoving()
     {
         rb.velocity = Vector2.zero;
-        animator.SetTrigger("Idle");
     }
 
     void UpdateFacingDirection()
@@ -292,18 +279,18 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
-        StopMoving();
         // 애니메이션을 Dead 상태로 전환
         if (animator != null)
         {
             Debug.Log("RangedEnemy Dead Animation.");
             animator.SetTrigger("Dead");
+            animator.SetBool("IsDead", true);
         }
 
         Debug.Log("RangedEnemy died.");
 
-        // 게임 오브젝트 제거
-        StartCoroutine(DestroyAfterDelay(1f));
+        // 5초 후 게임 오브젝트 제거
+        StartCoroutine(DestroyAfterDelay(5f));
     }
 
     // 일정 시간 후 몬스터 제거하는 코루틴
