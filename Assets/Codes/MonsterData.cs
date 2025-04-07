@@ -13,7 +13,28 @@ public class MonsterData : ScriptableObject
     public bool isRanged;
 
     [Header("Visuals")]
+    public GameObject MonsterPrefab; // 몬스터 프리팹
     public Sprite monsterSprite; // 몬스터 기본 스프라이트
     public RuntimeAnimatorController animatorController; // 애니메이션 컨트롤러
+
+    public Sprite GetMonsterSprite()
+    {
+        if (MonsterPrefab != null)
+        {
+            var renderer = MonsterPrefab.GetComponentInChildren<SpriteRenderer>();
+            return renderer != null ? renderer.sprite : null;
+        }
+        return null;
+    }
+
+    public RuntimeAnimatorController GetAnimatorController()
+    {
+        if (MonsterPrefab != null)
+        {
+            var animator = MonsterPrefab.GetComponentInChildren<Animator>();
+            return animator != null ? animator.runtimeAnimatorController : null;
+        }
+        return null;
+    }
 
 }

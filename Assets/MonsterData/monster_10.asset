@@ -17,5 +17,6 @@ MonoBehaviour:
   damage: 10
   moveSpeed: 2.5
   isRanged: 1
+  MonsterPrefab: {fileID: 5788525207174359484, guid: 14d45f54ab230024fbcd360a63ff0f2c, type: 3}
   monsterSprite: {fileID: -7702646972652813844, guid: 42b27b207c7a54412977aadda25ffde2, type: 3}
   animatorController: {fileID: 9100000, guid: c2e833fd12b2b4804be75ee7682c9a66, type: 2}
