@@ -16,6 +16,7 @@ public class StorePortal : MonoBehaviour
 
                 // 다음 스테이지로 이동
                 GameManager.Instance.SavePlayerState();
+                GameManager.Instance.ExitStore(); //Store에서 나가기 전 stage 복원
                 GameManager.Instance.LoadNextStage();
             }
         }
