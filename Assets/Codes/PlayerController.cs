@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         
         // 최대 체력을 캐릭터 데이터에서 가져옴
         maxHealth = GameManager.Instance.MaxHealth;
-        Debug.Log($"PlayerController: Initialized with maxHealth: {maxHealth}");
+        Debug.Log($"플레이어 초기화 - 최대 체력: {maxHealth}");
         
         // 컴포넌트 초기화
         rb = GetComponent<Rigidbody2D>();
@@ -95,14 +95,26 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerAnimator = GetComponent<Animator>();
         ApplyCharacterAnimator();
 
-        // 체력 초기화 (RestorePlayerState에서 덮어씌워질 예정)
-        currentHealth = maxHealth;
-        Debug.Log($"PlayerController: Default health set to: {currentHealth}");
-
         // GameManager에서 저장된 상태 복원
-        GameManager.Instance.RestorePlayerState(this);
-
-        Debug.Log($"PlayerController: After restore, health is: {currentHealth}");  // 디버그용
+        if (GameManager.Instance.CurrentPlayerHealth > 0)
+        {
+            // GameManager에 저장된 체력이 있으면 그 값을 사용
+            currentHealth = GameManager.Instance.CurrentPlayerHealth;
+            Debug.Log($"GameManager에서 체력 복원: {currentHealth}");
+        }
+        else
+        {
+            // 저장된 체력이 없으면 최대 체력으로 초기화
+            currentHealth = maxHealth;
+            GameManager.Instance.CurrentPlayerHealth = maxHealth;
+            Debug.Log($"체력 초기화: {maxHealth}");
+        }
+        
+        // UI 초기화
+        UpdateHealthUI();
+        
+        // 상태 복원 후 체력 확인
+        Debug.Log($"플레이어 초기화 완료 - 현재 체력: {currentHealth}, 최대 체력: {maxHealth}");
 
         // CharacterSelectionData에서 선택된 캐릭터의 스프라이트를 가져와서 적용
         if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterSprite != null)
@@ -435,7 +447,17 @@ public class PlayerController : MonoBehaviour, IDamageable
     // IDamageable 인터페이스 구현
     public void TakeDamage(int damage, Vector2 knockbackDirection, float knockbackForce)
     {
+        // 이전 체력 값 저장
+        int previousHealth = currentHealth;
+        
+        // 체력 감소
         currentHealth = Mathf.Max(0, currentHealth - damage);
+        
+        // GameManager에 체력 동기화
+        int gameManagerPrevHealth = GameManager.Instance.CurrentPlayerHealth;
+        GameManager.Instance.CurrentPlayerHealth = currentHealth;
+        
+        Debug.Log($"[디버깅] 데미지 적용 - 이전: PC={previousHealth}, GM={gameManagerPrevHealth} / 이후: PC={currentHealth}, GM={GameManager.Instance.CurrentPlayerHealth}");
         Debug.Log($"Player took {damage} damage. Current health: {currentHealth}");
 
         // 슬라이더 업데이트를 위해 PlayerUI에 알림
@@ -443,6 +465,11 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (playerUI != null)
         {
             playerUI.SetPlayer(this); // PlayerUI에 플레이어를 설정하여 슬라이더 업데이트
+            
+            // 체력 백분율 계산 후 직접 업데이트
+            float healthPercent = (float)currentHealth / maxHealth;
+            playerUI.UpdateHealthSlider(healthPercent);
+            Debug.Log($"[디버깅] PlayerUI.UpdateHealthSlider({healthPercent}) 호출 완료");
         }
 
         if (knockbackDirection != default)
@@ -512,48 +539,90 @@ public class PlayerController : MonoBehaviour, IDamageable
         GameManager.Instance.ShowGameOver();
     }
 
-    public void RestoreHealth(int health) //체력 회복하는 함수 아님. 데이터에서 플레이어의 체력 불러오는 함수
+    public void RestoreHealth(int health)
     {
-        // 최신 maxHealth 값을 다시 가져와서 적용
+        Debug.Log($"[디버깅] RestoreHealth({health}) 시작 - 현재 PlayerController.currentHealth={currentHealth}, GameManager.currentPlayerHealth={GameManager.Instance.CurrentPlayerHealth}");
+        
+        // GameManager에서 최대 체력 가져오기
         maxHealth = GameManager.Instance.MaxHealth;
+        Debug.Log($"체력 회복 시도 - 입력값: {health}, 현재 체력: {currentHealth}, 최대 체력: {maxHealth}");
         
-        // 초기 체력 값 로깅
-        Debug.Log($"RestoreHealth called with: health={health}, maxHealth={maxHealth}, GameManager.CurrentPlayerHealth={GameManager.Instance.CurrentPlayerHealth}");
+        // 이전 체력 저장
+        int previousHealth = currentHealth;
         
-        // 첫 번째 게임 시작 시 또는 health가 0이면 maxHealth를 사용
-        if (health <= 0)
+        // 체력을 제공된 값으로 설정하되, 최대 체력 초과 방지
+        currentHealth = Mathf.Clamp(health, 0, maxHealth);
+        
+        // 실제 변경된 체력량
+        int actualChange = currentHealth - previousHealth;
+        
+        // GameManager와 상태 동기화 (현재 체력이 변경된 경우에만)
+        if (actualChange != 0)
         {
-            currentHealth = maxHealth;
-            Debug.Log($"Health was 0 or negative, setting to maxHealth: {maxHealth}");
+            GameManager.Instance.CurrentPlayerHealth = currentHealth;
+            Debug.Log($"체력 회복 완료 - 현재 체력: {currentHealth}, 변경량: {actualChange}");
+            
+            // UI 업데이트
+            UpdateHealthUI();
         }
         else
         {
-            // GameManager에서 가져온 health가 maxHealth보다 크면 문제가 있음
-            if (health > maxHealth)
-            {
-                Debug.LogWarning($"Health value ({health}) is greater than maxHealth ({maxHealth}). This shouldn't happen. Limiting to maxHealth.");
-                currentHealth = maxHealth;
-            }
-            else
-            {
-                currentHealth = health;
-            }
+            Debug.Log($"체력이 변경되지 않음 - 현재 체력: {currentHealth}");
         }
         
-        Debug.Log($"Health restored to: {currentHealth} (max: {maxHealth})");  // 디버그용
-
-        // 슬라이더 업데이트를 위해 PlayerUI에 알림
-        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
-        if (playerUI != null)
-        {
-            playerUI.SetPlayer(this); // PlayerUI에 플레이어를 설정하여 슬라이더 업데이트
-        }
+        Debug.Log($"[디버깅] RestoreHealth 완료 - 결과 PlayerController.currentHealth={currentHealth}, GameManager.currentPlayerHealth={GameManager.Instance.CurrentPlayerHealth}");
     }
 
     public void UpdateHealth(int newHealth)
     {
-        currentHealth = newHealth;
-        Debug.Log($"Player health updated to: {currentHealth}");
+        Debug.Log($"[디버깅] UpdateHealth({newHealth}) 시작 - 현재 PlayerController.currentHealth={currentHealth}, GameManager.currentPlayerHealth={GameManager.Instance.CurrentPlayerHealth}");
+        
+        // 이전 체력 저장
+        int previousHealth = currentHealth;
+        
+        // 최대 체력 업데이트 (GameManager에서 가져옴)
+        maxHealth = GameManager.Instance.MaxHealth;
+        
+        // 새로운 체력 값을 제한 (0 ~ maxHealth)
+        currentHealth = Mathf.Clamp(newHealth, 0, maxHealth);
+        
+        // 체력 변경 로그
+        Debug.Log($"플레이어 체력 업데이트 - 이전: {previousHealth}, 이후: {currentHealth}, 최대: {maxHealth}");
+        
+        // 실제 변경이 있을 때만 UI 업데이트
+        if (currentHealth != previousHealth)
+        {
+            // UI 업데이트
+            UpdateHealthUI();
+            
+            // GameManager와 동기화
+            if (GameManager.Instance.CurrentPlayerHealth != currentHealth)
+            {
+                int prevGMHealth = GameManager.Instance.CurrentPlayerHealth;
+                GameManager.Instance.CurrentPlayerHealth = currentHealth;
+                Debug.Log($"GameManager 체력과 동기화: {prevGMHealth} -> {currentHealth}");
+            }
+        }
+        
+        // 체력이 0이 되면 사망 처리
+        if (currentHealth <= 0 && !IsDead)
+        {
+            Die();
+        }
+        
+        Debug.Log($"[디버깅] UpdateHealth 완료 - 결과 PlayerController.currentHealth={currentHealth}, GameManager.currentPlayerHealth={GameManager.Instance.CurrentPlayerHealth}");
+    }
+    
+    // 체력 UI 업데이트 헬퍼 메서드
+    private void UpdateHealthUI()
+    {
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            // 비율 계산 후 슬라이더 업데이트
+            float healthPercent = (float)currentHealth / maxHealth;
+            playerUI.UpdateHealthSlider(healthPercent);
+        }
     }
 
     private void ApplyCharacterAnimator()
