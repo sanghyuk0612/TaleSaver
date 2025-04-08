@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
     public SpriteRenderer playerSpriteRenderer; // 게임 캐릭터의 SpriteRenderer
     public Text monsterNumber;
 
+
     // 새로운 기능: 현재 선택된 캐릭터 데이터
     public CharacterData CurrentCharacter { get; private set; }
     private SkillManager skillManager;
@@ -591,24 +592,32 @@ public class GameManager : MonoBehaviour
         {
             // 게임오버 패널 활성화
             gameOverPanel.SetActive(true);
-            
+
             /*// 점수 표시 (선택사항)
             if (scoreText != null)
             {
                 // 여기에 점수 계산 로직 추가
                 int score = CalculateScore();
                 scoreText.text = $"점수: {score}";
-            }
-            
-            // 생존 시간 표시 (선택사항)
+            }*/
+
+            /*// 생존 시간 표시
             if (timeText != null)
             {
-                float survivalTime = Time.time - gameStartTime;
-                int minutes = Mathf.FloorToInt(survivalTime / 60);
-                int seconds = Mathf.FloorToInt(survivalTime % 60);
+                float playTime = 0f;
+
+                // 저장된 데이터가 있다면 불러오기
+                var progress = SaveManager.Instance.LoadProgressData();
+                if (progress != null)
+                {
+                    playTime = progress.playTime;
+                }
+
+                int minutes = Mathf.FloorToInt(playTime / 60f);
+                int seconds = Mathf.FloorToInt(playTime % 60f);
                 timeText.text = $"생존 시간: {minutes:00}:{seconds:00}";
-            }*/
-            
+            }
+            */
             // 시간 일시정지 (선택사항)
             //Time.timeScale = 0f;
         }
