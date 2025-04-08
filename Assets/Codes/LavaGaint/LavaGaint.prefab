@@ -244,7 +244,7 @@ MonoBehaviour:
   FrontAttack: {fileID: 5605060386581786699, guid: eb86ecefeba280f4a909d39f08518a05, type: 3}
   jumpForce: 5
   skillInterval: 4
-  custumSkillnum: 0
+  custumSkillnum: 7
 --- !u!95 &7876113497357996128
 Animator:
   serializedVersion: 5
