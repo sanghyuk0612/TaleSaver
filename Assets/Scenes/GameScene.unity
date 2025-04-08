@@ -2677,6 +2677,7 @@ MonoBehaviour:
   stage: 0
   chapter: 0
   isPlayerInRange: 0
+  playTime: 0
   playerMoveSpeed: 5
   playerJumpForce: 9.6
   playerGravityScale: 2.5
@@ -2701,6 +2702,8 @@ MonoBehaviour:
   monsterNumber: {fileID: 576923598}
   gameOverPanel: {fileID: 1343091816}
   restartButton: {fileID: 970196010}
+  DeathStage: {fileID: 1980014471}
+  DeathTime: {fileID: 267855493}
 --- !u!4 &1950971167
 Transform:
   m_ObjectHideFlags: 0

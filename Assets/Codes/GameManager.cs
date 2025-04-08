@@ -102,6 +102,9 @@ public class GameManager : MonoBehaviour
     [Header("Game Over UI")]
     public GameObject gameOverPanel; // 게임오버 UI 패널
     public Button restartButton; // 재시작 버튼
+    public Text DeathStage;
+    public Text DeathTime;
+
 
     private void Awake()
     {
