@@ -1,60 +1,124 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
-using System.Collections;
+using Firebase.Firestore;
+using Firebase;
+using Firebase.Extensions;
 
 public class PlayerDetailManager : MonoBehaviour
 {
-    // 클라우드 함수의 호출 url
-    private string playerDetailsUrl = "http://127.0.0.1:5001/tale-saver/us-central1/getPlayerDetails";
+    private FirebaseFirestore db;
+    private bool isFirebaseInitialized = false;
+    public PlayerDetailUI detailUI; // UI 연결
 
-    // 특정 플레이어를 클릭했을 때 호출되는 메서드
-    /*
-    public void OnPlayerClicked(string playerId)
+    private void Start()
     {
-        GetPlayerDetails(playerId);
-    }
-    */
-
-    // 서버로부터 플레이어 상세 정보 가져오기
-    public void GetPlayerDetails(string playerId)
-    {
-        string url = playerDetailsUrl + "?playerId=" + playerId;
-        StartCoroutine(CallFirebaseFunctions(url));
-    }
-
-    private IEnumerator CallFirebaseFunctions(string url)
-    {
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        Debug.Log("PlayerDetailManager.cs 호출");
+        detailUI = FindObjectOfType<PlayerDetailUI>();
+        if (detailUI == null)
         {
-            yield return request.SendWebRequest();
+            Debug.LogError("PlayerDetailUI가 씬에서 찾을 수 없습니다.");
+            return;
+        }
 
-            if (request.result == UnityWebRequest.Result.Success)
+        InitializeFirebase();
+    }
+
+    private void InitializeFirebase()
+    {
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.Result == DependencyStatus.Available)
             {
-                string jsonRes = request.downloadHandler.text;
-                Debug.Log("응답: " + jsonRes);
-                HandleResponse(jsonRes);
+                db = FirebaseFirestore.DefaultInstance;
+                isFirebaseInitialized = true;
+                Debug.Log("Firebase 초기화 완료!");
             }
-            // 에러 처리
             else
             {
-                Debug.LogError("요청 실패: " + request.error);
+                Debug.LogError("Firebase 초기화 실패: " + task.Result);
             }
-        }
+        });
     }
 
-    [SerializeField] private PlayerDetailUI playerDetailUI;
-
-    private void HandleResponse(string jsonRes)
+    public void LoadPlayerDetail(string playerId)
     {
-        Debug.Log("플레이어 세부 정보 응답: " + jsonRes);
-
-        // PlayerDetailUI 찾아서 UI 업데이트
-        PlayerDetailUI ui = FindObjectOfType<PlayerDetailUI>();
-        if (ui != null)
+        if (!isFirebaseInitialized)
         {
-            ui.UpdateDetailUI(jsonRes);
+            Debug.LogError("Firebase가 아직 초기화되지 않았습니다.");
+            return;
         }
+
+        db.Collection("players").Document(playerId).GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || !task.Result.Exists)
+            {
+                Debug.LogError("플레이어 데이터를 가져오는데 실패했거나 존재하지 않음.");
+                return;
+            }
+
+            var doc = task.Result;
+            Dictionary<string, object> data = doc.ToDictionary();
+
+            try
+            {
+                // stats
+                Dictionary<string, object> stats = new Dictionary<string, object>();
+                if (data.ContainsKey("stats"))
+                {
+                    stats = data["stats"] as Dictionary<string, object>;
+                }
+
+                // items
+                List<ItemData> items = new List<ItemData>();
+                if (data.ContainsKey("item"))
+                {
+                    Dictionary<string, object> itemField = data["item"] as Dictionary<string, object>;
+                    foreach (var entry in itemField)
+                    {
+                        Dictionary<string, object> itemData = entry.Value as Dictionary<string, object>;
+                        if (itemData != null)
+                        {
+                            string image = itemData.ContainsKey("image") ? itemData["image"]?.ToString() : "";
+                            string name = itemData.ContainsKey("name") ? itemData["name"]?.ToString() : "이름없음";
+                           
+                            items.Add(new ItemData
+                            {
+                                name = name,
+                                imageUrl = image
+                            });
+                        }
+                    }
+                }
+
+                PlayerDetailData detailData = new PlayerDetailData
+                {
+                    playerId = playerId,
+                    stats = stats,
+                    items = items
+                };
+
+                detailUI.DisplayPlayerDetails(detailData); //UI로 전달
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"데이터 파싱 중 오류 발생: {e.Message}");
+            }
+        });
     }
+}
 
+[Serializable]
+public class ItemData
+{
+    public string name;
+    public string imageUrl;
+}
 
+[Serializable]
+public class PlayerDetailData
+{
+    public string playerId;
+    public Dictionary<string, object> stats;
+    public List<ItemData> items;
 }
