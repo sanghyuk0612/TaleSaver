@@ -212,6 +212,21 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
+  - m_Index: 53
+    m_Metrics:
+      m_Width: 52
+      m_Height: 59
+      m_HorizontalBearingX: 7
+      m_HorizontalBearingY: 59
+      m_HorizontalAdvance: 62
+    m_GlyphRect:
+      m_X: 407
+      m_Y: 10
+      m_Width: 52
+      m_Height: 59
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
   - m_Index: 66
     m_Metrics:
       m_Width: 51
@@ -347,6 +362,21 @@ MonoBehaviour:
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
+  - m_Index: 86
+    m_Metrics:
+      m_Width: 38
+      m_Height: 47
+      m_HorizontalBearingX: 2
+      m_HorizontalBearingY: 46
+      m_HorizontalAdvance: 43
+    m_GlyphRect:
+      m_X: 336
+      m_Y: 80
+      m_Width: 38
+      m_Height: 47
+    m_Scale: 1
+    m_AtlasIndex: 0
+    m_ClassDefinitionType: 0
   - m_Index: 87
     m_Metrics:
       m_Width: 23
@@ -413,6 +443,10 @@ MonoBehaviour:
     m_GlyphIndex: 3
     m_Scale: 1
   - m_ElementType: 1
+    m_Unicode: 82
+    m_GlyphIndex: 53
+    m_Scale: 1
+  - m_ElementType: 1
     m_Unicode: 95
     m_GlyphIndex: 66
     m_Scale: 1
@@ -447,6 +481,10 @@ MonoBehaviour:
   - m_ElementType: 1
     m_Unicode: 114
     m_GlyphIndex: 85
+    m_Scale: 1
+  - m_ElementType: 1
+    m_Unicode: 115
+    m_GlyphIndex: 86
     m_Scale: 1
   - m_ElementType: 1
     m_Unicode: 116
@@ -522,6 +560,7 @@ MonoBehaviour:
     m_Y: 0
     m_Width: 59
     m_Height: 82
+
   m_FreeGlyphRects:
   - m_X: 64
     m_Y: 28
@@ -575,6 +614,22 @@ MonoBehaviour:
     m_Y: 0
     m_Width: 55
     m_Height: 511
+  - m_X: 254
+    m_Y: 136
+    m_Width: 257
+    m_Height: 375
+  - m_X: 254
+    m_Y: 81
+    m_Width: 72
+    m_Height: 430
+  - m_X: 383
+    m_Y: 78
+    m_Width: 128
+    m_Height: 433
+  - m_X: 383
+    m_Y: 70
+    m_Width: 14
+    m_Height: 441
   m_fontInfo:
     Name: Liberation Sans
     PointSize: 86

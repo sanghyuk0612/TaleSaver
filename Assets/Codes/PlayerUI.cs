@@ -54,4 +54,13 @@ public class PlayerUI : MonoBehaviour
         player = playerController; // PlayerController를 설정
         InitializeHealthUI(); // 슬라이더 초기화
     }
+    
+    // 체력 슬라이더 업데이트 메서드 추가
+    public void UpdateHealthSlider(float healthPercent)
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.value = healthPercent * healthSlider.maxValue;
+        }
+    }
 }

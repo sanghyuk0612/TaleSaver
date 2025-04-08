@@ -7,6 +7,10 @@ public class RangedEnemy : MonoBehaviour
     private float attackRange;
     private float detectionRange;
 
+    [Header("Edge Detection")]
+    public float edgeCheckDistance = 1.0f; // 모서리 감지 거리
+    public LayerMask platformLayer; // 플랫폼 레이어
+
     [Header("Damage")]
 
     public int baseDamage = 10; // 기본 공격력
@@ -54,6 +58,9 @@ public class RangedEnemy : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.gravityScale = 2.5f;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+        // 플랫폼 레이어 설정
+        platformLayer = LayerMask.GetMask("Ground", "Half Tile");
 
         // 기존 Collider는 물리적 충돌용으로 사용
         BoxCollider2D existingCollider = GetComponent<BoxCollider2D>();
@@ -120,7 +127,17 @@ public class RangedEnemy : MonoBehaviour
         {
             if (distanceToPlayer > attackRange)
             {
-                MoveTowardsPlayer();
+                // 이동하기 전에 모서리 확인
+                bool canMove = CheckGroundAhead((playerTransform.position.x > transform.position.x) ? 1f : -1f);
+                
+                if (canMove)
+                {
+                    MoveTowardsPlayer();
+                }
+                else
+                {
+                    StopMoving();
+                }
                 isPlayerInRange = false;
             }
             else
@@ -143,6 +160,24 @@ public class RangedEnemy : MonoBehaviour
             StopMoving();
             isPlayerInRange = false;
         }
+    }
+
+    // 전방에 지면이 있는지 확인하는 메서드
+    private bool CheckGroundAhead(float directionX)
+    {
+        // 캐릭터의 발 위치 계산 (캐릭터의 바닥부분)
+        Vector2 footPosition = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        
+        // 이동 방향으로의 레이캐스트 방향 설정
+        Vector2 rayDirection = new Vector2(directionX, -0.5f).normalized;
+        
+        // 레이캐스트를 통해 전방의 지면 확인
+        RaycastHit2D hit = Physics2D.Raycast(footPosition, rayDirection, edgeCheckDistance, platformLayer);
+        
+        // 디버그용 시각화
+        Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
+        
+        return hit.collider != null;
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
@@ -169,8 +204,17 @@ public class RangedEnemy : MonoBehaviour
             // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
             Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
             Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
-            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+            
+            // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
             projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
+            
+            // 초기화는 풀 관리자 설정 후에 호출
+            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+        }
+        else
+        {
+            Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
+            projectile.SetActive(false); // 오류 시 발사체 비활성화
         }
     }
 

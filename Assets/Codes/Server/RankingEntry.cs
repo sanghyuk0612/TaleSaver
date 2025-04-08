@@ -8,6 +8,7 @@ using static System.Net.Mime.MediaTypeNames;
 public class RankingEntry : MonoBehaviour
 {
     // TextMeshProUGUI »ç¿ë
+    public TextMeshProUGUI placeText;
     public TextMeshProUGUI playerIDText;
     public TextMeshProUGUI playcharacterText;
     public TextMeshProUGUI cleartimeText;

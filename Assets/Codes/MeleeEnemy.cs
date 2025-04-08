@@ -10,6 +10,10 @@ public class MeleeEnemy : MonoBehaviour
     public float groundCheckDistance = 0.2f;
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
+    
+    [Header("Edge Detection")]
+    public float edgeCheckDistance = 1.0f; // 모서리 감지 거리
+    public LayerMask platformLayer; // 플랫폼 레이어
 
     [Header("Collision")]
     public CompositeCollider2D compositeCollider;
@@ -90,6 +94,9 @@ public class MeleeEnemy : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
+
+        // 플랫폼 레이어 설정
+        platformLayer = LayerMask.GetMask("Ground", "Half Tile");
     }
 
     private void Awake()
@@ -121,17 +128,29 @@ public class MeleeEnemy : MonoBehaviour
             // 플레이어 방향으로 이동
             Vector2 direction = (playerTransform.position - transform.position).normalized;
             
-            // x축 방향으로만 이동
-            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+            // 이동하기 전에 모서리를 확인
+            bool canMove = CheckGroundAhead(direction.x);
             
-            // 스프라이트 방향 전환
-            if (direction.x > 0 && !isFacingRight)
+            // 모서리가 감지되지 않아 이동 가능한 경우에만 이동
+            if (canMove)
             {
-                Flip();
+                // x축 방향으로만 이동
+                rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+                
+                // 스프라이트 방향 전환
+                if (direction.x > 0 && !isFacingRight)
+                {
+                    Flip();
+                }
+                else if (direction.x < 0 && isFacingRight)
+                {
+                    Flip();
+                }
             }
-            else if (direction.x < 0 && isFacingRight)
+            else
             {
-                Flip();
+                // 모서리가 감지되면 정지
+                rb.velocity = new Vector2(0, rb.velocity.y);
             }
         }
         else
@@ -265,5 +284,23 @@ public class MeleeEnemy : MonoBehaviour
         PortalManager.Instance.killEnemy(1);
         // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
         gameObject.SetActive(false);
+    }
+
+    // 전방에 지면이 있는지 확인하는 메서드
+    private bool CheckGroundAhead(float directionX)
+    {
+        // 캐릭터의 발 위치 계산
+        Vector2 footPosition = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        
+        // 이동 방향으로의 레이캐스트 방향 설정
+        Vector2 rayDirection = new Vector2(directionX, -0.5f).normalized;
+        
+        // 레이캐스트를 통해 전방의 지면 확인
+        RaycastHit2D hit = Physics2D.Raycast(footPosition, rayDirection, edgeCheckDistance, platformLayer);
+        
+        // 디버그용 시각화
+        Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
+        
+        return hit.collider != null;
     }
 }

@@ -397,6 +397,10 @@ public class SkillManager : MonoBehaviour
 
     private void ApplyDefaultEffect(CharacterSkill skill, Transform characterTransform)
     {
+        // 모든 객체의 체력 값을 로그로 출력
+        PlayerController playerCtrl = FindObjectOfType<PlayerController>();
+        Debug.Log($"[디버깅] SkillManager - 체력 값들: PlayerController.currentHealth = {(playerCtrl != null ? playerCtrl.CurrentHealth : -1)}, GameManager.currentPlayerHealth = {GameManager.Instance.CurrentPlayerHealth}");
+        
         switch (skill.effectType)
         {
             case CharacterSkill.EffectType.Damage:
@@ -414,9 +418,71 @@ public class SkillManager : MonoBehaviour
                 }
                 break;
             case CharacterSkill.EffectType.Heal:
+                // 디버깅 로그 추가
+                Debug.Log($"[디버깅] Heal 스킬 처리 시작 - PlayerController 체력: {(playerCtrl != null ? playerCtrl.CurrentHealth : -1)}, GameManager 체력: {GameManager.Instance.CurrentPlayerHealth}");
+                
+                // 체력 회복량 계산
                 int healAmount = CalculateHealAmount(skill.effectValue);
-                GameManager.Instance.ModifyHealth(healAmount);
-                Debug.Log($"Healing for {healAmount} health.");
+                
+                // 현재 체력은 PlayerController에서 직접 가져옴
+                int playerCurrentHealth = playerCtrl != null ? playerCtrl.CurrentHealth : -1;
+                
+                // GameManager의 체력 값도 확인
+                int gameManagerCurrentHealth = GameManager.Instance.CurrentPlayerHealth;
+                
+                // 두 값이 다르면 로그로 출력
+                if (playerCurrentHealth != gameManagerCurrentHealth && playerCurrentHealth != -1)
+                {
+                    Debug.LogWarning($"[디버깅] 체력 불일치 발견! PlayerController: {playerCurrentHealth}, GameManager: {gameManagerCurrentHealth}");
+                }
+                
+                // 실제 사용할 체력 값 결정 (PlayerController 우선)
+                int currentHealth = playerCurrentHealth != -1 ? playerCurrentHealth : gameManagerCurrentHealth;
+                int maxHealth = GameManager.Instance.MaxHealth;
+                
+                // 현재 체력 상태 기록
+                Debug.Log($"Heal 스킬 사용 전 - 현재 체력: {currentHealth}, 최대 체력: {maxHealth}");
+                
+                // 회복 후 체력 계산 (최대 체력 초과 방지)
+                int newHealth = Mathf.Min(currentHealth + healAmount, maxHealth);
+                
+                // 변화량 계산
+                int actualHealAmount = newHealth - currentHealth;
+                
+                // 체력 업데이트 (실제 변화량이 있을 때만)
+                if (actualHealAmount > 0)
+                {
+                    Debug.Log($"[디버깅] Heal 스킬 적용 전 - PlayerController 체력: {playerCurrentHealth}, GameManager 체력: {gameManagerCurrentHealth}, 적용할 체력: {newHealth}");
+                    
+                    // PlayerController 직접 찾아서 체력 동기화
+                    if (playerCtrl != null)
+                    {
+                        playerCtrl.UpdateHealth(newHealth);
+                        Debug.Log($"[디버깅] PlayerController.UpdateHealth({newHealth}) 호출 완료");
+                        
+                        // PlayerUI 찾아서 슬라이더 직접 업데이트
+                        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+                        if (playerUI != null)
+                        {
+                            float healthPercent = (float)newHealth / maxHealth;
+                            playerUI.UpdateHealthSlider(healthPercent);
+                            Debug.Log($"[디버깅] PlayerUI.UpdateHealthSlider({healthPercent}) 호출 완료");
+                        }
+                    }
+                    
+                    // GameManager 체력 업데이트
+                    GameManager.Instance.CurrentPlayerHealth = newHealth;
+                    Debug.Log($"[디버깅] GameManager.CurrentPlayerHealth = {newHealth} 설정 완료");
+                    
+                    Debug.Log($"체력 회복 적용 - 현재 체력: {newHealth}, 회복량: {healAmount}, 실제 회복량: {actualHealAmount}, 최대 체력: {maxHealth}");
+                    
+                    // 적용 후 체력 값 확인
+                    Debug.Log($"[디버깅] Heal 스킬 적용 후 - PlayerController 체력: {playerCtrl.CurrentHealth}, GameManager 체력: {GameManager.Instance.CurrentPlayerHealth}");
+                }
+                else
+                {
+                    Debug.Log($"체력이 이미 최대이거나 회복량이 0입니다. 현재 체력: {currentHealth}, 최대 체력: {maxHealth}");
+                }
                 break;
             case CharacterSkill.EffectType.Buff:
                 // 캐릭터 버프 적용 로직
@@ -424,6 +490,44 @@ public class SkillManager : MonoBehaviour
                 break;
             default:
                 break;
+        }
+    }
+
+    private int CalculateHealAmount(string effectValue)
+    {
+        // 현재 사용 중인 캐릭터의 최대 체력 가져오기
+        int characterMaxHealth = GameManager.Instance.MaxHealth;
+        
+        Debug.Log($"캐릭터의 최대 체력: {characterMaxHealth}, 효과 값: {effectValue}");
+        
+        if (effectValue.EndsWith("%"))
+        {
+            // 퍼센트로 해석
+            if (int.TryParse(effectValue.TrimEnd('%'), out int percentage))
+            {
+                int healAmount = Mathf.RoundToInt(characterMaxHealth * (percentage / 100f));
+                Debug.Log($"백분율 회복: {percentage}%, 회복량: {healAmount}");
+                return healAmount;
+            }
+            else
+            {
+                Debug.LogError($"유효하지 않은 회복 백분율 값: {effectValue}");
+                return 0;
+            }
+        }
+        else
+        {
+            // 정수로 해석
+            if (int.TryParse(effectValue, out int fixedAmount))
+            {
+                Debug.Log($"고정 회복량: {fixedAmount}");
+                return fixedAmount;
+            }
+            else
+            {
+                Debug.LogError($"유효하지 않은 회복 값: {effectValue}");
+                return 0;
+            }
         }
     }
 
@@ -501,21 +605,6 @@ public class SkillManager : MonoBehaviour
         }
         
         Debug.Log($"Poison effect on RangedEnemy: {enemy.name} has ended. Total damage: {initialHealth - rangedEnemy.currentHealth}");
-    }
-
-    private int CalculateHealAmount(string effectValue)
-    {
-        if (effectValue.EndsWith("%"))
-        {
-            // 퍼센트로 해석
-            int percentage = int.Parse(effectValue.TrimEnd('%'));
-            return (int)(GameManager.Instance.MaxHealth * (percentage / 100f));
-        }
-        else
-        {
-            // 정수로 해석
-            return int.Parse(effectValue);
-        }
     }
 
     private IEnumerator DelayedDamage(MeleeEnemy enemy, float damage, float delay)

@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     public int playerMaxJumpCount = 2;
     public float playerDashForce = 15f;
     public float playerDashCooldown = 5f;
-    public int playerMaxHealth = 100;
+    public int playerMaxHealth = 100; // 기본값으로만 사용됨
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
@@ -70,6 +70,7 @@ public class GameManager : MonoBehaviour
     public SpriteRenderer playerSpriteRenderer; // 게임 캐릭터의 SpriteRenderer
     public Text monsterNumber;
 
+
     // 새로운 기능: 현재 선택된 캐릭터 데이터
     public CharacterData CurrentCharacter { get; private set; }
     private SkillManager skillManager;
@@ -88,12 +89,15 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            InitializeGameState();
-
+            
             // SkillManager 컴포넌트 추가
             skillManager = gameObject.AddComponent<SkillManager>();
-
             
+            // 캐릭터 데이터 불러오기 시도
+            LoadSelectedCharacter();
+            
+            // 초기화는 캐릭터 로드 후에 수행
+            InitializeGameState();
         }
         else
         {
@@ -135,8 +139,22 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : 100;
-        currentHealth = maxHealth;
+        // 현재 캐릭터의 최대 체력 설정
+        maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        
+        // 실시간 디버깅을 위해 체력 초기값 로깅
+        Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
+        
+        // 현재 체력이 초기화되지 않았거나 최대 체력보다 크면 최대 체력으로 설정 
+        if (currentPlayerHealth <= 0 || currentPlayerHealth > maxHealth)
+        {
+            currentPlayerHealth = maxHealth;
+            Debug.Log($"체력 초기화 - currentPlayerHealth: {currentPlayerHealth}");
+        }
+        
+        // 플레이어 컨트롤러와 체력 동기화
+        SyncPlayerHealth();
+        
         skillCooldownTimers = new float[5];
         
         // 게임 시작 시간 기록
@@ -146,6 +164,22 @@ public class GameManager : MonoBehaviour
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
+        }
+    }
+
+    // 플레이어 컨트롤러와 체력 동기화하는 메서드
+    private void SyncPlayerHealth()
+    {
+        PlayerController playerController = FindObjectOfType<PlayerController>();
+        if (playerController != null)
+        {
+            // 현재 플레이어의 체력 확인
+            int playerHealth = playerController.CurrentHealth;
+            
+            Debug.Log($"체력 동기화 - GameManager: {currentPlayerHealth}, PlayerController: {playerHealth}");
+            
+            // 플레이어 컨트롤러의 체력 업데이트
+            playerController.UpdateHealth(currentPlayerHealth);
         }
     }
 
@@ -196,9 +230,12 @@ public class GameManager : MonoBehaviour
         score = 0;
         
         isPlayerInRange = false;
-        currentPlayerHealth = playerMaxHealth;
-
         
+        /*// 현재 캐릭터의 maxHealth 사용 - 게임 시작 시 maxHealth와 currentPlayerHealth 일치시킴
+        int healthValue = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        currentPlayerHealth = healthValue;
+        maxHealth = healthValue;
+        Debug.Log($"Game state initialized with health: {currentPlayerHealth} / {maxHealth}");*/
     }
 
     // 스테이지 진행 관련 메서드
@@ -247,6 +284,36 @@ public class GameManager : MonoBehaviour
     {
         if (player != null)
         {
+            // 디버그 로그 추가 - 이 메서드가 호출되었을 때 상태 확인
+            Debug.Log($"RestorePlayerState called with currentPlayerHealth: {currentPlayerHealth}, MaxHealth: {MaxHealth}");
+            
+            // 항상 최신 체력 값을 사용하도록 단순화
+            if (CurrentCharacter != null)
+            {
+                // 체력이 최대 체력을 초과하지 않도록 확인
+                if (currentPlayerHealth > CurrentCharacter.maxHealth)
+                {
+                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    Debug.Log($"Health exceeds max health, limiting to: {currentPlayerHealth}");
+                }
+                
+                // 체력이 0 이하인 경우 최대 체력으로 설정
+                if (currentPlayerHealth <= 0)
+                {
+                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    Debug.Log($"Health was 0 or negative, setting to max health: {currentPlayerHealth}");
+                }
+            }
+            else
+            {
+                // CurrentCharacter가 null인 경우 기본값 사용
+                if (currentPlayerHealth <= 0 || currentPlayerHealth > playerMaxHealth)
+                {
+                    currentPlayerHealth = playerMaxHealth;
+                    Debug.Log($"CurrentCharacter is null, using default max health: {currentPlayerHealth}");
+                }
+            }
+            
             player.RestoreHealth(currentPlayerHealth); // 현재 체력을 복원
             Debug.Log($"Restored player health: {currentPlayerHealth}");  // 디버그용
         }
@@ -359,24 +426,72 @@ public class GameManager : MonoBehaviour
 
     public void ModifyHealth(int amount)
     {
-        Debug.Log($"Current health: {currentPlayerHealth}");
-        // 현재 체력을 업데이트
-        currentPlayerHealth = Mathf.Min(currentPlayerHealth + amount, maxHealth);
-        Debug.Log($"Current health after healing: {currentPlayerHealth}");
-
-        // PlayerController의 currentPlayerHealth 업데이트
+        Debug.Log($"[디버깅] ModifyHealth({amount}) 시작 - 현재 GameManager.currentPlayerHealth={currentPlayerHealth}, MaxHealth={MaxHealth}");
+        
+        // 플레이어 컨트롤러 찾기
         PlayerController playerController = FindObjectOfType<PlayerController>();
+        int playerHealth = playerController != null ? playerController.CurrentHealth : -1;
+        
+        Debug.Log($"[디버깅] 체력 비교 - GameManager: {currentPlayerHealth}, PlayerController: {playerHealth}");
+        
+        // PlayerController가 있고, 값이 다르면 PlayerController의 값을 사용
+        if (playerController != null && playerHealth != currentPlayerHealth)
+        {
+            Debug.LogWarning($"[디버깅] 체력 불일치 감지! GameManager 체력을 PlayerController 체력으로 설정: {currentPlayerHealth} -> {playerHealth}");
+            currentPlayerHealth = playerHealth;
+        }
+        
+        // 현재 체력을 업데이트 (최대 체력 초과 방지)
+        int previousHealth = currentPlayerHealth;
+        currentPlayerHealth = Mathf.Clamp(currentPlayerHealth + amount, 0, MaxHealth);
+        
+        // 실제 변경된 체력량
+        int actualChange = currentPlayerHealth - previousHealth;
+        
+        Debug.Log($"체력 변경 - 이전: {previousHealth}, 이후: {currentPlayerHealth}, 실제 변경량: {actualChange}");
+
+        // PlayerController의 체력 동기화 처리 개선
         if (playerController != null)
         {
-            playerController.UpdateHealth(currentPlayerHealth); // PlayerController의 메서드 호출
+            // 이전 값 기억
+            int prevPlayerHealth = playerController.CurrentHealth;
+            
+            // RestoreHealth 대신 UpdateHealth를 사용하여 값을 정확히 설정
+            playerController.UpdateHealth(currentPlayerHealth);
+            
+            Debug.Log($"[디버깅] PlayerController 체력 업데이트: {prevPlayerHealth} -> {playerController.CurrentHealth}");
+            
+            // PlayerUI에 직접 체력 비율 업데이트
+            PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+            if (playerUI != null)
+            {
+                float healthPercent = (float)currentPlayerHealth / MaxHealth;
+                playerUI.UpdateHealthSlider(healthPercent);
+                Debug.Log($"[디버깅] PlayerUI 체력 슬라이더 업데이트: {healthPercent}");
+            }
+            
+            Debug.Log($"PlayerController와 체력 동기화 완료: {currentPlayerHealth}");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController를 찾을 수 없습니다.");
+        }
+        
+        Debug.Log($"[디버깅] ModifyHealth 완료 - 결과 GameManager.currentPlayerHealth={currentPlayerHealth}");
+    }
+
+    public int MaxHealth 
+    { 
+        get 
+        {
+            // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를, 없으면 기본값 반환
+            return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
         }
     }
 
-    public int MaxHealth => maxHealth;
-
     public int GetCurrentMaxHealth()
     {
-        return CurrentCharacter != null ? CurrentCharacter.maxHealth : 100; // 기본값 100
+        return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
     }
 
     private void LogCurrentCharacterInfo()
@@ -448,10 +563,15 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
+            
+            // 캐릭터의 maxHealth를 게임매니저의 값으로 설정
+            maxHealth = CurrentCharacter.maxHealth;
+            Debug.Log($"Character {CurrentCharacter.characterName} loaded with maxHealth: {maxHealth}");
         }
         else
         {
-            Debug.LogWarning("No character data found in CharacterSelectionData.");
+            Debug.LogWarning("No character data found in CharacterSelectionData. Using default values.");
+            maxHealth = playerMaxHealth; // 기본값 사용
         }
     }
 
@@ -472,24 +592,32 @@ public class GameManager : MonoBehaviour
         {
             // 게임오버 패널 활성화
             gameOverPanel.SetActive(true);
-            
+
             /*// 점수 표시 (선택사항)
             if (scoreText != null)
             {
                 // 여기에 점수 계산 로직 추가
                 int score = CalculateScore();
                 scoreText.text = $"점수: {score}";
-            }
-            
-            // 생존 시간 표시 (선택사항)
+            }*/
+
+            /*// 생존 시간 표시
             if (timeText != null)
             {
-                float survivalTime = Time.time - gameStartTime;
-                int minutes = Mathf.FloorToInt(survivalTime / 60);
-                int seconds = Mathf.FloorToInt(survivalTime % 60);
+                float playTime = 0f;
+
+                // 저장된 데이터가 있다면 불러오기
+                var progress = SaveManager.Instance.LoadProgressData();
+                if (progress != null)
+                {
+                    playTime = progress.playTime;
+                }
+
+                int minutes = Mathf.FloorToInt(playTime / 60f);
+                int seconds = Mathf.FloorToInt(playTime % 60f);
                 timeText.text = $"생존 시간: {minutes:00}:{seconds:00}";
-            }*/
-            
+            }
+            */
             // 시간 일시정지 (선택사항)
             //Time.timeScale = 0f;
         }
