@@ -1,68 +1,73 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using UnityEngine.Networking;
+using Newtonsoft.Json.Linq; // 설치 필요!
 
 public class PlayerDetailUI : MonoBehaviour
 {
-    [Header("Stat UI")]
-    public Text agilityText;
-    public Text healthText;
-    public Text powerText;
-    public Text luckText;
+    public TextMeshProUGUI playerIdText;
+    public TextMeshProUGUI playerCharacterText;
 
-    [Header("Item UI")]
-    public Transform itemContentParent; // ScrollView의 Content 오브젝트
-    public GameObject itemPrefab; // 아이템 UI 프리팹
+    // Stats 텍스트 (민첩, 생명, 파워, 행운)
+    public TextMeshProUGUI statAgilityText;
+    public TextMeshProUGUI statHealthText;
+    public TextMeshProUGUI statPowerText;
+    public TextMeshProUGUI statLuckText;
 
-    private List<GameObject> currentItemObjects = new List<GameObject>();
-
-    public void DisplayPlayerDetails(PlayerDetailData data)
+    // Item UI (5개로 가정)
+    [System.Serializable]
+    public class ItemSlot
     {
-        //스탯 표시
-        agilityText.text = $"민첩 {data.stats["민첩"]}.Lv";
-        healthText.text = $"생명 {data.stats["생명력"]}.Lv";
-        powerText.text = $"파워 {data.stats["파워"]}.Lv";
-        luckText.text = $"행운 {data.stats["행운"]}.Lv";
+        public Image itemImage;
+        public TextMeshProUGUI itemNameText;
+    }
 
-        //기존 아이템 UI 삭제
-        foreach (var obj in currentItemObjects)
+    public List<ItemSlot> itemSlots = new List<ItemSlot>(); // Inspector에 5개 연결
+
+    // UI 업데이트
+    public void UpdateDetailUI(string json)
+    {
+        JObject data = JObject.Parse(json);
+
+        playerIdText.text = data["playerId"]?.ToString();
+
+        JObject stats = (JObject)data["stats"];
+        statAgilityText.text = $"민첩 {stats["민첩"]}.Lv";
+        statHealthText.text = $"생명 {stats["생명력"]}.Lv";
+        statPowerText.text = $"파워 {stats["파워"]}.Lv";
+        statLuckText.text = $"행운 {stats["행운"]}.Lv";
+
+        JObject items = (JObject)data["item"];
+        int i = 0;
+        foreach (var item in items)
         {
-            Destroy(obj);
-            Debug.Log("기존 아이템 UI 삭제");
-        }
-        currentItemObjects.Clear();
+            if (i >= itemSlots.Count) break;
+            var slot = itemSlots[i];
+            JObject itemObj = (JObject)item.Value;
+            slot.itemNameText.text = itemObj["name"]?.ToString();
 
-        //새로운 아이템 UI 생성
-        foreach (var item in data.items)
-        {
-            GameObject itemObj = Instantiate(itemPrefab, itemContentParent);
-            currentItemObjects.Add(itemObj);
-
-            var nameText = itemObj.transform.Find("ItemNameText").GetComponent<Text>();
-            var image = itemObj.transform.Find("Image").GetComponent<Image>();
-
-            nameText.text = item.name;
-            StartCoroutine(LoadImageFromURL(item.imageUrl, image));
+            // 이미지 로드 코루틴
+            string imageUrl = itemObj["image"]?.ToString();
+            StartCoroutine(LoadItemImage(imageUrl, slot.itemImage));
+            i++;
         }
     }
 
-    private System.Collections.IEnumerator LoadImageFromURL(string url, Image imageComponent)
+    // 이미지 로드 함수
+    private IEnumerator LoadItemImage(string url, Image image)
     {
-        using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequestTexture.GetTexture(url))
-        {
-            yield return request.SendWebRequest();
+        UnityWebRequest req = UnityWebRequestTexture.GetTexture(url);
+        yield return req.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
-                imageComponent.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
-            }
-            else
-            {
-                Debug.LogWarning($"이미지 로딩 실패: {url}");
-            }
+        if (req.result == UnityWebRequest.Result.Success)
+        {
+            Texture2D tex = DownloadHandlerTexture.GetContent(req);
+            image.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
+        }
+        else
+        {
+            Debug.LogError(" 이미지 로드 실패: " + req.error);
         }
     }
 }
