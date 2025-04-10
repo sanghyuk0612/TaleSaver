@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RaserAttack : MonoBehaviour
+public class LavaFrontAttack : MonoBehaviour
 {
     // Start is called before the first frame update
     public int attackDamage;
