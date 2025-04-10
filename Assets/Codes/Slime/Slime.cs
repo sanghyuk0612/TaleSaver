@@ -244,7 +244,7 @@ public class Slime : MonoBehaviour
     }
     public void ResetToIdle() // 애니메이션 이벤트에서 호출될 함수
     {
-        anim.SetInteger("skillNum", 9); // Idle 상태로 변경
+        anim.SetInteger("skillNum", 0); // Idle 상태로 변경
     }
 private void Jump(){
     

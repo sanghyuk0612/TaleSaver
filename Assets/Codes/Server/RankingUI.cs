@@ -68,8 +68,8 @@ public class RankingUI : MonoBehaviour
 
             // UI 요소 값 설정
             RankingEntry entryScript = entry.GetComponent<RankingEntry>();
-            entryScript.placeText.text = (i+1).ToString();
-            entryScript.playerIDText.text = rankingList[i].playerID;
+            entryScript.placeText.text = (i + 1).ToString();
+            entryScript.usernameText.text = rankingList[i].username;
             entryScript.playcharacterText.text = rankingList[i].playcharacter;
             entryScript.cleartimeText.text = rankingList[i].clearTime;
 

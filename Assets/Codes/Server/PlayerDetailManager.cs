@@ -52,7 +52,7 @@ public class PlayerDetailManager : MonoBehaviour
         PlayerDetailUI ui = FindObjectOfType<PlayerDetailUI>();
         if (ui != null)
         {
-            ui.UpdateDetailUI(jsonRes);
+            //ui.UpdateDetailUI(jsonRes);
         }
     }
 

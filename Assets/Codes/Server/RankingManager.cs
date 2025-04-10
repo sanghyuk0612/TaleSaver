@@ -13,15 +13,15 @@ public class RankingManager : MonoBehaviour
 {
     private FirebaseFirestore db;
     private bool isFirebaseInitialized = false;
-    public RankingUI rankingUI;  //UI 스크립트와 연결
+    public RankingUI rankingUI;  // UI 연결
 
     void Start()
     {
-        rankingUI = FindObjectOfType<RankingUI>(); // 자동 할당
+        rankingUI = FindObjectOfType<RankingUI>();
         if (rankingUI == null)
         {
             Debug.LogError("❌ RankingUI가 씬에서 찾을 수 없습니다.");
-            return; //retrun을 통해 null 상태에서 실행되지 않도록 막기
+            return;
         }
         InitializeFirebase();
     }
@@ -37,7 +37,6 @@ public class RankingManager : MonoBehaviour
                 isFirebaseInitialized = true;
                 Debug.Log("✅ Firebase 초기화 완료!");
 
-                // Firebase가 정상적으로 초기화되면 데이터 로드
                 LoadData();
             }
             else
@@ -47,6 +46,55 @@ public class RankingManager : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// 🔥 랭킹 데이터 저장 (게임 클리어 시 호출)
+    /// </summary>
+    public void SaveRanking(string clearTime, string playCharacter)
+    {
+        string uid = FirebaseAuthManager.Instance.Auth.CurrentUser.UserId;
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users").Document(uid).GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompletedSuccessfully)
+            {
+                DocumentSnapshot snapshot = task.Result;
+                if (snapshot.Exists && snapshot.ToDictionary().ContainsKey("username"))
+                {
+                    string username = snapshot.GetValue<string>("username");
+
+                    var rankingData = new Dictionary<string, object>()
+                    {
+                        { "playerId", uid },
+                        { "username", username },
+                        { "cleartime", clearTime },
+                        { "playcharacter", playCharacter },
+                        { "rank", 0 } // 초기값, UI에서 계산
+                    };
+
+                    db.Collection("rankings").Document(uid).SetAsync(rankingData).ContinueWithOnMainThread(saveTask =>
+                    {
+                        if (saveTask.IsCompletedSuccessfully)
+                            Debug.Log("✅ 랭킹 저장 성공");
+                        else
+                            Debug.LogError("❌ 랭킹 저장 실패: " + saveTask.Exception?.Message);
+                    });
+                }
+                else
+                {
+                    Debug.LogError("❌ username 필드 없음");
+                }
+            }
+            else
+            {
+                Debug.LogError("❌ users 문서 불러오기 실패: " + task.Exception?.Message);
+            }
+        });
+    }
+
+    /// <summary>
+    /// 🧠 랭킹 불러오기 (게임 시작 시 자동 호출)
+    /// </summary>
     private void LoadData()
     {
         if (!isFirebaseInitialized)
@@ -62,48 +110,41 @@ public class RankingManager : MonoBehaviour
                 Debug.LogError("🔥 Firestore 데이터를 가져오는 데 실패했습니다: " + task.Exception);
                 return;
             }
-            
+
             List<PlayerData> rankingList = new List<PlayerData>();
 
             foreach (var document in task.Result.Documents)
             {
-                // ✅ Firestore 문서 데이터를 Dictionary로 변환
                 Dictionary<string, object> rankingData = document.ToDictionary();
                 try
                 {
-                    string playerId = document.Id; // 문서 ID
+                    string playerId = document.Id;
+                    string username = rankingData.ContainsKey("username") ? rankingData["username"].ToString() : "Unknown";
                     string cleartime = rankingData.ContainsKey("cleartime") ? rankingData["cleartime"].ToString() : "00:00";
                     string playcharacter = rankingData.ContainsKey("playcharacter") ? rankingData["playcharacter"].ToString() : "Unknown";
-                    string playerID = rankingData.ContainsKey("playerId") ? rankingData["playerId"].ToString() : "Unknown";
                     int rank = rankingData.ContainsKey("rank") ? System.Convert.ToInt32(rankingData["rank"]) : -1;
 
-                    rankingList.Add(new PlayerData(playerID, playcharacter, cleartime, rank));
-                    Debug.Log($"🏆 랭킹 데이터: Player ID: {playerID} | Rank: {rank} | Character: {playcharacter} | Clear Time: {cleartime}");
+                    rankingList.Add(new PlayerData(playerId, username, playcharacter, cleartime, rank));
+                    Debug.Log($"🏆 랭킹: {username} | Rank: {rank} | Char: {playcharacter} | Time: {cleartime}");
                 }
-                                catch (Exception e)
+                catch (Exception e)
                 {
                     Debug.LogError($"❌ 예외 발생: {e.Message}\n{e.StackTrace}");
                 }
-                
-
-                    // 🔥 정렬 (cleartime이 "MM:SS" 형태이므로, 시간 변환하여 정렬 필요)
-                    rankingList.Sort((a, b) => ConvertTimeToSeconds(a.clearTime).CompareTo(ConvertTimeToSeconds(b.clearTime)));
-                for (int i = 0; i < rankingList.Count; i++)
-                {
-                    rankingList[i].rank = i + 1;  // 🔥 Rank 값을 1위부터 순차적으로 설정
-                }
-
-                Debug.Log(rankingList.Count);
-
-                    // ✅ 정렬된 데이터 UI에 전달
-                    rankingUI.UpdateRankingUI(rankingList);
-
-                
-
             }
+
+            // ⏱ 클리어 시간 기준 정렬
+            rankingList.Sort((a, b) => ConvertTimeToSeconds(a.clearTime).CompareTo(ConvertTimeToSeconds(b.clearTime)));
+            for (int i = 0; i < rankingList.Count; i++)
+                rankingList[i].rank = i + 1;
+
+            rankingUI.UpdateRankingUI(rankingList); // UI에 반영
         });
     }
-    // 🔥 "MM:SS" -> 초 단위로 변환하는 함수 추가
+
+    /// <summary>
+    /// "MM:SS" → 초 변환
+    /// </summary>
     private int ConvertTimeToSeconds(string timeString)
     {
         try
@@ -127,14 +168,16 @@ public class RankingManager : MonoBehaviour
 [Serializable]
 public class PlayerData
 {
-    public string playerID;
+    public string playerID;      // UID
+    public string username;      // 닉네임
     public string playcharacter;
     public string clearTime;
     public int rank;
 
-    public PlayerData(string id, string character, string time, int r)
+    public PlayerData(string uid, string name, string character, string time, int r)
     {
-        playerID = id;
+        playerID = uid;
+        username = name;
         playcharacter = character;
         clearTime = time;
         rank = r;
