@@ -1,20 +1,20 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class PlayerDetailUI : MonoBehaviour
 {
     public TextMeshProUGUI playerIdText;
     public TextMeshProUGUI playerCharacterText;
 
-    // Stats 텍스트 (민첩, 생명, 파워, 행운)
     public TextMeshProUGUI statAgilityText;
     public TextMeshProUGUI statHealthText;
     public TextMeshProUGUI statPowerText;
     public TextMeshProUGUI statLuckText;
 
-    // Item UI (5개로 가정)
     [System.Serializable]
     public class ItemSlot
     {
@@ -22,51 +22,57 @@ public class PlayerDetailUI : MonoBehaviour
         public TextMeshProUGUI itemNameText;
     }
 
-    public List<ItemSlot> itemSlots = new List<ItemSlot>(); // Inspector에 5개 연결
+    public List<ItemSlot> itemSlots = new List<ItemSlot>();
 
-    // UI 업데이트
-    //public void UpdateDetailUI(string json)
-    //{
-    //    JObject data = JObject.Parse(json);
+    public void UpdateDetailUI(Dictionary<string, object> data)
+    {
+        playerIdText.text = data.ContainsKey("playerId") ? data["playerId"].ToString() : "Unknown";
+        playerCharacterText.text = data.ContainsKey("character") ? data["character"].ToString() : "Unknown";
 
-    //    playerIdText.text = data["playerId"]?.ToString();
+        if (data.TryGetValue("stats", out object statsObj) && statsObj is Dictionary<string, object> stats)
+        {
+            statAgilityText.text = $"민첩 {GetInt(stats, "민첩")}.Lv";
+            statHealthText.text = $"생명 {GetInt(stats, "생명력")}.Lv";
+            statPowerText.text = $"파워 {GetInt(stats, "파워")}.Lv";
+            statLuckText.text = $"행운 {GetInt(stats, "행운")}.Lv";
+        }
 
-    //    JObject stats = (JObject)data["stats"];
-    //    statAgilityText.text = $"민첩 {stats["민첩"]}.Lv";
-    //    statHealthText.text = $"생명 {stats["생명력"]}.Lv";
-    //    statPowerText.text = $"파워 {stats["파워"]}.Lv";
-    //    statLuckText.text = $"행운 {stats["행운"]}.Lv";
+        if (data.TryGetValue("item", out object itemObj) && itemObj is Dictionary<string, object> itemMap)
+        {
+            int i = 0;
+            foreach (var entry in itemMap)
+            {
+                if (i >= itemSlots.Count) break;
 
-    //    JObject items = (JObject)data["item"];
-    //    int i = 0;
-    //    foreach (var item in items)
-    //    {
-    //        if (i >= itemSlots.Count) break;
-    //        var slot = itemSlots[i];
-    //        JObject itemObj = (JObject)item.Value;
-    //        slot.itemNameText.text = itemObj["name"]?.ToString();
+                if (entry.Value is Dictionary<string, object> itemData)
+                {
+                    itemSlots[i].itemNameText.text = itemData["name"].ToString();
+                    string imageUrl = itemData["image"].ToString();
+                    StartCoroutine(LoadItemImage(imageUrl, itemSlots[i].itemImage));
+                    i++;
+                }
+            }
+        }
+    }
 
-    //        // 이미지 로드 코루틴
-    //        string imageUrl = itemObj["image"]?.ToString();
-    //        StartCoroutine(LoadItemImage(imageUrl, slot.itemImage));
-    //        i++;
-    //    }
-    //}
+    private int GetInt(Dictionary<string, object> dict, string key)
+    {
+        return dict.ContainsKey(key) ? int.Parse(dict[key].ToString()) : 0;
+    }
 
-    //// 이미지 로드 함수
-    //private IEnumerator LoadItemImage(string url, Image image)
-    //{
-    //    UnityWebRequest req = UnityWebRequestTexture.GetTexture(url);
-    //    yield return req.SendWebRequest();
+    private IEnumerator LoadItemImage(string url, Image image)
+    {
+        UnityWebRequest req = UnityWebRequestTexture.GetTexture(url);
+        yield return req.SendWebRequest();
 
-    //    if (req.result == UnityWebRequest.Result.Success)
-    //    {
-    //        Texture2D tex = DownloadHandlerTexture.GetContent(req);
-    //        image.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError(" 이미지 로드 실패: " + req.error);
-    //    }
-    //}
+        if (req.result == UnityWebRequest.Result.Success)
+        {
+            Texture2D tex = DownloadHandlerTexture.GetContent(req);
+            image.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f);
+        }
+        else
+        {
+            Debug.LogError("이미지 로드 실패: " + req.error);
+        }
+    }
 }
