@@ -9,7 +9,7 @@ public class RankingEntry : MonoBehaviour
 {
     // TextMeshProUGUI »ç¿ë
     public TextMeshProUGUI placeText;
-    public TextMeshProUGUI playerIDText;
+    public TextMeshProUGUI usernameText;
     public TextMeshProUGUI playcharacterText;
     public TextMeshProUGUI cleartimeText;
 }
