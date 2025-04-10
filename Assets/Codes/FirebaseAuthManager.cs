@@ -14,6 +14,7 @@ public class FirebaseAuthManager : MonoBehaviour
     private FirebaseAuth auth;
     private FirebaseFirestore firestore;
     private bool isFirebaseReady = false;
+    public FirebaseAuth Auth => auth;
 
     void Awake()
     {
@@ -86,6 +87,23 @@ public class FirebaseAuthManager : MonoBehaviour
                     else
                         Debug.LogError($" Firestore 저장 실패: {docTask.Exception?.Message}");
                 });
+                Dictionary<string, object> goodsData = new Dictionary<string, object>()
+                {
+                    { "storybook page", 0 },
+                    { "machine parts", 0 }
+                };
+
+                firestore.Collection("goods").Document(uid).SetAsync(goodsData).ContinueWithOnMainThread(goodsTask =>
+                {
+                    if (goodsTask.IsCompletedSuccessfully)
+                    {
+                        Debug.Log($"기본 goods 데이터 생성 완료 for UID: {uid}");
+                    }
+                    else
+                    {
+                        Debug.LogError($"goods 저장 실패: {goodsTask.Exception?.Message}");
+                    }
+                });
 
                 callback(true, "회원가입 성공");
             }
@@ -149,6 +167,34 @@ public class FirebaseAuthManager : MonoBehaviour
             {
                 FirebaseUser user = task.Result.User;
                 Debug.Log($" 로그인 성공: {user.Email} (UID: {user.UserId})");
+                string uid = user.UserId;
+
+                firestore.Collection("goods").Document(uid).GetSnapshotAsync().ContinueWithOnMainThread(goodsTask =>
+                {
+                    if (goodsTask.IsCompletedSuccessfully)
+                    {
+                        DocumentSnapshot snapshot = goodsTask.Result;
+                        if (snapshot.Exists)
+                        {
+                            Dictionary<string, object> goodsData = snapshot.ToDictionary();
+                            Debug.Log(" 유저의 goods 정보 불러오기 성공");
+
+                            foreach (var kvp in goodsData)
+                            {
+                                Debug.Log($"{kvp.Key} : {kvp.Value}");
+                            }
+                            GameDataManager.Instance.SetGoodsData(goodsData);
+                        }
+                        else
+                        {
+                            Debug.LogWarning(" 해당 UID의 goods 문서가 존재하지 않습니다.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError($" goods 불러오기 실패: {goodsTask.Exception?.Message}");
+                    }
+                });
                 callback(true, "로그인 성공");
             }
             else
