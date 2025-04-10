@@ -1616,8 +1616,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 80734807}
   m_HandleRect: {fileID: 80734806}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.99993396
+  m_Value: 0.99999964
+  m_Size: 0.8035392
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1973,7 +1973,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0.00010737788}
+  m_AnchoredPosition: {x: -0.000061035156, y: 0.00003665934}
   m_SizeDelta: {x: 978.3342, y: 432.3}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &960876368
@@ -4310,7 +4310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   placeText: {fileID: 644164686}
-  playerIDText: {fileID: 327097897}
+  usernameText: {fileID: 327097897}
   playcharacterText: {fileID: 1380558186}
   cleartimeText: {fileID: 1184688719}
 --- !u!1 &2093899161
