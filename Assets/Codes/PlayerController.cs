@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using TMPro;
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
@@ -65,6 +67,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     string dashAnimName;
 
     string deadAnimName;
+
 
     void Start()
     {
@@ -494,10 +497,12 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        if (IsDead) return;
+
         Debug.Log("Player died!");
         IsDead = true; // 사망 상태 설정
         canProcessInput = false; // 입력 처리 불가능 상태로 설정
-        
+
         // 현재 속도를 0으로 설정하여 움직임 중지
         rb.velocity = Vector2.zero;
 
@@ -527,7 +532,9 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         // 게임오버 UI 표시 (약간의 딜레이 후)
         StartCoroutine(ShowGameOverWithDelay(1.5f));
+
     }
+
 
     // 딜레이 후 게임오버 UI 표시
     private IEnumerator ShowGameOverWithDelay(float delay)

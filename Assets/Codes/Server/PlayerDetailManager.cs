@@ -1,49 +1,58 @@
-
 using UnityEngine;
-using UnityEngine.Networking;
-using System.Collections;
+using Firebase.Firestore;
+using Firebase;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class PlayerDetailManager : MonoBehaviour
 {
-    //�ֹķ����Ϳ� �Լ� url
-    private string playerDeteailsUrl = "http://127.0.0.1:5001/tale-saver/us-central1/getPlayerDetails";
+    private FirebaseFirestore db;
+    private bool isFirebaseInitialized = false;
 
-    // Ư�� �÷��̾ Ŭ���� �� ȣ��Ǵ� �޼ҵ�
-    /*public void OnPlayerClicked(string playerId)
-    {
-        GetPlayerDetails(playerId);
-    }*/
+    [SerializeField] private PlayerDetailUI playerDetailUI;
 
-    //�ڷ�ƾ���� ���� ���� �Լ� �ҷ�����
-    public void GetPlayerDetails(string playerId)
+    private void Start()
     {
-        string url = playerDeteailsUrl + "?playerId=" + playerId;
-        StartCoroutine(CallFirebaseFunctions(playerDeteailsUrl));
-    }
-
-    private IEnumerator CallFirebaseFunctions(string url)
-    {
-        using (UnityWebRequest request = UnityWebRequest.Get(url))
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
+            if (task.Result == DependencyStatus.Available)
             {
-                string jsonRes = request.downloadHandler.text;
-                Debug.Log("res: " + jsonRes);
-                HandleResponse(jsonRes);
+                db = FirebaseFirestore.DefaultInstance;
+                isFirebaseInitialized = true;
+                Debug.Log("✅ PlayerDetailManager Firebase 초기화 완료");
             }
-
-            //���� ó��
             else
             {
-                Debug.LogError("���� �߻�: " + request.error);
+                Debug.LogError("❌ Firebase 초기화 실패: " + task.Result);
             }
-        }
+        });
     }
 
-    private void HandleResponse(string jsonRes)
+    public void LoadPlayerDetail(string playerId)
     {
-        Debug.Log("�Ľ̵� �÷��̾� res: " + jsonRes);
+        if (!isFirebaseInitialized)
+        {
+            Debug.LogError("❗ Firebase가 아직 초기화되지 않았습니다.");
+            return;
+        }
+
+        db.Collection("players").Document(playerId).GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || !task.Result.Exists)
+            {
+                Debug.LogError("❌ 플레이어 데이터를 가져오는데 실패했거나 존재하지 않음.");
+                return;
+            }
+
+            Dictionary<string, object> data = task.Result.ToDictionary();
+            if (playerDetailUI != null)
+            {
+                playerDetailUI.UpdateDetailUI(data); // 딕셔너리 그대로 전달
+            }
+            else
+            {
+                Debug.LogError("PlayerDetailUI가 연결되지 않았습니다.");
+            }
+        });
     }
 }
