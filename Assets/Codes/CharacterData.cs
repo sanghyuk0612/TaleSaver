@@ -16,8 +16,8 @@ public class CharacterData : ScriptableObject
     public int luck;              // 행운
     public int maxHealth;         // 캐릭터의 최대 체력
     public bool isUnlocked;       // 해금 여부
-    public int requiredSteelPieces = 1;// 해금 조건 - screw 개수
-    public int requiredBookPages = 1; // 해금 조건 - page 개수
+    public int requiredmachineparts = 1;// 해금 조건 - screw 개수
+    public int requiredstorybookpages = 1; // 해금 조건 - page 개수
 
     // 스킬 배열 추가
     public CharacterSkill[] skills; // 스킬 배열

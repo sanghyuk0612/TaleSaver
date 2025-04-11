@@ -151,7 +151,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.57135415, y: 0.57135415, z: 0.57135415}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 318749501}
   m_Father: {fileID: 1632765094}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -488,16 +489,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 318749500}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.7502278, y: 1.7502278, z: 1.7502278}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1632765094}
+  m_Father: {fileID: 126799477}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -4.1752, y: 0}
+  m_AnchoredPosition: {x: -7.307539, y: 0}
   m_SizeDelta: {x: 337.1852, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &318749502
@@ -3530,7 +3531,6 @@ RectTransform:
   m_Children:
   - {fileID: 126799477}
   - {fileID: 1974609469}
-  - {fileID: 318749501}
   m_Father: {fileID: 1258705670}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4091,7 +4091,6 @@ GameObject:
   - component: {fileID: 1974609469}
   - component: {fileID: 1974609468}
   - component: {fileID: 1974609467}
-  - component: {fileID: 1974609466}
   m_Layer: 5
   m_Name: LoginPanel
   m_TagString: Untagged
@@ -4099,28 +4098,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1974609466
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974609465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab29fc18d00671f40afabe8f649dc60c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  loginPanel: {fileID: 0}
-  gameStartButton: {fileID: 0}
-  gameOptionButton: {fileID: 0}
-  gameLoginButton: {fileID: 0}
-  gameExitButton: {fileID: 0}
-  emailInput: {fileID: 0}
-  passwordInput: {fileID: 0}
-  alertText: {fileID: 0}
-  authManager: {fileID: 0}
-  loginWarningText: {fileID: 0}
 --- !u!114 &1974609467
 MonoBehaviour:
   m_ObjectHideFlags: 0

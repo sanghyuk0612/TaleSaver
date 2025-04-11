@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
+using Firebase.Auth;
 
 public class GameDataManager : MonoBehaviour
 {
@@ -26,31 +27,48 @@ public class GameDataManager : MonoBehaviour
     // ?? 로그인 시 호출되는 함수
     public void SetGoodsData(Dictionary<string, object> goodsData)
     {
-        if (goodsData.ContainsKey("storybook page"))  // Firestore에 저장된 키 그대로 사용
-            storybookPage = int.Parse(goodsData["storybook page"].ToString());
+        if (goodsData.ContainsKey("storybookpages"))
+            storybookPage = int.Parse(goodsData["storybookpages"].ToString());
 
-        if (goodsData.ContainsKey("machine parts"))
-            machineParts = int.Parse(goodsData["machine parts"].ToString());
+        if (goodsData.ContainsKey("machineparts"))
+            machineParts = int.Parse(goodsData["machineparts"].ToString());
 
-        Debug.Log($"?? 저장 완료: storybookPage={storybookPage}, machineParts={machineParts}");
+        // Inventory에도 반영
+        InventoryManager.Instance.inventory.storybookpages = storybookPage;
+        InventoryManager.Instance.inventory.machineparts = machineParts;
     }
 
     // ?? 저장 함수
     public void SaveGoodsToFirestore()
     {
-        string uid = FirebaseAuthManager.Instance.Auth.CurrentUser?.UserId;
-
-        if (string.IsNullOrEmpty(uid))
+        // FirebaseAuthManager가 준비되었는지 체크
+        if (FirebaseAuthManager.Instance == null)
         {
-            Debug.LogError("? UID가 비어 있습니다. 로그인 여부 확인 필요");
+            Debug.LogError("? FirebaseAuthManager.Instance 가 null입니다.");
             return;
         }
 
-        Dictionary<string, object> goodsData = new Dictionary<string, object>()
+        if (!FirebaseAuthManager.Instance.IsLoggedIn())
         {
-            { "storybook page", storybookPage },
-            { "machine parts", machineParts }
-        };
+            Debug.LogError("? 로그인 상태가 아닙니다. Firestore 저장 불가.");
+            return;
+        }
+
+        FirebaseUser user = FirebaseAuthManager.Instance.Auth.CurrentUser;
+
+        if (user == null)
+        {
+            Debug.LogError("? CurrentUser가 null입니다.");
+            return;
+        }
+
+        string uid = user.UserId;
+
+        Dictionary<string, object> goodsData = new Dictionary<string, object>()
+    {
+        { "storybookpages", storybookPage },
+        { "machineparts", machineParts }
+    };
 
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
 
