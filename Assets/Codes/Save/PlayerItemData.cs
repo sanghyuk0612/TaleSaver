@@ -19,8 +19,8 @@ public class PlayerItemData
     public int goldPrice;        //  금 가격 
     public int money;            // 돈
     public int battery;          // 아이템: Battery 개수
-    public int steelPiece;       //기계 조각
-    public int bookPage;         //동화책 조각각
+    public int machineparts;       //기계 조각
+    public int storybookpages;         //동화책 조각각
     public List<int> items;   // 플레이어가 소유한 아이템 목록
     public int[,] itemPriceRange=new int[5,2]; //아이템 가격 최저가 최고가 정의, 돌, 나무, 가죽, 철, 금 순서
     public int[][] stockUpdateData = new int[5][]; //아이템별 등락률 수치 정의
@@ -39,8 +39,8 @@ public class PlayerItemData
         goldPrice = 165;
         battery = 0;
         money = 0;
-        steelPiece = 1;
-        bookPage = 1;
+        machineparts = 1;
+        storybookpages = 1;
         items = new List<int>(); // 빈 리스트로 초기화
         itemPriceRange[0,0] = 1; //돌 최저가
         itemPriceRange[0,1] = 5; //돌 최고가
