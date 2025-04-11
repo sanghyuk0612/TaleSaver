@@ -119,8 +119,8 @@ public class LoginPanelManager : MonoBehaviour
         }
 
         // ?입력 필드와 버튼 잠깐 비활성화 (중복 클릭 방지용, 선택 사항)
-        emailInput.interactable = false;
-        passwordInput.interactable = false;
+        emailInput.interactable = true;
+        passwordInput.interactable = true;
 
         authManager.SignUp(email, password, (success, message) =>
         {
