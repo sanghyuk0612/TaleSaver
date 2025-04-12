@@ -377,7 +377,7 @@ private IEnumerator StopMovement(float stopDuration)
     // 새로 스폰되는 Enemy들과도 충돌을 무시하기 위한 트리거 체크
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy")||other.CompareTag("Half Tile")||other.CompareTag("Trap Tile"))
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), other, true);
         }

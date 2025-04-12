@@ -60,16 +60,11 @@ public class SpawnManager : MonoBehaviour
     public void SpawnBoss()
     {
 
-        // 타일맵의 경계 가져오기
-        int ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
-        Vector3 pos = MapManager.Instance.spawnPoints[ran];
-
         // 근접 적 스폰 (약간 왼쪽에)
         if (BossPrefab != null)
         {
             PortalManager.Instance.updateEnemy(1);
-            Instantiate(BossPrefab, MapManager.Instance.portalPosition+new Vector3(0,25f,0), Quaternion.identity);
-            Debug.Log("Boss spawned at: " + pos);
+            Instantiate(BossPrefab, MapManager.Instance.portalPosition+new Vector3(0,0,0), Quaternion.identity);
         }
         else
         {
