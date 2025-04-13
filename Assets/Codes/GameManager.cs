@@ -171,10 +171,16 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (ExitButton == null)
+        {
+            ExitButton = GameObject.Find("Exit")?.GetComponent<Button>();
+        }
         if (ExitButton != null)
         {
+            ExitButton.onClick.RemoveAllListeners();
             ExitButton.onClick.AddListener(QuitGame);
         }
+
 
         // 재시작 버튼에 이벤트 연결
         restartButton.onClick.RemoveAllListeners();
