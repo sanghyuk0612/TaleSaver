@@ -121,11 +121,11 @@ public class InventoryManager : MonoBehaviour
 
     public void SaveInventory()
     {
-        SaveManager.Instance.SaveData(inventory);
+        SaveManager.Instance.SaveItemData(inventory);
     }
 
     public void LoadInventory()
     {
-        inventory = SaveManager.Instance.LoadData();
+        inventory = SaveManager.Instance.LoadItemData();
     }
 }
