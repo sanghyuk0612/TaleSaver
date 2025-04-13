@@ -10,6 +10,10 @@ public class RankingEntry : MonoBehaviour
     public TextMeshProUGUI playerIDText;
     public TextMeshProUGUI playcharacterText;
     public TextMeshProUGUI cleartimeText;
+    public GameObject detailPopupCanvas;
+    private string playerCharacter; // 추가
+    private Vector2 defaultPopupPosition;
+private bool defaultPositionSet = false;
 
     public Button detailButton;
 
@@ -18,6 +22,7 @@ public class RankingEntry : MonoBehaviour
     public void SetPlayerEntry(string id, string character, string clearTime, int rank)
     {
         playerId = id;
+        playerCharacter = character;  // 저장해둠
         placeText.text = rank.ToString();
         playerIDText.text = id;
         playcharacterText.text = character;
@@ -32,21 +37,27 @@ public class RankingEntry : MonoBehaviour
 
     private void OnDetailButtonClick()
     {
-        Debug.Log($"[Detail 버튼 클릭됨] playerId: {playerId}");
 
-        GameObject popup = GameObject.Find("DetailPopupCanvas");
-        if (popup != null)
+        if (detailPopupCanvas != null)
         {
-            popup.SetActive(true);
+            detailPopupCanvas.SetActive(true);
+            Debug.Log("[DetailPopupCanvas 활성화됨]");
+        }
+        else
+        {
+            Debug.LogError("Inspector에 DetailPopupCanvas가 연결되지 않았습니다.");
         }
 
-        PlayerDetailManager manager = FindObjectOfType<PlayerDetailManager>(); if (manager != null)
+        PlayerDetailManager manager = FindObjectOfType<PlayerDetailManager>();
+        if (manager != null)
         {
-            manager.LoadPlayerDetail(playerId);
+            manager.LoadPlayerDetail(playerId, playerCharacter);
         }
         else
         {
             Debug.LogError("PlayerDetailManager를 찾을 수 없습니다.");
         }
+    
     }
+
 }

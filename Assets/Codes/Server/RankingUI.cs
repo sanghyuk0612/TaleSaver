@@ -27,6 +27,7 @@ public class RankingUI : MonoBehaviour
     {
         Debug.Log($"UpdateRankingUI 실행 - 랭킹 개수: {rankingList.Count}");
 
+
         if (rankingScorePrefab == null)
         {
             Debug.LogError("rankingScorePrefab이 설정되지 않음");
