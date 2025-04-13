@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
+    [SerializeField] public int location=5;
 
     private int lastStageBeforeStore = -1;
 
@@ -104,6 +105,7 @@ public class GameManager : MonoBehaviour
     public Button restartButton; // 재시작 버튼
     public Text DeathStage;
     public Text DeathTime;
+
 
 
     private void Awake()
@@ -260,6 +262,7 @@ public class GameManager : MonoBehaviour
         maxHealth = healthValue;
         Debug.Log($"Game state initialized with health: {currentPlayerHealth} / {maxHealth}");*/
     }
+    
 
     // 스테이지 진행 관련 메서드
     public void AdvanceStage()
@@ -354,6 +357,11 @@ public class GameManager : MonoBehaviour
             GameObject go = new GameObject("GameManager");
             Instance = go.AddComponent<GameManager>();
         }
+    }
+    public void LoadNextCapter(){
+        stage = 0;
+        chapter++;
+        LoadNextStage();  
     }
 
     public void LoadNextStage()

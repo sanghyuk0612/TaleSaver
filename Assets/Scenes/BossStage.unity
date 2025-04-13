@@ -164,8 +164,8 @@ MonoBehaviour:
     goldPrice: 165
     money: 0
     battery: 0
-    steelPiece: 0
-    bookPage: 0
+    machineparts: 1
+    storybookpages: 1
     items: 
 --- !u!4 &296077696
 Transform:
@@ -213,7 +213,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meleeEnemyPrefab: {fileID: 8372166154551508869, guid: 8d5bdd52dec08c840a107532559e9a76, type: 3}
   rangedEnemyPrefab: {fileID: 1651906025392740170, guid: 5b3750462f1a61a4fa83e1a05b0dc11d, type: 3}
-  BossPrefab: {fileID: 7066774727544269206, guid: b080fcda2fa68314fa0a98ebfa89a69a, type: 3}
+  LavaPrefab: {fileID: 7066774727544269206, guid: b080fcda2fa68314fa0a98ebfa89a69a, type: 3}
+  SlimePrefab: {fileID: 7066774727544269206, guid: 31f22b8f25d9db54ea17870d6615ee99, type: 3}
 --- !u!4 &362523274
 Transform:
   m_ObjectHideFlags: 0
@@ -514,8 +515,10 @@ MonoBehaviour:
   isBoss: 0
   spawnPoints: []
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
+  storePortalPrefab: {fileID: 0}
+  BossPortalPrefab: {fileID: 0}
   playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
-  location: 0
+  location: 5
 --- !u!4 &1461722581
 Transform:
   m_ObjectHideFlags: 0
@@ -654,7 +657,7 @@ GameObject:
   - component: {fileID: 1509872501}
   - component: {fileID: 1509872500}
   - component: {fileID: 1509872499}
-  m_Layer: 6
+  m_Layer: 11
   m_Name: TargetHalfGound
   m_TagString: Half Tile
   m_Icon: {fileID: 0}
@@ -1463,6 +1466,8 @@ MonoBehaviour:
   stage: 0
   chapter: 0
   isPlayerInRange: 0
+  playTime: 0
+  location: 4
   playerMoveSpeed: 5
   playerJumpForce: 9.6
   playerGravityScale: 2.5
@@ -1487,6 +1492,8 @@ MonoBehaviour:
   monsterNumber: {fileID: 2095508048}
   gameOverPanel: {fileID: 0}
   restartButton: {fileID: 0}
+  DeathStage: {fileID: 0}
+  DeathTime: {fileID: 0}
 --- !u!4 &2041122546
 Transform:
   m_ObjectHideFlags: 0
@@ -1518,7 +1525,7 @@ GameObject:
   - component: {fileID: 2071742807}
   m_Layer: 6
   m_Name: TargetTrap
-  m_TagString: Half Tile
+  m_TagString: Trap Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
