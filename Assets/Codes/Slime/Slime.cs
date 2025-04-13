@@ -54,10 +54,11 @@ public class Slime : MonoBehaviour
     public Animator anim;
     
 
-    
+    bool isDead;
 
     void Start()
     {
+        isDead=false;
         // GameManager에서 값 가져오기
         moveSpeed = GameManager.Instance.meleeEnemyMoveSpeed;
         detectionRange = GameManager.Instance.meleeEnemyDetectionRange;
@@ -129,6 +130,7 @@ public class Slime : MonoBehaviour
     private int direc;
     void Update()
     {
+        if(!isDead){
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
@@ -176,8 +178,7 @@ public class Slime : MonoBehaviour
         // 체력 체크
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            Death();
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
@@ -185,7 +186,8 @@ public class Slime : MonoBehaviour
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
-            CheckDeath();
+            Death();
+        }
         }
     }
     void Flip()
@@ -351,12 +353,20 @@ private IEnumerator StopMovement(float stopDuration)
     
     //테스트용 
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
-    private void CheckDeath()
+
+    public void OnDeathAnimationEnd()
+{
+    Destroy(gameObject);
+}
+    private void Death()
     {
+        isDead=true;
+        attackDamage=0;
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            //DropItem();
+            //Destroy(gameObject);
+            Debug.Log("보스몬스터 죽음");
             anim.SetTrigger("death");
             MapManager.Instance.SpawnPortal();
         }

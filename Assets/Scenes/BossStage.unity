@@ -1467,7 +1467,7 @@ MonoBehaviour:
   chapter: 0
   isPlayerInRange: 0
   playTime: 0
-  location: 5
+  location: 4
   playerMoveSpeed: 5
   playerJumpForce: 9.6
   playerGravityScale: 2.5
