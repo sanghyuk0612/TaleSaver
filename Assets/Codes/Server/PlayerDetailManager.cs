@@ -28,7 +28,7 @@ public class PlayerDetailManager : MonoBehaviour
         });
     }
 
-    public void LoadPlayerDetail(string playerId)
+    public void LoadPlayerDetail(string playerId, string characterFromRanking)
     {
         if (!isFirebaseInitialized)
         {
@@ -45,9 +45,14 @@ public class PlayerDetailManager : MonoBehaviour
             }
 
             Dictionary<string, object> data = task.Result.ToDictionary();
+
+            // 👉 여기에 직접 override로 추가
+            data["playerId"] = playerId;  // UI에 표시할 용도
+            data["character"] = characterFromRanking;
+
             if (playerDetailUI != null)
             {
-                playerDetailUI.UpdateDetailUI(data); // 딕셔너리 그대로 전달
+                playerDetailUI.UpdateDetailUI(data);
             }
             else
             {
