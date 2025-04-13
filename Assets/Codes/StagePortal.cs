@@ -27,6 +27,9 @@ public class StagePortal : MonoBehaviour
                         GameManager.Instance.EnterStore(); // Store 진입 처리
                         SceneManager.LoadScene("Store"); // Store 씬으로 이동
                     }
+                    else if(currentStage == 9){
+                        SceneManager.LoadScene("BossStage");
+                    }
                     else
                     {
                         // 다음 스테이지로 이동
@@ -49,7 +52,10 @@ public class StagePortal : MonoBehaviour
                 }
                 else if (SceneManager.GetActiveScene().name == "BossStage")
                 {
-
+                    Debug.Log("보스 포탈 사용");
+                    GameManager.Instance.location = 4; //시연용 다음 맵은 연구소
+                    SceneManager.LoadScene("GameScene");
+                    GameManager.Instance.LoadNextCapter();
                 }
             }
         }

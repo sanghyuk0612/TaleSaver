@@ -42,6 +42,7 @@ public class MapManager : MonoBehaviour
     {
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
+        location = GameManager.Instance.location;
 
         // 캐릭터 로드 후 currentPlayerHealth를 maxHealth로 명시적으로 설정
         if (GameManager.Instance.CurrentCharacter != null)
@@ -107,7 +108,6 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location = 5;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch (location)
@@ -266,6 +266,7 @@ public class MapManager : MonoBehaviour
                 offsetX += bounds.size.x;
                 Destroy(instance);
                 Destroy(mapSection);
+                right = offsetX;
                 portalPosition = new Vector3(
                 offsetX - 2f,  // 오른쪽 끝에서 2칸 왼쪽
                 0 + 2.5f,    // Ground 위로 2.5칸
