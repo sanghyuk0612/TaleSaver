@@ -498,6 +498,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void Die()
     {
         if (IsDead) return;
+        Debug.Log("Player died! ShowGameOver() 호출 예정");
 
         Debug.Log("Player died!");
         IsDead = true; // 사망 상태 설정
@@ -531,7 +532,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerAnimator.SetTrigger("Death");
 
         // 게임오버 UI 표시 (약간의 딜레이 후)
-        StartCoroutine(ShowGameOverWithDelay(1.5f));
+        StartCoroutine(ShowGameOverWithDelay(2.5f));
 
     }
 
