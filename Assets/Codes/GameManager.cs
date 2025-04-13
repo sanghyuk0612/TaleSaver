@@ -320,6 +320,8 @@ public class GameManager : MonoBehaviour
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
 
+        DestroyNPC();
+
         // 플레이어 위치 리셋
         ResetPlayerPosition();
         PortalManager.Instance.enemyNumber=0;
@@ -345,6 +347,16 @@ public class GameManager : MonoBehaviour
         foreach (var items in FindObjectsOfType<DroppedItem>())
         {
             Destroy(items.gameObject);
+        }
+    }
+
+    public void DestroyNPC()
+    {
+        foreach (var npc in FindObjectsOfType<NPCInteraction>())
+        {
+            Debug.Log("Destroy NPC");
+            Destroy(npc.gameObject);
+            
         }
     }
 

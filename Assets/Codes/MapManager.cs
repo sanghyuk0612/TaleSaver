@@ -22,7 +22,7 @@ public class MapManager : MonoBehaviour
     private List<MonsterData> currentMonsterList; // 현재 맵에서 사용할 몬스터 목록
 
 
-    private float right;
+    public float right;
     public int location;
 
     private void Awake()
@@ -192,6 +192,8 @@ public class MapManager : MonoBehaviour
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();
+        DestroyNPC();
+
         //기존 스폰포인트 초기화
         spawnPoints.Clear();
 
@@ -326,6 +328,12 @@ public class MapManager : MonoBehaviour
     }
 
         SpawnPortal();
+
+        // NPC 소환
+        if(GameManager.Instance.Stage == 1)
+        {
+            SpawnManager.Instance.SpawnNPC();
+        }
 
         // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
         if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
@@ -498,6 +506,15 @@ BoundsInt GetTileBounds(Tilemap tilemap)
             {
                 Destroy(projectile);
             }
+        }
+    }
+
+    public void DestroyNPC()
+    {
+        foreach (var npc in FindObjectsOfType<NPCInteraction>())
+        {
+            Debug.Log("Destroy NPC");
+            Destroy(npc.gameObject);
         }
     }
 }
