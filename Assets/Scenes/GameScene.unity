@@ -1714,7 +1714,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1950971166}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: RestartGame
+        m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2702,6 +2702,7 @@ MonoBehaviour:
   monsterNumber: {fileID: 576923598}
   gameOverPanel: {fileID: 1343091816}
   restartButton: {fileID: 970196010}
+  ExitButton: {fileID: 1220931519}
   DeathStage: {fileID: 1251635528}
   DeathTime: {fileID: 1640223196}
 --- !u!4 &1950971167
@@ -2840,8 +2841,8 @@ MonoBehaviour:
     goldPrice: 165
     money: 0
     battery: 0
-    steelPiece: 0
-    bookPage: 0
+    machineparts: 1
+    storybookpages: 1
     items: 
 --- !u!4 &2085263774
 Transform:

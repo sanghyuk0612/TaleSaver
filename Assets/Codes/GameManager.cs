@@ -1,6 +1,8 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -102,9 +104,24 @@ public class GameManager : MonoBehaviour
     [Header("Game Over UI")]
     public GameObject gameOverPanel; // 게임오버 UI 패널
     public Button restartButton; // 재시작 버튼
+    public Button ExitButton; // 재시작 버튼
     public Text DeathStage;
     public Text DeathTime;
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        FindAndConnectGameOverUI();
+    }
 
     private void Awake()
     {
@@ -132,13 +149,15 @@ public class GameManager : MonoBehaviour
     {
         // 게임오버 패널 찾기
         if (gameOverPanel == null)
-        {
             gameOverPanel = GameObject.Find("GameOverPanel");
-            if (gameOverPanel == null)
-            {
-                Debug.LogWarning("GameOverPanel을 찾을 수 없습니다!");
-                return;
-            }
+
+        if (gameOverPanel != null)
+        {
+            if (DeathStage == null)
+                DeathStage = gameOverPanel.transform.Find("DeathStage")?.GetComponent<Text>();
+
+            if (DeathTime == null)
+                DeathTime = gameOverPanel.transform.Find("DeathTime")?.GetComponent<Text>();
         }
 
         // 재시작 버튼 찾기
@@ -152,6 +171,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (ExitButton != null)
+        {
+            ExitButton.onClick.AddListener(QuitGame);
+        }
+
         // 재시작 버튼에 이벤트 연결
         restartButton.onClick.RemoveAllListeners();
         restartButton.onClick.AddListener(RestartGame);
@@ -162,12 +186,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        FindAndConnectGameOverUI();
+        //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
         // 현재 캐릭터의 최대 체력 설정
         maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
-        
+
+
         // 실시간 디버깅을 위해 체력 초기값 로깅
         Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
         
@@ -182,6 +207,8 @@ public class GameManager : MonoBehaviour
         SyncPlayerHealth();
         
         skillCooldownTimers = new float[5];
+        Debug.Log("스킬쿨 초기화");
+        Debug.Log(skillCooldownTimers);
         
         // 게임 시작 시간 기록
         //gameStartTime = Time.time;
@@ -626,21 +653,24 @@ public class GameManager : MonoBehaviour
     // 게임오버 UI 표시 메서드
     public void ShowGameOver()
     {
+        FindAndConnectGameOverUI();  // 혹시 몰라 한 번 더 호출
+                                     // 시간 멈춤 (선택 사항)
+
+
         if (gameOverPanel == null)
         {
             Debug.LogError("GameOverPanel is null!");
             return;
         }
 
-        // 시간 멈춤 (선택 사항)
-        Time.timeScale = 0f;
 
         gameOverPanel.SetActive(true);
 
         // 스테이지 표시
         if (DeathStage != null)
         {
-            DeathStage.text = $"Stage {Stage}";
+            int stage = GameManager.Instance.Stage;
+            DeathStage.text = $"Stage {stage}";
         }
 
         // 시간 표시
@@ -655,8 +685,8 @@ public class GameManager : MonoBehaviour
         // Boss 스테이지일 경우 clearTime 저장
         if (Stage == 10) // Boss 스테이지 인덱스
         {
-            float clearTime = GameManager.Instance.PlayTime;
-            SaveClearTime(clearTime); // 따로 함수 정의
+            SaveManager.Instance.SaveProgressData(new PlayerProgressData(GameManager.Instance.PlayTime, GameManager.Instance.Stage));
+            Debug.Log("Boss ClearTime 저장됨");
         }
     }
 
@@ -683,4 +713,20 @@ public class GameManager : MonoBehaviour
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
     }
+    public void QuitGame()
+    {
+        Debug.Log("게임 종료 요청됨");
+
+        if (Application.isEditor)
+        {
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#endif
+        }
+        else
+        {
+            Application.Quit();
+        }
+    }
+
 }
