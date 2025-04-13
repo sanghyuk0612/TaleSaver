@@ -6,9 +6,14 @@ using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
 using Firebase.Extensions;
+using System.Collections;
+
+
 
 public class FirebaseAuthManager : MonoBehaviour
 {
+    private FirebaseUser currentUser;
+    public FirebaseUser CurrentUser => currentUser;
     public static FirebaseAuthManager Instance { get; private set; }
 
     private FirebaseAuth auth;
@@ -38,12 +43,41 @@ public class FirebaseAuthManager : MonoBehaviour
         firestore = FirebaseFirestore.DefaultInstance;
         isFirebaseReady = true;
 
-        Debug.Log(" OnFirebaseInitialized 호출됨, Firebase 준비 완료!");
+        Debug.Log("OnFirebaseInitialized 호출됨, Firebase 준비 완료!");
+        Debug.Log("현재 로그인된 UID: " + auth.CurrentUser?.UserId);
     }
     public bool IsLoggedIn()
-{
-    return auth != null && auth.CurrentUser != null;
-}
+    {
+        if (!isFirebaseReady && currentUser == null)
+        {
+            Debug.LogWarning("IsLoggedIn(): 아직 Firebase 준비 안 됐거나 currentUser가 null입니다.");
+            return false;
+        }
+        return true;
+    }
+
+    public IEnumerator WaitForLoginReady(System.Action onReady)
+
+
+    {
+        float timer = 0f;
+        float timeout = 5f;
+
+        while (auth == null || auth.CurrentUser == null)
+        {
+            Debug.Log("? 로그인 상태 기다리는 중...");
+            timer += Time.deltaTime;
+            if (timer > timeout)
+            {
+                Debug.LogError("? 로그인 준비 시간 초과!");
+                yield break;
+            }
+            yield return null;
+        }
+
+        Debug.Log("? Firebase 로그인 준비 완료!");
+        onReady?.Invoke();
+    }
 
     public void SignUp(string email, string password, Action<bool, string> callback)
     {
@@ -67,6 +101,7 @@ public class FirebaseAuthManager : MonoBehaviour
         {
             if (task.IsCompletedSuccessfully)
             {
+                currentUser = task.Result.User;
                 FirebaseUser newUser = task.Result.User;
                 Debug.Log($" 회원가입 성공: {newUser.Email} (UID: {newUser.UserId})");
 
@@ -89,8 +124,8 @@ public class FirebaseAuthManager : MonoBehaviour
                 });
                 Dictionary<string, object> goodsData = new Dictionary<string, object>()
                 {
-                    { "storybook page", 0 },
-                    { "machine parts", 0 }
+                    { "storybookpages", 0 },
+                    { "machineparts", 0 }
                 };
 
                 firestore.Collection("goods").Document(uid).SetAsync(goodsData).ContinueWithOnMainThread(goodsTask =>
@@ -165,6 +200,10 @@ public class FirebaseAuthManager : MonoBehaviour
         {
             if (task.IsCompletedSuccessfully)
             {
+                currentUser = task.Result.User;
+                Debug.Log("? currentUser 세팅됨: " + currentUser?.Email);
+                Debug.Log("? IsLoggedIn(): " + IsLoggedIn());
+                Debug.Log("? Auth.CurrentUser: " + auth?.CurrentUser?.Email);
                 FirebaseUser user = task.Result.User;
                 Debug.Log($" 로그인 성공: {user.Email} (UID: {user.UserId})");
                 string uid = user.UserId;
@@ -201,38 +240,70 @@ public class FirebaseAuthManager : MonoBehaviour
             {
                 if (task.Exception != null)
                 {
-                    Exception innerEx = task.Exception.Flatten().InnerExceptions[0];
-                    FirebaseException fbEx = innerEx as FirebaseException;
-                    if (fbEx != null)
+                    try
                     {
-                        var errorCode = (AuthError)fbEx.ErrorCode;
-                        switch (errorCode)
+                        var flatEx = task.Exception.Flatten();
+                        if (flatEx.InnerExceptions.Count > 0)
                         {
-                            case AuthError.WrongPassword:
-                                Debug.LogError(" 비밀번호가 틀렸습니다.");
-                                callback(false, "비밀번호가 틀렸습니다.");
-                                break;
-                            case AuthError.InvalidEmail:
-                                Debug.LogError(" 이메일 형식이 잘못되었습니다.");
-                                callback(false, "이메일 형식이 잘못되었습니다.");
-                                break;
-                            case AuthError.UserNotFound:
-                                Debug.LogError(" 해당 이메일로 가입된 사용자가 없습니다.");
-                                callback(false, "가입된 사용자가 없습니다.");
-                                break;
-                            default:
-                                Debug.LogError($" 기타 로그인 오류: {errorCode} - {fbEx.Message}");
-                                callback(false, fbEx.Message);
-                                break;
+                            FirebaseException fbEx = flatEx.InnerExceptions[0] as FirebaseException;
+
+                            if (fbEx != null)
+                            {
+                                var errorCode = (AuthError)fbEx.ErrorCode;
+                                switch (errorCode)
+                                {
+                                    case AuthError.EmailAlreadyInUse:
+                                        Debug.LogWarning("이미 사용 중인 이메일입니다.");
+                                        callback(false, "이미 사용 중인 이메일입니다.");
+                                        break;
+                                    case AuthError.WeakPassword:
+                                        Debug.LogWarning("비밀번호가 너무 약합니다.");
+                                        callback(false, "비밀번호가 너무 약합니다.");
+                                        break;
+                                    case AuthError.InvalidEmail:
+                                        Debug.LogWarning("이메일 형식이 잘못되었습니다.");
+                                        callback(false, "이메일 형식이 잘못되었습니다.");
+                                        break;
+                                    default:
+                                        Debug.LogWarning($"기타 회원가입 오류: {errorCode}");
+                                        callback(false, "회원가입 중 오류가 발생했습니다.");
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning("알 수 없는 Firebase 오류.");
+                                callback(false, "회원가입 중 알 수 없는 오류가 발생했습니다.");
+                            }
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        Debug.LogError($"? 로그인 중 알 수 없는 오류: {task.Exception.Message}");
-                        callback(false, task.Exception.Message);
+                        Debug.LogError("예외 처리 중 오류 발생: " + ex.Message);
+                        callback(false, "회원가입 중 시스템 오류가 발생했습니다.");
                     }
                 }
             }
         });
+    }
+    public IEnumerator WaitUntilUserIsReady(System.Action onReady)
+    {
+        float timeout = 5f;
+        float timer = 0f;
+
+        while (!isFirebaseReady || currentUser == null)
+        {
+            Debug.Log("? WaitUntilUserIsReady: 로그인 준비 기다리는 중...");
+            timer += Time.deltaTime;
+            if (timer > timeout)
+            {
+                Debug.LogError("? WaitUntilUserIsReady: 로그인 준비 시간 초과!");
+                yield break;
+            }
+            yield return null;
+        }
+
+        Debug.Log("? WaitUntilUserIsReady: currentUser 준비 완료!");
+        onReady?.Invoke();
     }
 }
