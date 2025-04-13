@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
+    [SerializeField] public int location=5;
 
     private int lastStageBeforeStore = -1;
 
@@ -122,6 +123,7 @@ public class GameManager : MonoBehaviour
     {
         FindAndConnectGameOverUI();
     }
+
 
     private void Awake()
     {
@@ -289,13 +291,8 @@ public class GameManager : MonoBehaviour
         score = 0;
         
         isPlayerInRange = false;
-        
-        /*// 현재 캐릭터의 maxHealth 사용 - 게임 시작 시 maxHealth와 currentPlayerHealth 일치시킴
-        int healthValue = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
-        currentPlayerHealth = healthValue;
-        maxHealth = healthValue;
-        Debug.Log($"Game state initialized with health: {currentPlayerHealth} / {maxHealth}");*/
     }
+    
 
     // 스테이지 진행 관련 메서드
     public void AdvanceStage()
@@ -329,7 +326,7 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             currentPlayerHealth = player.CurrentHealth;
-            Debug.Log($"Saved player health: {currentPlayerHealth}");  // 디버그용
+            //Debug.Log($"Saved player health: {currentPlayerHealth}");  // 디버그용
             // 필요한 다른 플레이어 상태도 여기서 저장
         }
         else
@@ -344,7 +341,7 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             // 디버그 로그 추가 - 이 메서드가 호출되었을 때 상태 확인
-            Debug.Log($"RestorePlayerState called with currentPlayerHealth: {currentPlayerHealth}, MaxHealth: {MaxHealth}");
+            //Debug.Log($"RestorePlayerState called with currentPlayerHealth: {currentPlayerHealth}, MaxHealth: {MaxHealth}");
             
             // 항상 최신 체력 값을 사용하도록 단순화
             if (CurrentCharacter != null)
@@ -390,6 +387,11 @@ public class GameManager : MonoBehaviour
             GameObject go = new GameObject("GameManager");
             Instance = go.AddComponent<GameManager>();
         }
+    }
+    public void LoadNextCapter(){
+        stage = 0;
+        chapter++;
+        LoadNextStage();  
     }
 
     public void LoadNextStage()

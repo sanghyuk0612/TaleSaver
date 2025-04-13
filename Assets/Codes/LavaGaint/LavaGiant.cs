@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -109,10 +110,12 @@ public class LavaGiant : MonoBehaviour
     Vector2 direction;
     bool canMove;
     private int direc;
+    bool isDead;
 
 
     private void Awake()
     {
+        isDead = false;
         if (InventoryManager.Instance == null)
         {
             Debug.LogError("InventoryManager not found in the scene.");
@@ -124,6 +127,8 @@ public class LavaGiant : MonoBehaviour
     }
         void Update()
     {
+        if(!isDead){
+
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
@@ -174,8 +179,7 @@ public class LavaGiant : MonoBehaviour
         // 체력 체크
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            Death();
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
@@ -183,7 +187,8 @@ public class LavaGiant : MonoBehaviour
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
-            CheckDeath();
+            Death();
+        }
         }
     }
     void Flip()
@@ -223,7 +228,6 @@ public class LavaGiant : MonoBehaviour
             Dash();
             break;
         case 1:
-            
             StartCoroutine(StopMovement(1.5f));
             anim.SetInteger("skillNum",1);
             //SmashAttack();
@@ -315,15 +319,23 @@ private IEnumerator StopMovement(float stopDuration)
     
     //테스트용 
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
-    private void CheckDeath()
+    private void Death()
     {
+        isDead=true;
+        attackDamage=0;
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            //DropItem();
+            //Destroy(gameObject);
+            Debug.Log("보스몬스터 죽음");
             anim.SetTrigger("death");
+            MapManager.Instance.SpawnPortal();
         }
     }
+    public void OnDeathAnimationEnd()
+{
+    Destroy(gameObject);
+}
 
     
 
@@ -377,7 +389,7 @@ private IEnumerator StopMovement(float stopDuration)
     // 새로 스폰되는 Enemy들과도 충돌을 무시하기 위한 트리거 체크
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy")||other.CompareTag("Half Tile")||other.CompareTag("Trap Tile"))
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), other, true);
         }
