@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -24,13 +25,20 @@ public class InOutButtonsUI : MonoBehaviour
         SceneManager.LoadScene("Lobby"); // Lobby 씬 이름 정확히 입력
     }
 
-    private void QuitGame()
+    public void QuitGame()
     {
-        Debug.Log("ButtonX 클릭됨 - 게임 종료");
+        Debug.Log("게임 종료 요청됨");
+
+        if (Application.isEditor)
+        {
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
+            EditorApplication.isPlaying = false;
 #endif
+        }
+        else
+        {
+            Application.Quit();
+        }
     }
+
 }

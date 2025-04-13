@@ -1512,9 +1512,9 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6506690927228484560}
-  - {fileID: 1541887342}
   - {fileID: 1343091817}
+  - {fileID: 1541887342}
+  - {fileID: 6506690927228484560}
   - {fileID: 1980014470}
   - {fileID: 267855492}
   m_Father: {fileID: 0}
@@ -1714,7 +1714,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1950971166}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: RestartGame
+        m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1906,7 +1906,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1343091817
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2702,8 +2702,9 @@ MonoBehaviour:
   monsterNumber: {fileID: 576923598}
   gameOverPanel: {fileID: 1343091816}
   restartButton: {fileID: 970196010}
-  DeathStage: {fileID: 1980014471}
-  DeathTime: {fileID: 267855493}
+  ExitButton: {fileID: 1220931519}
+  DeathStage: {fileID: 1251635528}
+  DeathTime: {fileID: 1640223196}
 --- !u!4 &1950971167
 Transform:
   m_ObjectHideFlags: 0
@@ -2715,7 +2716,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1.0664581, y: -9.829063, z: -1.9914237}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2840,8 +2841,8 @@ MonoBehaviour:
     goldPrice: 165
     money: 0
     battery: 0
-    steelPiece: 0
-    bookPage: 0
+    machineparts: 1
+    storybookpages: 1
     items: 
 --- !u!4 &2085263774
 Transform:

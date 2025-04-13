@@ -1,6 +1,8 @@
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -103,9 +105,24 @@ public class GameManager : MonoBehaviour
     [Header("Game Over UI")]
     public GameObject gameOverPanel; // 게임오버 UI 패널
     public Button restartButton; // 재시작 버튼
+    public Button ExitButton; // 재시작 버튼
     public Text DeathStage;
     public Text DeathTime;
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        FindAndConnectGameOverUI();
+    }
 
 
     private void Awake()
@@ -134,13 +151,15 @@ public class GameManager : MonoBehaviour
     {
         // 게임오버 패널 찾기
         if (gameOverPanel == null)
-        {
             gameOverPanel = GameObject.Find("GameOverPanel");
-            if (gameOverPanel == null)
-            {
-                Debug.LogWarning("GameOverPanel을 찾을 수 없습니다!");
-                return;
-            }
+
+        if (gameOverPanel != null)
+        {
+            if (DeathStage == null)
+                DeathStage = gameOverPanel.transform.Find("DeathStage")?.GetComponent<Text>();
+
+            if (DeathTime == null)
+                DeathTime = gameOverPanel.transform.Find("DeathTime")?.GetComponent<Text>();
         }
 
         // 재시작 버튼 찾기
@@ -154,6 +173,17 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (ExitButton == null)
+        {
+            ExitButton = GameObject.Find("Exit")?.GetComponent<Button>();
+        }
+        if (ExitButton != null)
+        {
+            ExitButton.onClick.RemoveAllListeners();
+            ExitButton.onClick.AddListener(QuitGame);
+        }
+
+
         // 재시작 버튼에 이벤트 연결
         restartButton.onClick.RemoveAllListeners();
         restartButton.onClick.AddListener(RestartGame);
@@ -164,9 +194,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        //FindAndConnectGameOverUI();
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);  // 시작 시 숨기기
         // 현재 캐릭터의 최대 체력 설정
         maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
-        
+
+
         // 실시간 디버깅을 위해 체력 초기값 로깅
         Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
         
@@ -181,6 +215,8 @@ public class GameManager : MonoBehaviour
         SyncPlayerHealth();
         
         skillCooldownTimers = new float[5];
+        Debug.Log("스킬쿨 초기화");
+        Debug.Log(skillCooldownTimers);
         
         // 게임 시작 시간 기록
         //gameStartTime = Time.time;
@@ -610,44 +646,60 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
+    private void SaveClearTime(float clearTime)
+    {
+        // 기존 스테이지, 클리어타임 저장
+        int currentStage = GameManager.Instance.Stage;
+
+        PlayerProgressData data = new PlayerProgressData(clearTime, currentStage);
+        SaveManager.Instance.SaveProgressData(data);
+
+        Debug.Log($"Boss ClearTime 저장됨: {clearTime}초");
+    }
+
+
     // 게임오버 UI 표시 메서드
     public void ShowGameOver()
     {
-        if (gameOverPanel != null)
+        FindAndConnectGameOverUI();  // 혹시 몰라 한 번 더 호출
+                                     // 시간 멈춤 (선택 사항)
+
+
+        if (gameOverPanel == null)
         {
-            // 게임오버 패널 활성화
-            gameOverPanel.SetActive(true);
+            Debug.LogError("GameOverPanel is null!");
+            return;
+        }
 
-            /*// 점수 표시 (선택사항)
-            if (scoreText != null)
-            {
-                // 여기에 점수 계산 로직 추가
-                int score = CalculateScore();
-                scoreText.text = $"점수: {score}";
-            }*/
 
-            /*// 생존 시간 표시
-            if (timeText != null)
-            {
-                float playTime = 0f;
+        gameOverPanel.SetActive(true);
 
-                // 저장된 데이터가 있다면 불러오기
-                var progress = SaveManager.Instance.LoadProgressData();
-                if (progress != null)
-                {
-                    playTime = progress.playTime;
-                }
+        // 스테이지 표시
+        if (DeathStage != null)
+        {
+            int stage = GameManager.Instance.Stage;
+            DeathStage.text = $"Stage {stage}";
+        }
 
-                int minutes = Mathf.FloorToInt(playTime / 60f);
-                int seconds = Mathf.FloorToInt(playTime % 60f);
-                timeText.text = $"생존 시간: {minutes:00}:{seconds:00}";
-            }
-            */
-            // 시간 일시정지 (선택사항)
-            //Time.timeScale = 0f;
+        // 시간 표시
+        if (DeathTime != null)
+        {
+            float currentPlayTime = GameManager.Instance.PlayTime;
+            int minutes = Mathf.FloorToInt(currentPlayTime / 60f);
+            int seconds = Mathf.FloorToInt(currentPlayTime % 60f);
+            DeathTime.text = $"Time: {minutes:00}:{seconds:00}";
+        }
+
+        // Boss 스테이지일 경우 clearTime 저장
+        if (Stage == 10) // Boss 스테이지 인덱스
+        {
+            SaveManager.Instance.SaveProgressData(new PlayerProgressData(GameManager.Instance.PlayTime, GameManager.Instance.Stage));
+            Debug.Log("Boss ClearTime 저장됨");
         }
     }
-    
+
+
+
     // 점수 계산 메서드 (게임에 맞게 수정 필요)
     /*private int CalculateScore()
     {
@@ -659,7 +711,7 @@ public class GameManager : MonoBehaviour
         // 추가 점수 요소를 더할 수 있음
         return timeScore;
     }*/
-    
+
     // 게임 재시작 메서드 (UI 버튼에 연결)
     public void RestartGame()
     {
@@ -669,4 +721,20 @@ public class GameManager : MonoBehaviour
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
     }
+    public void QuitGame()
+    {
+        Debug.Log("게임 종료 요청됨");
+
+        if (Application.isEditor)
+        {
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#endif
+        }
+        else
+        {
+            Application.Quit();
+        }
+    }
+
 }
