@@ -40,8 +40,7 @@ public class RankingEntry : MonoBehaviour
             popup.SetActive(true);
         }
 
-        var manager = FindObjectOfType<PlayerDetailManager>();
-        if (manager != null)
+        PlayerDetailManager manager = FindObjectOfType<PlayerDetailManager>(); if (manager != null)
         {
             manager.LoadPlayerDetail(playerId);
         }

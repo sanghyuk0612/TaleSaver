@@ -11,8 +11,15 @@ public class RankingUI : MonoBehaviour
 
     private void Awake()
     {
+        if (rankingScorePrefab == null || content == null)
+        {
+            Debug.LogError(" rankingScorePrefab 또는 content가 연결되어 있지 않습니다.");
+            return;
+        }
+
+        // 템플릿용으로 하나만 미리 만들어둠 (비활성화)
         GameObject entry = Instantiate(rankingScorePrefab, content);
-        entry.SetActive(false); // 비활성화
+        entry.SetActive(false);
         rankingEntries.Add(entry);
     }
 
@@ -31,44 +38,29 @@ public class RankingUI : MonoBehaviour
             return;
         }
 
-        if (rankingEntries.Count == 0)
+        // 새로운 UI 생성
+        foreach (var player in rankingList)
         {
-            foreach (Transform child in content)
+            GameObject entry = Instantiate(rankingScorePrefab, content);
+            entry.SetActive(true); // 활성화
+
+            RankingEntry entryScript = entry.GetComponent<RankingEntry>();
+            if (entryScript != null)
             {
-                rankingEntries.Add(child.gameObject);
-            }
-        }
-
-        foreach (GameObject entry in rankingEntries)
-        {
-            entry.SetActive(false);
-        }
-        Debug.Log("기존 랭킹 UI 비활성화 완료");
-
-        for (int i = 0; i < rankingList.Count; i++)
-        {
-            GameObject entry;
-
-            if (i < rankingEntries.Count)
-            {
-                entry = rankingEntries[i];
-                entry.SetActive(true);
+                entryScript.SetPlayerEntry(
+                    player.playerID,
+                    player.playcharacter,
+                    player.clearTime,
+                    player.rank
+                );
+                Debug.Log($" UI 추가: {player.playerID}, {player.playcharacter}, {player.clearTime}");
             }
             else
             {
-                entry = Instantiate(rankingScorePrefab, content);
-                rankingEntries.Add(entry);
+                Debug.LogError("RankingEntry 스크립트가 프리팹에 붙어있지 않습니다.");
             }
 
-            RankingEntry entryScript = entry.GetComponent<RankingEntry>();
-            entryScript.SetPlayerEntry(
-                rankingList[i].playerID,
-                rankingList[i].playcharacter,
-                rankingList[i].clearTime,
-                rankingList[i].rank
-            );
-
-            Debug.Log($"UI 업데이트: {rankingList[i].playerID}, {rankingList[i].playcharacter}, {rankingList[i].clearTime}");
+            rankingEntries.Add(entry);
         }
     }
 }
