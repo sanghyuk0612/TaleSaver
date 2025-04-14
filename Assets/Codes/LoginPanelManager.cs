@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,8 +22,22 @@ public class LoginPanelManager : MonoBehaviour
     {
         if (loginWarningText == null)
         {
-            Debug.LogError("?? loginWarningText°¡ nullÀÔ´Ï´Ù! Inspector ¿¬°á È®ÀÎ ÇÊ¿ä!");
+            Debug.LogError("?? loginWarningTextê°€ nullì…ë‹ˆë‹¤! Inspector ì„¤ì • í™•ì¸ í•„ìš”!");
             return;
+        }
+
+        // InputFieldì— í´ë¦­ ì´ë²¤íŠ¸ ì¶”ê°€
+        if (emailInput != null)
+        {
+            emailInput.onSelect.AddListener((string text) => {
+                emailInput.text = "";
+            });
+        }
+        if (passwordInput != null)
+        {
+            passwordInput.onSelect.AddListener((string text) => {
+                passwordInput.text = "";
+            });
         }
 
         if (authManager != null && authManager.IsLoggedIn())
@@ -44,11 +57,11 @@ public class LoginPanelManager : MonoBehaviour
             loginWarningText = GameObject.Find("LoginWarningText")?.GetComponent<TMP_Text>();
             if (loginWarningText == null)
             {
-                Debug.LogError("?? LoginWarningText¸¦ ÀÚµ¿À¸·Î Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("?? LoginWarningTextê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤! Inspector ì„¤ì • í™•ì¸ í•„ìš”!");
             }
             else
             {
-                Debug.Log("? LoginWarningText¸¦ ÄÚµå¿¡¼­ ÀÚµ¿À¸·Î ¿¬°áÇß½À´Ï´Ù.");
+                Debug.Log("? LoginWarningTextê°€ ì¡´ì¬í•©ë‹ˆë‹¤. ì¡´ì¬ í™•ì¸ ì™„ë£Œ.");
             }
         }
     }
@@ -81,7 +94,7 @@ public class LoginPanelManager : MonoBehaviour
         {
             if (success)
             {
-                alertText.text = " ·Î±×ÀÎ¿¡ ¼º°øÇÏ¿´½À´Ï´Ù.";
+                alertText.text = " ë¡œê·¸ì¸ ì„±ê³µí–ˆìŠµë‹ˆë‹¤.";
                 loginWarningText.gameObject.SetActive(false);
                 Invoke(nameof(HideLoginPanel), 1.0f);
             }
@@ -89,7 +102,7 @@ public class LoginPanelManager : MonoBehaviour
             {
                 alertText.text = message;
 
-                // ? ½ÇÆĞ ½Ã UI¸¦ Á¤È®È÷ ·Î±×ÀÎ Àü »óÅÂ·Î µ¹·ÁÁÖ±â
+                // ? ë¡œê·¸ì¸ ì‹¤íŒ¨ ì‹œ UI ì¬í™•ì¸ í•„ìš”
                 loginPanel.SetActive(true);
                 gameStartButton.SetActive(false);
                 gameLoginButton.SetActive(false);
@@ -99,7 +112,7 @@ public class LoginPanelManager : MonoBehaviour
                 emailInput.interactable = true;
                 passwordInput.interactable = true;
 
-                // ÇÊ¿äÇÏ¸é ÀçÆ÷Ä¿½Ì
+                // ì…ë ¥ í›„ ì»¤ì„œ ì´ë™
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(emailInput.gameObject);
             }
         });
@@ -107,18 +120,18 @@ public class LoginPanelManager : MonoBehaviour
 
     public void OnClickSignup()
     {
-        Debug.Log(" È¸¿ø°¡ÀÔ ¹öÆ° ´­¸²");
+        Debug.Log(" íšŒì›ê°€ì… í™•ì¸");
 
         string email = emailInput.text;
         string password = passwordInput.text;
 
         if (authManager == null)
         {
-            Debug.LogError(" authManager°¡ nullÀÔ´Ï´Ù! Inspector ¿¬°á ´©¶ô");
+            Debug.LogError(" authManagerê°€ nullì…ë‹ˆë‹¤! Inspector ì„¤ì • í™•ì¸ í•„ìš”");
             return;
         }
 
-        // ?ÀÔ·Â ÇÊµå¿Í ¹öÆ° Àá±ñ ºñÈ°¼ºÈ­ (Áßº¹ Å¬¸¯ ¹æÁö¿ë, ¼±ÅÃ »çÇ×)
+        // ?ì…ë ¥ í›„ í™•ì¸ í•„ìš” (ê³ ë ¤ í•„ìš”, ì¶”ê°€ í•„ìš”)
         emailInput.interactable = true;
         passwordInput.interactable = true;
 
@@ -126,23 +139,23 @@ public class LoginPanelManager : MonoBehaviour
         {
             if (success)
             {
-                Debug.Log(" È¸¿ø°¡ÀÔ ¼º°ø Äİ¹é");
-                alertText.text = " È¸¿ø°¡ÀÔ µÇ¾ú½À´Ï´Ù.";
+                Debug.Log(" íšŒì›ê°€ì… ì„±ê³µ");
+                alertText.text = " íšŒì›ê°€ì… ì„±ê³µí–ˆìŠµë‹ˆë‹¤.";
 
-                // ¼º°ø ½Ã ¿øÇÑ´Ù¸é ·Î±×ÀÎ ÆĞ³Î ÀÚµ¿À¸·Î ´İ°Å³ª ÃÊ±âÈ­ °¡´É
+                // ì„±ê³µ ì‹œ ë¡œê·¸ì¸ í›„ ìë™ ë¡œê·¸ì¸ ì²˜ë¦¬
                 // HideLoginPanel();
             }
             else
             {
-                Debug.LogError(" È¸¿ø°¡ÀÔ ½ÇÆĞ Äİ¹é: " + message);
+                Debug.LogError(" íšŒì›ê°€ì… ì‹¤íŒ¨: " + message);
                 alertText.text = message;
 
-                // ? ½ÇÆĞ ½Ã ÀÔ·Â UI º¹±¸
-                loginPanel.SetActive(true); // È¤½Ã ²¨Á³´Ù¸é ´Ù½Ã Ç¥½Ã
+                // ? ì…ë ¥ UI ì¬í™•ì¸
+                loginPanel.SetActive(true); // ì¬í™•ì¸ í›„ ì¬ì…ë ¥
                 emailInput.interactable = true;
                 passwordInput.interactable = true;
 
-                // ? ÀÔ·Â ÇÊµå ÀÚµ¿ Æ÷Ä¿½Ì
+                // ? ì…ë ¥ í›„ ì»¤ì„œ ì´ë™
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(emailInput.gameObject);
             }
         });
