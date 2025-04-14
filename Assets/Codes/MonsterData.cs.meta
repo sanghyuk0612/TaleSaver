@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Codes/MonsterData.cs.meta
 guid: 0b2cd2986db1643ae80456e44a2c75ff
+========
+guid: 6da7c450c4038ce4aa94c25791a5b607
+>>>>>>>> master:Assets/Codes/GameDataManager.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
