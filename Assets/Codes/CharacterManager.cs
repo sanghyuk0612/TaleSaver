@@ -349,15 +349,7 @@ public class CharacterManager : MonoBehaviour
     public void TryUnlockCharacterFirebase(int index)
     {
         StartCoroutine(HandleFirebaseUnlock(index));
-        Button[] buttons = characterContainer.GetComponentsInChildren<Button>();
-        if (index >= 0 && index < buttons.Length)
-        {
-            Image img = buttons[index].GetComponent<Image>();
-            if (img != null)
-            {
-                img.color = Color.white; // 밝게 표시
-            }
-        }
+        
     }
 
     private IEnumerator HandleFirebaseUnlock(int index)
@@ -419,6 +411,16 @@ public class CharacterManager : MonoBehaviour
         character.isUnlocked = true;
         PlayerPrefs.SetInt("CharacterUnlocked_" + index, 1);
         PlayerPrefs.Save();
+
+        Button[] buttons = characterContainer.GetComponentsInChildren<Button>();
+        if (index >= 0 && index < buttons.Length)
+        {
+            Image img = buttons[index].GetComponent<Image>();
+            if (img != null)
+            {
+                img.color = Color.white; // 밝게 표시
+            }
+        }
 
         ShowCharacterInfo(index);
         Debug.Log($"🎉 캐릭터 {character.characterName} 해금 완료");
@@ -645,6 +647,7 @@ public class CharacterManager : MonoBehaviour
 
         LoadUpgradePanel();
     }
+
 
     public void CloseUpgradePanel()
     {
