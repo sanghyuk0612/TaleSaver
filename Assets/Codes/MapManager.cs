@@ -23,6 +23,7 @@ public class MapManager : MonoBehaviour
     private List<GameObject> droppedItems = new List<GameObject>();
 
 
+
     private float right;
     public int location;
 
@@ -43,6 +44,7 @@ public class MapManager : MonoBehaviour
         // GameManager의 LoadSelectedCharacter 메서드 호출
         GameManager.Instance.LoadSelectedCharacter();
         location = GameManager.Instance.location;
+
 
         // 캐릭터 로드 후 currentPlayerHealth를 maxHealth로 명시적으로 설정
         if (GameManager.Instance.CurrentCharacter != null)
