@@ -112,6 +112,8 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
+ 
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
             
@@ -164,6 +166,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+
         // 현재 캐릭터의 최대 체력 설정
         maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
         

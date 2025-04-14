@@ -61,7 +61,7 @@ public class MapManager : MonoBehaviour
         }
 
         // 게임오버 UI 요소들 자동으로 찾아서 연결
-        //GameManager.Instance.FindAndConnectGameOverUI();
+        GameManager.Instance.FindAndConnectGameOverUI();
 
         // PoolManager가 있는지 확인
         if (PoolManager.Instance != null)
@@ -86,6 +86,7 @@ public class MapManager : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name == "BossStage")
         {
+            GameManager.Instance.Stage = 10; //stage값 명시적 설정
             GenerateBossMap();
             SpawnManager.Instance.SpawnBoss();
         }

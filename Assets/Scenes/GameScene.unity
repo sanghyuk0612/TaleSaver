@@ -813,7 +813,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meleeEnemyPrefab: {fileID: 8372166154551508869, guid: 8d5bdd52dec08c840a107532559e9a76, type: 3}
   rangedEnemyPrefab: {fileID: 1651906025392740170, guid: 5b3750462f1a61a4fa83e1a05b0dc11d, type: 3}
-  BossPrefab: {fileID: 0}
+  LavaPrefab: {fileID: 0}
+  SlimePrefab: {fileID: 0}
 --- !u!4 &951144598
 Transform:
   m_ObjectHideFlags: 0
@@ -866,6 +867,8 @@ MonoBehaviour:
   isBoss: 0
   spawnPoints: []
   stagePortalPrefab: {fileID: 2840797550389458792, guid: d31b5b152aae4ad41a45c6d3ec2a2904, type: 3}
+  storePortalPrefab: {fileID: 0}
+  BossPortalPrefab: {fileID: 0}
   playerPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   location: 0
 --- !u!4 &951659765
@@ -1899,6 +1902,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1343091817}
   - component: {fileID: 1343091819}
+  - component: {fileID: 1343091820}
   - component: {fileID: 1343091818}
   m_Layer: 5
   m_Name: GameOverPanel
@@ -1969,6 +1973,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1343091816}
   m_CullTransparentMesh: 1
+--- !u!114 &1343091820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343091816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87664c0b4470d934ca3a4eae8d5b3a42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1410261785
 GameObject:
   m_ObjectHideFlags: 0
@@ -2678,6 +2694,7 @@ MonoBehaviour:
   chapter: 0
   isPlayerInRange: 0
   playTime: 0
+  location: 5
   playerMoveSpeed: 5
   playerJumpForce: 9.6
   playerGravityScale: 2.5
@@ -2840,8 +2857,8 @@ MonoBehaviour:
     goldPrice: 165
     money: 0
     battery: 0
-    steelPiece: 0
-    bookPage: 0
+    machineparts: 1
+    storybookpages: 1
     items: 
 --- !u!4 &2085263774
 Transform:
