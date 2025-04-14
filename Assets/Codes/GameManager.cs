@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
-    [SerializeField] public int location=4;
+    [SerializeField] public int location = 5;
 
     private int lastStageBeforeStore = -1;
 
@@ -194,7 +194,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        FindAndConnectGameOverUI();
+        //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
         // 현재 캐릭터의 최대 체력 설정

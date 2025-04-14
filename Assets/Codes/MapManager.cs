@@ -93,8 +93,6 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnBoss();
         }
         SpawnInitialEntities();
-
-
     }
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
