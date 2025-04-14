@@ -59,7 +59,7 @@ public class MapManager : MonoBehaviour
         }
 
         // 게임오버 UI 요소들 자동으로 찾아서 연결
-        GameManager.Instance.FindAndConnectGameOverUI();
+        //GameManager.Instance.FindAndConnectGameOverUI();
 
         // PoolManager가 있는지 확인
         if (PoolManager.Instance != null)
@@ -303,9 +303,7 @@ public class MapManager : MonoBehaviour
     }
     public void GenerateStage()
     {
-
-
-
+        ClearStage();
         if (mapPrefabs.Count < 3)
         {
             Debug.LogError("Not enough map prefabs!");
