@@ -498,7 +498,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void Die()
     {
         if (IsDead) return;
-        Debug.Log("Player died! ShowGameOver() 호출 예정");
 
         Debug.Log("Player died!");
         IsDead = true; // 사망 상태 설정
@@ -529,52 +528,23 @@ public class PlayerController : MonoBehaviour, IDamageable
 
         deadAnimName = $"{characterName}_Death";
         playerAnimator.Play(deadAnimName);
-        playerAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
         playerAnimator.SetTrigger("Death");
 
-        StartCoroutine(WaitUntilCurrentAnimationEndsThenGameOver());
         // 게임오버 UI 표시 (약간의 딜레이 후)
-        //StartCoroutine(ShowGameOverWithDelay(2.5f));
+        StartCoroutine(ShowGameOverWithDelay(1.5f));
 
-    }
-
-    private IEnumerator WaitUntilCurrentAnimationEndsThenGameOver()
-    {
-        // 죽는 애니메이션은 마지막으로 설정된 상태이므로,
-        // 해당 상태가 재생되는 동안 기다림
-        AnimatorStateInfo stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-
-        // 현재 상태가 전환될 때까지 기다림 (가장 먼저 접근한 상태가 바로 Death 상태가 아닐 수 있음)
-        while (stateInfo.normalizedTime == 0)
-        {
-            yield return null;
-            stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        }
-
-        // 현재 상태가 끝날 때까지 기다림 (normalizedTime: 0 ~ 1)
-        while (stateInfo.normalizedTime < 1.0f)
-        {
-            yield return null;
-            stateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
-        }
-
-        Debug.Log("현재 애니메이션 끝남 → 시간 정지 및 GameOver 호출");
-
-        // 시간 정지 및 게임오버 호출
-        Time.timeScale = 0f;
-        GameManager.Instance.ShowGameOver();
     }
 
 
     // 딜레이 후 게임오버 UI 표시
-    //private IEnumerator ShowGameOverWithDelay(float delay)
-    //{
-    //    // 지정된 시간만큼 대기
-    //    yield return new WaitForSeconds(delay);
-
-    //    // 게임오버 UI 표시
-    //    GameManager.Instance.ShowGameOver();
-    //}
+    private IEnumerator ShowGameOverWithDelay(float delay)
+    {
+        // 지정된 시간만큼 대기
+        yield return new WaitForSeconds(delay);
+        
+        // 게임오버 UI 표시
+        GameManager.Instance.ShowGameOver();
+    }
 
     public void RestoreHealth(int health)
     {
