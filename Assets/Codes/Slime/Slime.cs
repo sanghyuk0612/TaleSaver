@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class Slime : MonoBehaviour
@@ -356,7 +357,9 @@ private IEnumerator StopMovement(float stopDuration)
 
     public void OnDeathAnimationEnd()
 {
+    
     Destroy(gameObject);
+    SceneManager.LoadScene("ScoreBoard");
 }
     private void Death()
     {
@@ -368,7 +371,7 @@ private IEnumerator StopMovement(float stopDuration)
             //Destroy(gameObject);
             Debug.Log("보스몬스터 죽음");
             anim.SetTrigger("death");
-            MapManager.Instance.SpawnPortal();
+            //MapManager.Instance.SpawnPortal();
         }
     }
 

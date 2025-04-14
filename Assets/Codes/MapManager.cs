@@ -23,7 +23,6 @@ public class MapManager : MonoBehaviour
     private List<GameObject> droppedItems = new List<GameObject>();
 
 
-
     private float right;
     public int location;
 
@@ -45,7 +44,6 @@ public class MapManager : MonoBehaviour
         GameManager.Instance.LoadSelectedCharacter();
         location = GameManager.Instance.location;
 
-
         // 캐릭터 로드 후 currentPlayerHealth를 maxHealth로 명시적으로 설정
         if (GameManager.Instance.CurrentCharacter != null)
         {
@@ -61,7 +59,13 @@ public class MapManager : MonoBehaviour
         }
 
         // 게임오버 UI 요소들 자동으로 찾아서 연결
-        GameManager.Instance.FindAndConnectGameOverUI();
+        
+        if (SceneManager.GetActiveScene().name == "GameScene")
+        {
+            GameManager.Instance.FindAndConnectGameOverUI();
+        }
+
+
 
         // PoolManager가 있는지 확인
         if (PoolManager.Instance != null)
@@ -74,7 +78,6 @@ public class MapManager : MonoBehaviour
         }
         ClearStage();
         LoadMapPrefabs();
-
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             GenerateStage();
@@ -86,7 +89,6 @@ public class MapManager : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name == "BossStage")
         {
-            GameManager.Instance.Stage = 10; //stage값 명시적 설정
             GenerateBossMap();
             SpawnManager.Instance.SpawnBoss();
         }
@@ -94,7 +96,6 @@ public class MapManager : MonoBehaviour
 
 
     }
-
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
     {
