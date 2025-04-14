@@ -21,7 +21,7 @@ public class PlayerUI : MonoBehaviour
         mainCamera = Camera.main;
         rectTransform = GetComponent<RectTransform>();
         
-        offset = new Vector3(0, -85f, 0);
+        offset = new Vector3(0, -30f, 0);
         
         // PlayerController를 찾고 슬라이더 초기화
         player = FindObjectOfType<PlayerController>();
@@ -53,5 +53,14 @@ public class PlayerUI : MonoBehaviour
     {
         player = playerController; // PlayerController를 설정
         InitializeHealthUI(); // 슬라이더 초기화
+    }
+    
+    // 체력 슬라이더 업데이트 메서드 추가
+    public void UpdateHealthSlider(float healthPercent)
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.value = healthPercent * healthSlider.maxValue;
+        }
     }
 }

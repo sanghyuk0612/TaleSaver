@@ -1,7 +1,9 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class LavaGaint : MonoBehaviour
+public class LavaGiant : MonoBehaviour
 {
     [Header("Movement")]
     private float moveSpeed;
@@ -42,7 +44,12 @@ public class LavaGaint : MonoBehaviour
     [Header("Attack")]
     public int dashForce = 30;
     public int dashCooltime = 3;
-    
+    public int dashDemage= 30;
+    public float jumpHorizontalForce = 3f;
+    Animator anim;
+    Transform Pivot;
+    public GameObject FrontAttack;
+    public float jumpForce = 5f;
 
     void Start()
     {
@@ -51,9 +58,11 @@ public class LavaGaint : MonoBehaviour
         detectionRange = GameManager.Instance.meleeEnemyDetectionRange;
         knockbackForce = GameManager.Instance.meleeEnemyKnockbackForce;
         damageCooldown = GameManager.Instance.meleeEnemyDamageCooldown;
+        Pivot = transform.Find("pivot");
 
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
 
         // 체력과 공격력 초기화
@@ -68,6 +77,7 @@ public class LavaGaint : MonoBehaviour
 
         // 기존 Collider는 물리적 충돌용으로 사용
         GetComponent<Collider2D>().isTrigger = false;
+        
 
         // 새로운 Trigger Collider 추가
         BoxCollider2D triggerCollider = gameObject.AddComponent<BoxCollider2D>();
@@ -94,65 +104,82 @@ public class LavaGaint : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
+        anim.SetInteger("animNum",0);
+        //StartCoroutine(StopMovement(4f));
     }
+    Vector2 direction;
+    bool canMove;
+    private int direc;
+    bool isDead;
+
 
     private void Awake()
     {
+        isDead = false;
         if (InventoryManager.Instance == null)
         {
             Debug.LogError("InventoryManager not found in the scene.");
             return; // InventoryManager가 없으면 메서드 종료
         }
+        canMove = true;
 
         inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
     }
-    Vector2 direction;
-
-    void Update()
+        void Update()
     {
+        if(!isDead){
+
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
             // 정지
+            anim.SetInteger("animNum",0);
             rb.velocity = new Vector2(0, rb.velocity.y);
             return;
         }
-        direction = (playerTransform.position - transform.position).normalized;
+        direction = (playerTransform.position - Pivot.position).normalized;
+        if(direction.x>0){
+        direc = 1;
+        }
+        else{
+            direc = -1;
+        }
+        skillTimer+=Time.deltaTime;
+        int skillNum;
+        if (skillTimer >= skillInterval) // 1분마다 한번씩 랜덤으로 스킬 실행
+        {
+            skillNum = Random.Range(0,4);// 스킬 4개
+            skillTimer = 0f; // 타이머 초기화
+            StartCoroutine(mySkill(skillNum));
+        }
 
         // 플레이어와의 거리 체크
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
         // x축 방향으로만 이동
-            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);   
+        if(canMove){
+            anim.SetInteger("animNum",1);
+            rb.velocity = new Vector2(direc* moveSpeed, rb.velocity.y);
+        }
+        else{
+            anim.SetInteger("animNum",0);
+            rb.velocity =new Vector2(0, rb.velocity.y);
+        }
             // 스프라이트 방향 전환
-            if (direction.x > 0 && !isFacingRight)
+            if (direction.x < 0 && !isFacingRight)
             {
                 Flip();
             }
-            else if (direction.x < 0 && isFacingRight)
+            else if (direction.x > 0 && isFacingRight)
             {
                 Flip();
             }
-        
-        // 대시 쿨다운 체크
-        if (!canDash)
-        {
-            dashCooldownTimer -= Time.deltaTime;
-            if (dashCooldownTimer <= 0)
-            {
-                canDash = true;
-                Debug.Log("Dash is ready!");
-            }
+        if(isDashing){
+            rb.velocity = new Vector2(direc * dashForce, rb.velocity.y);
         }
-        if(canDash&&Mathf.Abs(distanceToPlayer)>=3 ){ //일정 거리 이상 멀어지면 돌진 패턴
-        
-            Dash();
-        }
-
         // 체력 체크
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            Death();
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
@@ -160,58 +187,157 @@ public class LavaGaint : MonoBehaviour
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
-            CheckDeath();
+            Death();
+        }
         }
     }
+    void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        //spriteRenderer.flipX = !spriteRenderer.flipX;
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+        transform.position = transform.position;
+    }
+    
+    private void myFlip(){
+        
+    }
+    private float skillTimer = 0f;
+    public float skillInterval = 3f;
+    public int custumSkillnum=0;
+   IEnumerator mySkill(int skillNum){
+        
+        if (custumSkillnum==7){
+            skillNum = Random.Range(0,2);
+        }
+        else{
+            skillNum=custumSkillnum;
+        }
+        
+        //캐스팅 시간
+        Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
+        yield return new WaitForSeconds(1f);
+
+        switch (skillNum)
+        {
+        case 0:
+            
+            StartCoroutine(StopMovement(1f));
+            Dash();
+            break;
+        case 1:
+            StartCoroutine(StopMovement(1.5f));
+            anim.SetInteger("skillNum",1);
+            //SmashAttack();
+            break;
+        case 2:
+            //DownAttack();
+            break;
+        case 3:
+            //FrontAttack();
+            break;
+        case 4:
+            //Jump();
+            break;
+        default:
+            Debug.Log("잘못된 스킬 번호");
+            break;
+        }
+        Debug.Log("스킬"+skillNum+ "실행");
+    }
+    public void ResetToIdle() // 애니메이션 이벤트에서 호출될 함수
+    {
+        anim.SetInteger("skillNum", 0); // Idle 상태로 변경
+    }
+private void Jump(){
+    
+    Vector2 jumpVector = new Vector2(jumpHorizontalForce *direc , jumpForce);
+    rb.velocity = new Vector2(rb.velocity.x, 0); // 기존 Y축 속도를 초기화
+    rb.AddForce(jumpVector, ForceMode2D.Impulse); // 힘을 순간적으로 가함
+}
+
+
+private void SmashAttack()
+{
+    
+    // 이펙트 생성
+    //StartCoroutine(StopMovement(1f));
+    
+    if (FrontAttack != null)
+    {
+        GameObject effect = Instantiate(FrontAttack, Pivot.position+new Vector3(direc*2f,0,0), Quaternion.identity);
+        effect.transform.SetParent(transform);
+        Destroy(effect, 0.3f); // 0.5초 후 이펙트 제거
+        Debug.Log("이펙트 출력");
+    }
+    //anim.SetInteger("skillNum",9);
+    Debug.Log("전방공격");
+}
+
+
+
+
+private IEnumerator StopMovement(float stopDuration)
+    {
+        canMove =false;
+        Debug.Log("보스몬스터 정지");
+        //anim.SetInteger("animNum",0);
+        yield return new WaitForSeconds(stopDuration);
+        canMove =true; // 원래 속도로 복귀
+    }
+
     private bool canDash = true;
     private float dashCooldownTimer = 0f;
     private bool isDashing = false;
-    private float dashCooldown=2f;
     private void Dash(){
         
         float dashDirection = direction.x>=0 ? 1f : -1f;
         // 현재 속도를 초기화하고 대시 방향으로 힘을 가함
         // 대시 속도 설정
-        
-
-        rb.AddForce(new Vector2(dashDirection * dashForce, 1f), ForceMode2D.Impulse);
-
+        // 대시 속도 직접 설정
         // 대시 코루틴 시작
-        //StartCoroutine(DashCoroutine());
-
+        StartCoroutine(DashCoroutine(0.4f));
         // 쿨다운 시작
         canDash = false;
-        dashCooldownTimer = dashCooldown;
         Debug.Log($"보스몬스터 대쉬사용");
     }
 
-    private IEnumerator DashCoroutine()
+    private IEnumerator DashCoroutine(float dashTime)
     {
         isDashing = true;
-        
+        int tmp = baseDamage;
+        baseDamage = dashDemage;
+        canDash = false;
         // 대시 지속 시간
-        yield return new WaitForSeconds(0.35f);
-        rb.velocity = Vector2.zero;
-        
+        yield return new WaitForSeconds(dashTime);
+        baseDamage = tmp;
+        anim.SetInteger("animNum",0);
         isDashing = false;
     }
     
     //테스트용 
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
-    private void CheckDeath()
+    private void Death()
     {
+        isDead=true;
+        attackDamage=0;
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            //DropItem();
+            //Destroy(gameObject);
+            Debug.Log("보스몬스터 죽음");
+            anim.SetTrigger("death");
+            MapManager.Instance.SpawnPortal();
         }
     }
+    public void OnDeathAnimationEnd()
+{
+    Destroy(gameObject);
+}
 
-    void Flip()
-    {
-        isFacingRight = !isFacingRight;
-        spriteRenderer.flipX = !isFacingRight;
-    }
+    
 
     void DropItem()
     {
@@ -263,7 +389,7 @@ public class LavaGaint : MonoBehaviour
     // 새로 스폰되는 Enemy들과도 충돌을 무시하기 위한 트리거 체크
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy")||other.CompareTag("Half Tile")||other.CompareTag("Trap Tile"))
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), other, true);
         }

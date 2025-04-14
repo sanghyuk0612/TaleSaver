@@ -1,16 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Tilemaps;  // Tilemap 사용을 위해 추가
 
 public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance { get; private set; }
+
     [SerializeField] private GameObject meleeEnemyPrefab;
     [SerializeField] private GameObject rangedEnemyPrefab;
-    [SerializeField] private GameObject NPCPrefab;
-    [SerializeField] private GameObject EventNPCPrefab;
+    private GameObject BossPrefab;
+    [SerializeField] private GameObject LavaPrefab;
+    [SerializeField] private GameObject SlimePrefab;
+
 
     private void Awake()
     {
@@ -23,121 +25,80 @@ public class SpawnManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    
 
     public void SpawnEntities()
     {
-        if (MapManager.Instance == null)
+
+        // 타일맵의 경계 가져오기
+        int ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
+        Vector3 pos = MapManager.Instance.spawnPoints[ran];
+
+        // 근접 적 스폰 (약간 왼쪽에)
+        if (meleeEnemyPrefab != null)
         {
-            Debug.LogError("MapManager instance is missing!");
-            return;
-        }
-
-        MonsterData monsterData = MapManager.Instance.GetRandomMonsterForCurrentMap();
-        
-        if (monsterData == null)
-        {
-            Debug.LogWarning("No monster data found for this map!");
-            return;
-        }
-
-        // 스폰 위치 설정
-        int ran = Random.Range(0, MapManager.Instance.spawnPoints.Count);
-        Vector3 spawnPos = MapManager.Instance.spawnPoints[ran];
-
-        // 몬스터 유형에 따라 적절한 프리팹 선택
-        GameObject enemyPrefab = (monsterData.isRanged) ? rangedEnemyPrefab : meleeEnemyPrefab;
-
-        // 몬스터 생성
-        GameObject enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
-
-        if (!monsterData.isRanged)
-        {
-            // 근거리 몬스터 설정
-            MeleeEnemy meleeEnemy = enemy.GetComponent<MeleeEnemy>();
-            if (meleeEnemy != null)
-            {
-                meleeEnemy.ApplyMonsterData(monsterData);
-            }
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(meleeEnemyPrefab, pos, Quaternion.identity);
+            Debug.Log("Melee Enemy spawned at: " + pos);
         }
         else
         {
-            // 원거리 몬스터 설정
-            RangedEnemy rangedEnemy = enemy.GetComponent<RangedEnemy>();
-            if (rangedEnemy != null)
-            {
-                rangedEnemy.ApplyMonsterData(monsterData);
-            }
+            Debug.LogWarning("Melee Enemy Prefab is not assigned!");
+        }
+        ran = Random.Range(0,MapManager.Instance.spawnPoints.Count);
+        pos = MapManager.Instance.spawnPoints[ran];
+        Debug.Log(MapManager.Instance.spawnPoints.Count);
+        // 원거리 적 스폰 (약간 오른쪽에)
+        if (rangedEnemyPrefab != null)
+        {
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(rangedEnemyPrefab, pos, Quaternion.identity);
+            Debug.Log("Ranged Enemy spawned at: " + pos);
+        }
+        else
+        {
+            Debug.LogWarning("Ranged Enemy Prefab is not assigned!");
         }
     }
-
-    public void SpawnNPC()
+    public void SpawnBoss()
     {
-        if (MapManager.Instance == null)
+        int location = MapManager.Instance.location;
+        switch (location)
         {
-            Debug.LogError("MapManager instance is missing!");
-            return;
+            case 0:  //동굴
+                break;
+            case 1: //사막
+
+                break;
+            case 2: //숲
+            
+                break;
+            case 3: //얼음
+            
+                break;
+            case 4: //연구실
+                BossPrefab = SlimePrefab;            
+                break;
+            case 5: //용암
+                BossPrefab = LavaPrefab;
+                break;
+            case 6: //테스트
+            
+                break;
         }
 
-        GameObject npcPrefab;
-        int currentStage = GameManager.Instance.Stage;
-
-        if (currentStage == 1)
+        // 근접 적 스폰 (약간 왼쪽에)
+        if (BossPrefab != null)
         {
-            npcPrefab = EventNPCPrefab;
-        }
-        else
-        {
-            npcPrefab = NPCPrefab;
-        }
-
-        Vector3 npcSpawnPos = new Vector3(43, 2.7f, 0);
-        GameObject npc = Instantiate(npcPrefab, npcSpawnPos, Quaternion.identity);
-        npc.transform.localScale = new Vector3(1.1f, 1.1f, 1f); // 2배로 확대
-
-        GameObject canvas = GameObject.Find("DialoguePanel"); // 캔버스
-
-        if (canvas != null)
-        {
-            NPCInteraction interaction = npc.GetComponent<NPCInteraction>();
-
-            interaction.dialoguePanel = canvas.transform.Find("DialoguePanel").gameObject;
-
-            // 자식의 자식까지 경로로 찾아줌
-            interaction.dialogueText = canvas.transform.Find("DialoguePanel/DialogueText")?.GetComponent<Text>();
-            interaction.nextButton = canvas.transform.Find("DialoguePanel/NextButton")?.GetComponent<Button>();
-            interaction.yesButton = canvas.transform.Find("DialoguePanel/YesButton")?.GetComponent<Button>();
-            interaction.noButton = canvas.transform.Find("DialoguePanel/NoButton")?.GetComponent<Button>();
-
-            interaction.nextButton.onClick.RemoveAllListeners();
-            interaction.nextButton.onClick.AddListener(() =>
-            {
-                interaction.DisplayNextDialogue();
-            });
-
-            interaction.yesButton.onClick.RemoveAllListeners();
-            interaction.yesButton.onClick.AddListener(() =>
-            {
-                interaction.OnYesButtonClicked();
-            });
-
-            interaction.noButton.onClick.RemoveAllListeners();
-            interaction.noButton.onClick.AddListener(() =>
-            {
-                interaction.OnNoButtonClicked();
-            });
-
-            if (interaction.dialogueText == null) Debug.LogError("dialogueText 연결 실패");
-            if (interaction.nextButton == null) Debug.LogError("nextButton 연결 실패");
-            if (interaction.yesButton == null) Debug.LogError("yesButton 연결 실패");
-            if (interaction.noButton == null) Debug.LogError("noButton 연결 실패");
+            PortalManager.Instance.updateEnemy(1);
+            Instantiate(BossPrefab, MapManager.Instance.portalPosition+new Vector3(0,5,0), Quaternion.identity);
         }
         else
         {
-            Debug.LogError("Canvas 'DialoguePanel' 못 찾음");
+            Debug.LogWarning("Boss Prefab is not assigned!");
         }
-
+        // 원거리 적 스폰 (약간 오른쪽에)
     }
-
 
     // Start is called before the first frame update
     void Start()

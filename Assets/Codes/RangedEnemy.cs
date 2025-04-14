@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class RangedEnemy : MonoBehaviour
@@ -7,6 +6,10 @@ public class RangedEnemy : MonoBehaviour
     private float moveSpeed;
     private float attackRange;
     private float detectionRange;
+
+    [Header("Edge Detection")]
+    public float edgeCheckDistance = 1.0f; // 모서리 감지 거리
+    public LayerMask platformLayer; // 플랫폼 레이어
 
     [Header("Damage")]
 
@@ -27,12 +30,8 @@ public class RangedEnemy : MonoBehaviour
     private float nextAttackTime;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    private Animator animator;
     private Transform playerTransform;
     private bool isPlayerInRange = false;
-
-    [Header("Item Drop")]
-    [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
 
     void Start()
     {
@@ -59,6 +58,9 @@ public class RangedEnemy : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.gravityScale = 2.5f;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+        // 플랫폼 레이어 설정
+        platformLayer = LayerMask.GetMask("Ground", "Half Tile");
 
         // 기존 Collider는 물리적 충돌용으로 사용
         BoxCollider2D existingCollider = GetComponent<BoxCollider2D>();
@@ -97,7 +99,6 @@ public class RangedEnemy : MonoBehaviour
         firePoint = firePointObj.transform;
         firePoint.SetParent(transform);
         firePoint.localPosition = new Vector3(0f, 0f, 0f); // 발사 위치 고정
-        animator.SetTrigger("Attack");
 
         Debug.Log($"RangedEnemy spawned with current health: {currentHealth}");
     }
@@ -126,9 +127,18 @@ public class RangedEnemy : MonoBehaviour
         {
             if (distanceToPlayer > attackRange)
             {
-                MoveTowardsPlayer();
+                // 이동하기 전에 모서리 확인
+                bool canMove = CheckGroundAhead((playerTransform.position.x > transform.position.x) ? 1f : -1f);
+                
+                if (canMove)
+                {
+                    MoveTowardsPlayer();
+                }
+                else
+                {
+                    StopMoving();
+                }
                 isPlayerInRange = false;
-                animator.SetTrigger("Walk");
             }
             else
             {
@@ -148,77 +158,40 @@ public class RangedEnemy : MonoBehaviour
         else
         {
             StopMoving();
-            animator.SetTrigger("Idle");
             isPlayerInRange = false;
-        }
-
-        // 체력 체크
-        if (calculatedHealth <= 0)
-        {
-            Debug.Log("Debug: Monster health set to 0 manually.");
-            calculatedHealth = 0;
-            Die();
         }
     }
 
-    public void ApplyMonsterData(MonsterData data)
+    // 전방에 지면이 있는지 확인하는 메서드
+    private bool CheckGroundAhead(float directionX)
     {
-        // 몬스터 데이터 적용
-        baseHealth = data.health;
-        baseDamage = data.damage;
-        moveSpeed = data.moveSpeed;
-
-        // 스프라이트 및 애니메이션 적용
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-
-        if (spriteRenderer != null)
-            spriteRenderer.sprite = data.GetMonsterSprite();
-
-        if (animator != null)
-            animator.runtimeAnimatorController = data.GetAnimatorController(); ;
+        // 캐릭터의 발 위치 계산 (캐릭터의 바닥부분)
+        Vector2 footPosition = new Vector2(transform.position.x, transform.position.y - 0.5f);
+        
+        // 이동 방향으로의 레이캐스트 방향 설정
+        Vector2 rayDirection = new Vector2(directionX, -0.5f).normalized;
+        
+        // 레이캐스트를 통해 전방의 지면 확인
+        RaycastHit2D hit = Physics2D.Raycast(footPosition, rayDirection, edgeCheckDistance, platformLayer);
+        
+        // 디버그용 시각화
+        Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
+        
+        return hit.collider != null;
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
     protected virtual void ShootProjectile()
     {
         // 플레이어가 죽었다면 발사하지 않음
-        if (PlayerController.IsDead || playerTransform == null) return;
+        if (PlayerController.IsDead) return;
 
-        // PoolManager가 null인지 확인
-        if (PoolManager.Instance == null)
-        {
-            Debug.LogError("PoolManager.Instance가 null입니다. Pool Manager 컴포넌트가 씬에 있는지 확인하세요.");
-            return;
-        }
-
-        // 발사체 생성 시도
-        GameObject projectile = null;
-        try
-        {
-            projectile = PoolManager.Instance.GetObject(projectileKey);
-            if (currentHealth > 0)
-            {
-                animator.SetTrigger("Attack");
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"발사체 생성 중 예외 발생: {e.Message}");
-            return;
-        }
-
+        GameObject projectile = PoolManager.Instance.GetObject(projectileKey);
+        
         // null 체크 추가
         if (projectile == null)
         {
             Debug.LogError("발사체를 가져오는 데 실패했습니다.");
-            return;
-        }
-
-        // firePoint가 null인지 확인
-        if (firePoint == null)
-        {
-            Debug.LogError("firePoint가 null입니다.");
             return;
         }
 
@@ -228,33 +201,33 @@ public class RangedEnemy : MonoBehaviour
         EnemyProjectile projectileComponent = projectile.GetComponent<EnemyProjectile>();
         if (projectileComponent != null)
         {
-            Vector2 direction = (playerTransform.position - spawnPosition).normalized;
-            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+            // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
+            Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
+            Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
+            
+            // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
             projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
+            
+            // 초기화는 풀 관리자 설정 후에 호출
+            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
         }
         else
         {
-            Debug.LogError("발사체에 EnemyProjectile 컴포넌트가 없습니다.");
-            projectile.SetActive(false); // 발사체를 다시 비활성화
+            Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
+            projectile.SetActive(false); // 오류 시 발사체 비활성화
         }
-        if(currentHealth <= 0)
-        {
-            projectile.SetActive(false);
-        }
-
     }
 
     void MoveTowardsPlayer()
     {
         // x축 방향으로만 이동하도록 수정
         float directionX = playerTransform.position.x > transform.position.x ? 1f : -1f;
-        rb.velocity = new Vector2(directionX * moveSpeed, 0f);
+        rb.velocity = new Vector2(directionX * moveSpeed, rb.velocity.y); // Y속도 유지
     }
 
     void StopMoving()
     {
-        rb.velocity = Vector2.zero;
-        animator.SetTrigger("Idle");
+        rb.velocity = new Vector2(0,rb.velocity.y);
     }
 
     void UpdateFacingDirection()
@@ -292,32 +265,9 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
-        StopMoving();
-        // 애니메이션을 Dead 상태로 전환
-        if (animator != null)
-        {
-            Debug.Log("RangedEnemy Dead Animation.");
-            animator.SetTrigger("Dead");
-        }
-
         Debug.Log("RangedEnemy died.");
-
-        // 게임 오브젝트 제거
-        StartCoroutine(DestroyAfterDelay(1f));
-    }
-
-    // 일정 시간 후 몬스터 제거하는 코루틴
-    private IEnumerator DestroyAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        Destroy(gameObject); // 완전히 삭제
-
-        // 아이템 드롭
-        if (itemPrefab != null)
-        {
-            DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
-            droppedItem.DropItem();
-        }
-
+        PortalManager.Instance.killEnemy(1);
+        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
+        gameObject.SetActive(false);
     }
 }

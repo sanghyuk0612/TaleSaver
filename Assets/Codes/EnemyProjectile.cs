@@ -12,6 +12,10 @@ public class EnemyProjectile : MonoBehaviour
     private Camera mainCamera;
     private PoolManager poolManager;
     private string poolKey;
+    
+    private float spawnTime;
+
+    private bool isReturning = false; // 반환 중인지 확인하는 플래그
 
     private void Awake()
     {
@@ -41,6 +45,9 @@ public class EnemyProjectile : MonoBehaviour
     {
         damageAmount = damage;  // RangedEnemy의 공격력을 저장
         rb.velocity = direction * speed;
+        
+        // 발사 시간 기록
+        spawnTime = Time.time;
 
         // 투사체 회전 (발사 방향으로)
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -55,14 +62,40 @@ public class EnemyProjectile : MonoBehaviour
 
     private void Update()
     {
-        if (mainCamera == null) return;
-
-        // 화면 밖으로 나갔는지 체크
-        Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
-        if (viewPos.x < -0.1f || viewPos.x > 1.1f || 
-            viewPos.y < -0.1f || viewPos.y > 1.1f)
+        // 카메라가 없으면 재설정
+        if (mainCamera == null) 
         {
-            gameObject.SetActive(false);
+            mainCamera = Camera.main;
+            if (mainCamera == null) return;
+        }
+
+        // 화면 밖으로 나갔는지 체크 (여유 있게 설정)
+        Vector3 viewPos = mainCamera.WorldToViewportPoint(transform.position);
+        
+        // 좀 더 넓은 범위로 검사 (-0.3f ~ 1.3f)
+        if (viewPos.x < -0.3f || viewPos.x > 1.3f || 
+            viewPos.y < -0.3f || viewPos.y > 1.3f)
+        {
+            // 화면 밖으로 나갔을 때 비활성화
+            ReturnToPool();
+        }
+        
+        // 발사 후 10초가 지나면 자동 회수 (안전장치)
+        if (Time.time - spawnTime > 10f)
+        {
+            ReturnToPool();
+        }
+    }
+
+    private void OnEnable()
+    {
+        // 활성화될 때마다 발사 시간 갱신
+        spawnTime = Time.time;
+        
+        // 카메라 참조 확인
+        if (mainCamera == null)
+        {
+            mainCamera = Camera.main;
         }
     }
 
@@ -77,7 +110,7 @@ public class EnemyProjectile : MonoBehaviour
                 damageable.TakeDamage(damageAmount, knockbackDir, knockbackForce);
             }
             
-            gameObject.SetActive(false);
+            ReturnToPool();
         }
     }
 
@@ -95,9 +128,30 @@ public class EnemyProjectile : MonoBehaviour
 
     private void OnDisable()
     {
-        if (poolManager != null)
+        // 이미 반환 중이면 중복 호출 방지
+        if (isReturning) return;
+        
+        // 풀매니저와 키가 설정되어 있는 경우에만 반환
+        if (poolManager != null && !string.IsNullOrEmpty(poolKey))
         {
+            isReturning = true;
             poolManager.ReturnObject(poolKey, gameObject);
+            isReturning = false;
+        }
+        else
+        {
+            // poolManager가 설정되지 않은 경우 경고 로그만 출력
+            Debug.LogWarning("PoolManager가 설정되지 않은 EnemyProjectile이 비활성화됨");
+        }
+    }
+
+    private void ReturnToPool()
+    {
+        if (gameObject.activeInHierarchy && !isReturning)
+        {
+            isReturning = true;
+            gameObject.SetActive(false);
+            isReturning = false;
         }
     }
 }

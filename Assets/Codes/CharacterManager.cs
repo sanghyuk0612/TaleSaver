@@ -4,6 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Firebase.Auth;
+using Firebase.Firestore;
+using System.Threading.Tasks;
+
+
+public static class FirebaseTaskExtensions
+{
+    public static IEnumerator AsCoroutine(this Task task)
+    {
+        while (!task.IsCompleted)
+            yield return null;
+
+        if (task.IsFaulted)
+            Debug.LogError(task.Exception);
+    }
+}
 
 public class CharacterManager : MonoBehaviour
 {
@@ -18,6 +34,7 @@ public class CharacterManager : MonoBehaviour
     // 현재 선택된 캐릭터의 스프라이트를 저장할 변수
     private Sprite characterSprite;
     public RuntimeAnimatorController characterAnimator;  // 선택된 캐릭터 애니메이터
+
 
 
     [Header("Panel Info")]
@@ -58,7 +75,7 @@ public class CharacterManager : MonoBehaviour
 
     // 각 캐릭터의 최대 체력을 저장하는 배열
     private int[] maxHealthArray = new int[7] { 100, 120, 110, 130, 140, 150, 160 };
-
+    public bool isDataLoaded = false; // 데이터 로드 완료 여부
     private void Start()
     {
         characterInfoPanel.SetActive(false);
@@ -86,7 +103,7 @@ public class CharacterManager : MonoBehaviour
             character.luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
         }
 
-        unlockButton.onClick.AddListener(() => TryUnlockCharacter(currentCharacterIndex));
+        unlockButton.onClick.AddListener(() => TryUnlockCharacterFirebase(currentCharacterIndex));
         backButton.onClick.AddListener(HideCharacterInfo);
         selectButton.onClick.AddListener(OnSelectButtonClick);
         upgradeButton.onClick.AddListener(ShowUpgradePanel);
@@ -147,6 +164,39 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
+
+
+    public void OnClickUnlockButton(int index)
+    {
+        StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
+        {
+            Debug.Log("✅ 해금 시도 시작!");
+            TryUnlockCharacterFirebase(index);
+        }));
+    }
+
+    private IEnumerator WaitAndUnlock(int index)
+    {
+        float timeout = 5f;
+        float timer = 0f;
+
+        while (!FirebaseAuthManager.Instance.IsLoggedIn())
+        {
+            Debug.Log("⏳ 로그인 기다리는 중...");
+            timer += Time.deltaTime;
+
+            if (timer > timeout)
+            {
+                Debug.LogError("❌ 로그인 준비 시간 초과. 해금 중단");
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        Debug.Log("✅ 로그인 완료됨, 해금 시작!");
+        TryUnlockCharacterFirebase(index);
+    }
     private void Update()
     {
         // 키보드의 `키`를 눌렀을 때 현재 선택된 캐릭터의 레벨을 증가
@@ -280,11 +330,12 @@ public class CharacterManager : MonoBehaviour
         {
             selectButton.interactable = false;
             upgradeButton.interactable = false;
-            unlockButton.gameObject.SetActive(true); // 해금 버튼 표시
-            unlockConditionText.text = $"필요한 기계조각 : {character.requiredSteelPieces}\n필요한 페이지 : {character.requiredBookPages}";
+            unlockButton.gameObject.SetActive(true); // 해금 버튼 표시TryUnlockCharacter
+            unlockConditionText.text = $"필요한 기계조각 : {character.requiredmachineparts}\n필요한 페이지 : {character.requiredstorybookpages}";
 
         }
     }
+
 
     public void HideCharacterInfo()
     {
@@ -292,25 +343,84 @@ public class CharacterManager : MonoBehaviour
         SetCharacterButtonsInteractable(true);
     }
 
-    public void TryUnlockCharacter(int index)
+    public void TryUnlockCharacterFirebase(int index)
     {
+        StartCoroutine(HandleFirebaseUnlock(index));
+        
+    }
+
+    private IEnumerator HandleFirebaseUnlock(int index)
+    {
+        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("❌ 로그인 정보 없음: CurrentUser is null");
+            yield break;
+        }
+
+        string uid = user.UserId;
+        var db = FirebaseFirestore.DefaultInstance;
+        var goodsRef = db.Collection("goods").Document(uid);
+
+        var task = goodsRef.GetSnapshotAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (!task.Result.Exists)
+        {
+            Debug.LogError("❌ Firebase에 goods 데이터가 존재하지 않습니다.");
+            yield break;
+        }
+
+        var data = task.Result.ToDictionary();
+        int storybookPages = Convert.ToInt32(data["storybookpages"]);
+        int machineParts = Convert.ToInt32(data["machineparts"]);
+
         CharacterData character = characters[index];
 
-        if (InventoryManager.Instance.inventory.bookPage >= character.requiredBookPages && InventoryManager.Instance.inventory.steelPiece >= character.requiredSteelPieces)
+        if (storybookPages < character.requiredstorybookpages || machineParts < character.requiredmachineparts)
         {
-            InventoryManager.Instance.inventory.bookPage -= character.requiredBookPages;
-            InventoryManager.Instance.inventory.steelPiece -= character.requiredSteelPieces;
-
-            character.isUnlocked = true;
-            Debug.Log($"{character.characterName}이(가) 해금되었습니다!");
-
-            UnlockCharacter(index);
-            ShowCharacterInfo(index); // UI 갱신
+            Debug.Log("재화 부족으로 해금 불가");
+            yield break;
         }
-        else
+
+        // ✅ 재화 차감
+        storybookPages -= character.requiredstorybookpages;
+        machineParts -= character.requiredmachineparts;
+
+        // ✅ Firestore에 재화 업데이트
+        Dictionary<string, object> updateData = new()
+    {
+        { "storybookpages", storybookPages },
+        { "machineparts", machineParts }
+    };
+
+        yield return goodsRef.SetAsync(updateData).AsCoroutine();
+
+        // ✅ Firebase에 해금 상태 저장 (별도 컬렉션)
+        var unlockRef = db.Collection("unlockedCharacters").Document(uid);
+        Dictionary<string, object> unlockData = new()
+    {
+        { $"char_{character.characterName}", true }
+    };
+        yield return unlockRef.SetAsync(unlockData, SetOptions.MergeAll).AsCoroutine();
+
+        // ✅ 로컬 상태 반영
+        character.isUnlocked = true;
+        PlayerPrefs.SetInt("CharacterUnlocked_" + index, 1);
+        PlayerPrefs.Save();
+
+        Button[] buttons = characterContainer.GetComponentsInChildren<Button>();
+        if (index >= 0 && index < buttons.Length)
         {
-            Debug.Log("재료가 부족합니다!");
+            Image img = buttons[index].GetComponent<Image>();
+            if (img != null)
+            {
+                img.color = Color.white; // 밝게 표시
+            }
         }
+
+        ShowCharacterInfo(index);
+        Debug.Log($"🎉 캐릭터 {character.characterName} 해금 완료");
     }
 
     private void UnlockCharacter(int index)
@@ -481,6 +591,7 @@ public class CharacterManager : MonoBehaviour
         Debug.Log($"Total Increase: {totalIncrease}, Level: {character.level}, Vitality: {character.vitality}, Power: {character.power}, Agility: {character.agility}, Luck: {character.luck}");
     }
 
+
     public void IncreaseVitality()
     {
         CharacterData character = characters[currentCharacterIndex];
@@ -532,6 +643,7 @@ public class CharacterManager : MonoBehaviour
 
         LoadUpgradePanel();
     }
+
 
     public void CloseUpgradePanel()
     {

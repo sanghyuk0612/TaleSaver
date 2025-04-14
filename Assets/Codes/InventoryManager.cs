@@ -64,24 +64,24 @@ public class InventoryManager : MonoBehaviour
             case 4: // 금
                 inventory.gold += quantity;
                 break;
-            case 5: // 돈
-                inventory.money += quantity;
-                break;
-            case 6: // 배터리
+            case 5: // 배터리
                 inventory.battery += quantity;
                 break;
-            case 7: //기계 조각
-                inventory.steelPiece += quantity;
+            case 6: // 기계 조각
+                inventory.machineparts += quantity;
+                GameDataManager.Instance.machineParts += quantity;
                 break;
-            case 8: //캐릭터 페이지(찢어진 동화책)
-                inventory.bookPage += quantity;
+            case 7: // 동화 페이지
+                inventory.storybookpages += quantity;
+                GameDataManager.Instance.storybookPage += quantity;
                 break;
-            case 9: //새로운 아이템추가, 이경우 quaitiy가 아이템의 아이디
+            case 8: // 기타 아이템
                 inventory.items.Add(quantity);
                 break;
         }
 
         Debug.Log($"Added {quantity} {GetItemNameById(id)} to inventory."); // 아이템 이름 출력
+        GameDataManager.Instance.SaveGoodsToFirestore();  // ✅ Firebase에 바로 저장
     }
 
     // 아이템 제거
@@ -104,28 +104,28 @@ public class InventoryManager : MonoBehaviour
             case 4: // 금
                 inventory.gold -= quantity;
                 break;
-            case 5: // 돈
-                inventory.money -= quantity;
-                break;
-            case 6: // 배터리
+            case 5: // 배터리
                 inventory.battery -= quantity;
                 break;
-            case 7: //기계 조각
-                inventory.steelPrice -= quantity;
+            case 6://기계 조각
+                inventory.machineparts -= quantity;
+                GameDataManager.Instance.machineParts -= quantity;
                 break;
-            case 8: //캐릭터 페이지
-                inventory.bookPage -= quantity;
+            case 7: //동화 페이지
+                inventory.storybookpages -= quantity;
+                GameDataManager.Instance.storybookPage -= quantity;
                 break;
         }
+        GameDataManager.Instance.SaveGoodsToFirestore(); // ✅ 즉시 Firebase 저장
     }
 
     public void SaveInventory()
     {
-        SaveManager.Instance.SaveData(inventory);
+        SaveManager.Instance.SaveItemData(inventory);
     }
 
     public void LoadInventory()
     {
-        inventory = SaveManager.Instance.LoadData();
+        inventory = SaveManager.Instance.LoadItemData();
     }
 }
