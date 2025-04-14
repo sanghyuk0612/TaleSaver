@@ -21,7 +21,7 @@ public class PlayerUI : MonoBehaviour
         mainCamera = Camera.main;
         rectTransform = GetComponent<RectTransform>();
         
-        offset = new Vector3(0, -85f, 0);
+        offset = new Vector3(0, -30f, 0);
         
         // PlayerController를 찾고 슬라이더 초기화
         player = FindObjectOfType<PlayerController>();

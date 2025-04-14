@@ -114,7 +114,18 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
         
         // UI 초기화
-        UpdateHealthUI();
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this); // PlayerUI에 플레이어를 설정
+            float healthPercent = (float)currentHealth / maxHealth;
+            playerUI.UpdateHealthSlider(healthPercent);
+            Debug.Log("PlayerUI 초기화 완료");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerUI를 찾을 수 없습니다!");
+        }
         
         // 상태 복원 후 체력 확인
         Debug.Log($"플레이어 초기화 완료 - 현재 체력: {currentHealth}, 최대 체력: {maxHealth}");
