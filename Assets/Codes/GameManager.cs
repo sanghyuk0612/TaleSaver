@@ -364,13 +364,11 @@ public class GameManager : MonoBehaviour
 
         // 현재 씬에서 새로운 스테이지 생성
         MapManager.Instance.GenerateStage();
-        
         // 모든 적 제거
         DestroyAllEnemies();
-
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
-
+        
         // 플레이어 위치 리셋
         ResetPlayerPosition();
         PortalManager.Instance.enemyNumber=0;
@@ -405,7 +403,7 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             // 맵의 왼쪽 시작 지점으로 플레이어 이동
-            Vector3 startPosition = MapManager.Instance.GetStartPosition();
+            //Vector3 startPosition = MapManager.Instance.GetStartPosition();
             player.transform.position = new Vector3(2.0f, 4.0f, 0.0f);
         }
     }
