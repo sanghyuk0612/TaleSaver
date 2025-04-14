@@ -10,26 +10,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int stage;
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
-    [SerializeField] private float playTime;
-
-    private int lastStageBeforeStore = -1;
-
-    public void EnterStore() //store 진입 전 last변수에 현재 stage 저장
-    {
-        lastStageBeforeStore = stage;
-        stage = 0;
-    }
-    public void ExitStore() //store 나오면 stage에 last stage 값 재 삽입
-    {
-        if (lastStageBeforeStore != -1)
-            stage = lastStageBeforeStore;
-    }
-    public float PlayTime
-    {
-        get => playTime;
-        set => playTime = value;
-    }
-
 
     // 프로퍼티를 통한 접근
     public int Score => score;

@@ -21,8 +21,8 @@ public class StagePortal : MonoBehaviour
                     // 기존 몬스터와 투사체 제거
                     MapManager.Instance.DestroyAllEnemies();
                     MapManager.Instance.DestroyAllProjectiles();
+                    
 
-                    GameManager.Instance.EnterStore(); // Store 진입 처리
                     SceneManager.LoadScene("Store"); // Store 씬으로 이동
                 }
                 else
