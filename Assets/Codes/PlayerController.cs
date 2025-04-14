@@ -5,9 +5,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 {
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    public bool isControllable = true; // 외부에서 끄고 켤 수 있도록 함
-
-
+    
     [Header("Ground Check")]
     public float groundCheckDistance = 0.1f;
     public LayerMask groundLayer;
@@ -111,7 +109,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     void FixedUpdate()
     {
         if (IsDead) return; // 사망 상태면 입력 차단
-        if (!isControllable) return; // 외부에서 플레이어 입력 차단 가능 (NPC 대화중 입력 차단)
         CheckGround();
         
         // 넉백 중이면 플레이어 입력 무시
@@ -144,7 +141,6 @@ public class PlayerController : MonoBehaviour, IDamageable
     void Update()
     {
         if (IsDead) return; // 사망 상태면 입력 차단
-        if (!isControllable) return; // 외부에서 플레이어 입력 차단 가능
 
         float moveInput = Input.GetAxisRaw("Horizontal");
         bool isMoving = Mathf.Abs(moveInput) > 0.1f;
@@ -186,8 +182,7 @@ public class PlayerController : MonoBehaviour, IDamageable
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 remainingJumps = 0; // 점프 횟수를 0으로 고정
                 isJumping = true; // 점프 상태 설정
-                //playerAnimator.SetBool("IsJumping", true);
-                playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("isJumping", true);
                 StartCoroutine(ResetJump());
             }
             // 땅에 있지 않을 때 더블 점프
@@ -197,8 +192,7 @@ public class PlayerController : MonoBehaviour, IDamageable
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 remainingJumps--; // 점프 횟수 감소
                 isJumping = true; // 점프 상태 설정
-                //playerAnimator.SetBool("IsJumping", true);
-                playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("isJumping", true);
                 StartCoroutine(ResetJump());
             }
             
@@ -312,8 +306,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         yield return new WaitForSeconds(0.2f);
         isJumping = false;
-        //playerAnimator.SetBool("IsJumping", false);
-        playerAnimator.SetTrigger("Jump");
+        playerAnimator.SetBool("isJumping", false);
     }
 
     private IEnumerator DashCoroutine()
@@ -537,22 +530,6 @@ public class PlayerController : MonoBehaviour, IDamageable
             playerUI.SetPlayer(this); // PlayerUI에 플레이어를 설정하여 슬라이더 업데이트
         }
     }
-
-    public void Heal(int healAmount) //체력 회복하는 함수
-    {
-        // 체력 회복, 최대 체력을 초과하지 않도록 설정
-        currentHealth = Mathf.Min(maxHealth, currentHealth + healAmount);
-
-        Debug.Log($"Player healed by {healAmount}. Current Health: {currentHealth}");
-
-        // 슬라이더 업데이트를 위해 PlayerUI에 알림
-        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
-        if (playerUI != null)
-        {
-            playerUI.SetPlayer(this); // PlayerUI에 플레이어를 설정하여 슬라이더 업데이트
-        }
-    }
-
 
     private void ApplyCharacterAnimator()
     {

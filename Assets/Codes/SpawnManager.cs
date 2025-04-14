@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Tilemaps;  // Tilemap 사용을 위해 추가
 
 public class SpawnManager : MonoBehaviour
@@ -9,8 +8,6 @@ public class SpawnManager : MonoBehaviour
     public static SpawnManager Instance { get; private set; }
     [SerializeField] private GameObject meleeEnemyPrefab;
     [SerializeField] private GameObject rangedEnemyPrefab;
-    [SerializeField] private GameObject NPCPrefab;
-    [SerializeField] private GameObject EventNPCPrefab;
 
     private void Awake()
     {
@@ -69,75 +66,6 @@ public class SpawnManager : MonoBehaviour
             }
         }
     }
-
-    public void SpawnNPC()
-    {
-        if (MapManager.Instance == null)
-        {
-            Debug.LogError("MapManager instance is missing!");
-            return;
-        }
-
-        GameObject npcPrefab;
-        int currentStage = GameManager.Instance.Stage;
-
-        if (currentStage == 1)
-        {
-            npcPrefab = EventNPCPrefab;
-        }
-        else
-        {
-            npcPrefab = NPCPrefab;
-        }
-
-        Vector3 npcSpawnPos = new Vector3(43, 2.7f, 0);
-        GameObject npc = Instantiate(npcPrefab, npcSpawnPos, Quaternion.identity);
-        npc.transform.localScale = new Vector3(1.1f, 1.1f, 1f); // 2배로 확대
-
-        GameObject canvas = GameObject.Find("DialoguePanel"); // 캔버스
-
-        if (canvas != null)
-        {
-            NPCInteraction interaction = npc.GetComponent<NPCInteraction>();
-
-            interaction.dialoguePanel = canvas.transform.Find("DialoguePanel").gameObject;
-
-            // 자식의 자식까지 경로로 찾아줌
-            interaction.dialogueText = canvas.transform.Find("DialoguePanel/DialogueText")?.GetComponent<Text>();
-            interaction.nextButton = canvas.transform.Find("DialoguePanel/NextButton")?.GetComponent<Button>();
-            interaction.yesButton = canvas.transform.Find("DialoguePanel/YesButton")?.GetComponent<Button>();
-            interaction.noButton = canvas.transform.Find("DialoguePanel/NoButton")?.GetComponent<Button>();
-
-            interaction.nextButton.onClick.RemoveAllListeners();
-            interaction.nextButton.onClick.AddListener(() =>
-            {
-                interaction.DisplayNextDialogue();
-            });
-
-            interaction.yesButton.onClick.RemoveAllListeners();
-            interaction.yesButton.onClick.AddListener(() =>
-            {
-                interaction.OnYesButtonClicked();
-            });
-
-            interaction.noButton.onClick.RemoveAllListeners();
-            interaction.noButton.onClick.AddListener(() =>
-            {
-                interaction.OnNoButtonClicked();
-            });
-
-            if (interaction.dialogueText == null) Debug.LogError("dialogueText 연결 실패");
-            if (interaction.nextButton == null) Debug.LogError("nextButton 연결 실패");
-            if (interaction.yesButton == null) Debug.LogError("yesButton 연결 실패");
-            if (interaction.noButton == null) Debug.LogError("noButton 연결 실패");
-        }
-        else
-        {
-            Debug.LogError("Canvas 'DialoguePanel' 못 찾음");
-        }
-
-    }
-
 
     // Start is called before the first frame update
     void Start()

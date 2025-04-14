@@ -45,8 +45,8 @@ public class DroppedItem : MonoBehaviour
             return;
         }
 
-        // 랜덤 아이템 ID 설정 (0~8 중 하나)
-        int randomId = Random.Range(0, 9);
+        // 랜덤 아이템 ID 설정 (0~4 중 하나)
+        int randomId = Random.Range(0, 5);
         string randomItemName = inventoryManager.GetItemNameById(randomId);
 
         // 드랍 위치
