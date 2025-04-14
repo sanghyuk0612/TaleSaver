@@ -59,7 +59,13 @@ public class MapManager : MonoBehaviour
         }
 
         // 게임오버 UI 요소들 자동으로 찾아서 연결
-        //GameManager.Instance.FindAndConnectGameOverUI();
+        
+        if (SceneManager.GetActiveScene().name == "GameScene")
+        {
+            GameManager.Instance.FindAndConnectGameOverUI();
+        }
+
+
 
         // PoolManager가 있는지 확인
         if (PoolManager.Instance != null)
@@ -72,7 +78,6 @@ public class MapManager : MonoBehaviour
         }
         ClearStage();
         LoadMapPrefabs();
-
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             GenerateStage();
@@ -91,7 +96,6 @@ public class MapManager : MonoBehaviour
 
 
     }
-
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
     {
