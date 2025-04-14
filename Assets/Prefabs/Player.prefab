@@ -107,7 +107,6 @@ MonoBehaviour:
   groundCheckSize: {x: 0.4, y: 0.1}
   maxHealth: 100
   knockbackDuration: 0.2
-  playerSpriteRenderer: {fileID: 4653082698377534761}
 --- !u!50 &8573810824455855368
 Rigidbody2D:
   serializedVersion: 4
@@ -200,4 +199,4 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1.2145793}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.04
