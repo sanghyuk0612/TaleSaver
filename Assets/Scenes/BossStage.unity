@@ -1486,12 +1486,13 @@ MonoBehaviour:
   rangedEnemyDamage: 10
   rangedEnemyAttackCooldown: 2
   rangedEnemyProjectileSpeed: 8
-  enemyProjectileKnockbackForce: 4
+  enemyProjectileKnockbackForce: 5
   playerUIPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   playerSpriteRenderer: {fileID: 4653082698377534761, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   monsterNumber: {fileID: 2095508048}
   gameOverPanel: {fileID: 0}
   restartButton: {fileID: 0}
+  ExitButton: {fileID: 0}
   DeathStage: {fileID: 0}
   DeathTime: {fileID: 0}
 --- !u!4 &2041122546
