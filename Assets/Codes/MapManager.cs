@@ -529,12 +529,13 @@ public class MapManager : MonoBehaviour
 
     private void SpawnInitialEntities()
     {
+        
         // 스폰 포인트가 비어있는지 확인
-        if (spawnPoints == null || spawnPoints.Count == 0)
-        {
-            Debug.LogWarning("스폰 포인트가 없습니다. 적을 생성할 수 없습니다.");
-            return;
-        }
+        // if (spawnPoints == null || spawnPoints.Count == 0)
+        // {
+        //     Debug.LogWarning("스폰 포인트가 없습니다. 적을 생성할 수 없습니다.");
+        //     return;
+        // }
 
         // 플레이어 소환
         if (playerPrefab != null)
