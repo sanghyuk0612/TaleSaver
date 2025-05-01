@@ -415,13 +415,23 @@ public class MapManager : MonoBehaviour
     void GetSpawnPoint(Tilemap source, BoundsInt bounds, Vector3Int offset)
     {
         Debug.Log(source.name + "의 태그: " + source.tag);
+        bool foundSpawnPoint = false;
+        
         foreach (Vector3Int pos in bounds.allPositionsWithin)
         {
             if (!source.HasTile(pos))
             {
                 continue;
             }
-            spawnPoints.Add(pos + offset - bounds.min); // 위치 저장
+            Vector3 spawnPos = pos + offset - bounds.min;
+            spawnPoints.Add(spawnPos); // 위치 저장
+            foundSpawnPoint = true;
+            Debug.Log("스폰 포인트 추가됨: " + spawnPos);
+        }
+
+        if (!foundSpawnPoint)
+        {
+            Debug.LogWarning("스폰 포인트를 찾을 수 없습니다. 태그: " + source.tag);
         }
     }
     void OnDrawGizmos()
@@ -521,6 +531,13 @@ public class MapManager : MonoBehaviour
 
     private void SpawnInitialEntities()
     {
+        // 스폰 포인트가 비어있는지 확인
+        if (spawnPoints == null || spawnPoints.Count == 0)
+        {
+            Debug.LogWarning("스폰 포인트가 없습니다. 적을 생성할 수 없습니다.");
+            return;
+        }
+
         // 플레이어 소환
         if (playerPrefab != null)
         {
@@ -557,9 +574,6 @@ public class MapManager : MonoBehaviour
         {
             SpawnManager.Instance.SpawnEntities();
         }
-
-
-
     }
 
     public void DestroyAllEnemies()

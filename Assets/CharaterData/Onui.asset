@@ -15,7 +15,6 @@ MonoBehaviour:
   characterName: "\uC624\uB204\uC774"
   characterSprite: {fileID: 2537882373423050008, guid: dd2d53c25ba7a544bba5e38662cef2e7, type: 3}
   animatorController: {fileID: 9100000, guid: 4b7f29a8edd2b9d4e82a9fb8ae8374f6, type: 2}
-  jumpAnimation: {fileID: 7400000, guid: a2b37bc3876dc62498b72b3e12280124, type: 2}
   level: 1
   description: "\uC124\uBA85"
   vitality: 0
@@ -23,4 +22,12 @@ MonoBehaviour:
   agility: 0
   luck: 0
   maxHealth: 0
-  skills: []
+  isUnlocked: 0
+  requiredmachineparts: 1
+  requiredstorybookpages: 1
+  skills:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
