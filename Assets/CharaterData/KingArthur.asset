@@ -23,6 +23,11 @@ MonoBehaviour:
   luck: 0
   maxHealth: 0
   isUnlocked: 0
-  requiredSteelPieces: 2
-  requiredBookPages: 2
-  skills: []
+  requiredmachineparts: 1
+  requiredstorybookpages: 1
+  skills:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
