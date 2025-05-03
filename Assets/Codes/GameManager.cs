@@ -109,6 +109,7 @@ public class GameManager : MonoBehaviour
     public Text DeathStage;
     public Text DeathTime;
 
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
