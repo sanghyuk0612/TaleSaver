@@ -109,7 +109,7 @@ public class Wolf : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
-        anim.SetInteger("skillNum",9);
+        anim.SetInteger("animNum",0);
         StartCoroutine(StopMovement(4f));
     }
 
@@ -156,6 +156,7 @@ public class Wolf : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
         // x축 방향으로만 이동
         if(canMove){
+            anim.SetInteger("animNum",1);
             rb.velocity = new Vector2(direc* moveSpeed, rb.velocity.y);
         }
         else{
@@ -206,7 +207,7 @@ public class Wolf : MonoBehaviour
    IEnumerator mySkill(int skillNum){
         
         if (custumSkillnum==7){
-            skillNum = Random.Range(0,5);
+            skillNum = Random.Range(0,4);
         }
         else{
             skillNum=custumSkillnum;
@@ -217,23 +218,28 @@ public class Wolf : MonoBehaviour
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
         yield return new WaitForSeconds(1f);
 
-        anim.SetInteger("skillNum",skillNum);
+        //anim.SetInteger("skillNum",skillNum);
         switch (skillNum)
         {
         case 0:
+            anim.SetInteger("animNum",1);
             Dash();
             break;
         case 1:
+            anim.SetInteger("skillNum",1);
             SmashAttack();
             break;
         case 2:
+            anim.SetInteger("skillNum",2);
             DownAttack();
             break;
         case 3:
+            anim.SetInteger("skillNum",3);
             FrontAttack();
             break;
         case 4:
-            Jump();
+            //anim.SetInteger("skillNum",4);
+            //Jump();
             break;
         default:
             Debug.Log("잘못된 스킬 번호");
@@ -243,7 +249,8 @@ public class Wolf : MonoBehaviour
     }
     public void ResetToIdle() // 애니메이션 이벤트에서 호출될 함수
     {
-        anim.SetInteger("skillNum", 9); // Idle 상태로 변경
+        anim.SetInteger("skillNum", 0); // Idle 상태로 변경
+        anim.SetInteger("animNum",0);
     }
 private void Jump(){
     
@@ -344,7 +351,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 지속 시간
         yield return new WaitForSeconds(dashTime);
         baseDamage = tmp;
-        anim.SetInteger("skillNum",9);
+        ResetToIdle();
         isDashing = false;
     }
     

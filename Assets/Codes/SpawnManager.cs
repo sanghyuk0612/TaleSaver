@@ -12,6 +12,7 @@ public class SpawnManager : MonoBehaviour
     private GameObject BossPrefab;
     [SerializeField] private GameObject LavaPrefab;
     [SerializeField] private GameObject SlimePrefab;
+    [SerializeField] private GameObject Werewolf;
 
 
     private void Awake()
@@ -91,6 +92,7 @@ public class SpawnManager : MonoBehaviour
         if (BossPrefab != null)
         {
             PortalManager.Instance.updateEnemy(1);
+            BossPrefab = Werewolf;
             Instantiate(BossPrefab, MapManager.Instance.portalPosition+new Vector3(0,5,0), Quaternion.identity);
         }
         else
