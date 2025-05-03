@@ -215,6 +215,7 @@ MonoBehaviour:
   rangedEnemyPrefab: {fileID: 1651906025392740170, guid: 5b3750462f1a61a4fa83e1a05b0dc11d, type: 3}
   LavaPrefab: {fileID: 7066774727544269206, guid: b080fcda2fa68314fa0a98ebfa89a69a, type: 3}
   SlimePrefab: {fileID: 7066774727544269206, guid: 31f22b8f25d9db54ea17870d6615ee99, type: 3}
+  Werewolf: {fileID: 7066774727544269206, guid: 6d6103e32e27de8498843a2b5de69ae3, type: 3}
 --- !u!4 &362523274
 Transform:
   m_ObjectHideFlags: 0
