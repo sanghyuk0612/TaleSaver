@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3783981844393421683}
   - component: {fileID: 5410686797218692123}
   - component: {fileID: 7743908000346961757}
+  - component: {fileID: -3533460885224564785}
   m_Layer: 7
   m_Name: RangeEnemy
   m_TagString: Enemy
@@ -48,6 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51c532dce17317c4a9d50614dbd3a1e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  edgeCheckDistance: 1
+  platformLayer:
+    serializedVersion: 2
+    m_Bits: 0
   baseDamage: 10
   damageMultiplier: {fileID: 11400000, guid: 346e44b35f0a47541abd528d6e601d2e, type: 2}
   attackDamage: 0
@@ -55,6 +60,7 @@ MonoBehaviour:
   healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
   currentHealth: 0
+  itemPrefab: {fileID: 8044234074128147666, guid: 5c9944f6524634fb6887103db97b7143, type: 3}
 --- !u!212 &5980722727141011568
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -96,8 +102,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0.19758391, b: 1, a: 1}
+  m_Sprite: {fileID: 3958438841523354473, guid: f139166ccb10d3646a354be1b317cfbe, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -139,18 +145,18 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 1
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.007126868, y: -0.17105007}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 2.6875, y: 2.875}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.9550322, y: 2.3512964}
   m_EdgeRadius: 0
 --- !u!50 &5410686797218692123
 Rigidbody2D:
@@ -198,3 +204,24 @@ PlatformEffector2D:
   m_UseSideFriction: 0
   m_UseSideBounce: 0
   m_SideArc: 90
+--- !u!95 &-3533460885224564785
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651906025392740170}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

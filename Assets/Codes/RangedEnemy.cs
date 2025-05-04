@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class RangedEnemy : MonoBehaviour
@@ -30,8 +31,12 @@ public class RangedEnemy : MonoBehaviour
     private float nextAttackTime;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    private Animator animator;
     private Transform playerTransform;
     private bool isPlayerInRange = false;
+
+    [Header("Item Drop")]
+    [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
 
     void Start()
     {
@@ -133,6 +138,7 @@ public class RangedEnemy : MonoBehaviour
                 if (canMove)
                 {
                     MoveTowardsPlayer();
+                    animator.SetTrigger("Walk");
                 }
                 else
                 {
@@ -150,6 +156,7 @@ public class RangedEnemy : MonoBehaviour
                 {
                     ShootProjectile();
                     nextAttackTime = Time.time + attackCooldown;
+                    animator.SetTrigger("Attack");
                 }
             }
 
@@ -178,6 +185,29 @@ public class RangedEnemy : MonoBehaviour
         Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
         
         return hit.collider != null;
+    }
+
+    public void ApplyMonsterData(MonsterData data)
+    {
+        // 몬스터 데이터 적용
+        baseHealth = data.health;
+        baseDamage = data.damage;
+        moveSpeed = data.moveSpeed;
+
+        // 스프라이트 및 애니메이션 적용
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+
+        // BoxCollider2D를 스프라이트 크기에 맞춤
+        BoxCollider2D box = GetComponent<BoxCollider2D>();
+        box.size = spriteRenderer.sprite.bounds.size;
+        box.offset = spriteRenderer.sprite.bounds.center;
+
+        if (spriteRenderer != null)
+            spriteRenderer.sprite = data.GetMonsterSprite();
+
+        if (animator != null)
+            animator.runtimeAnimatorController = data.GetAnimatorController(); ;
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
@@ -228,6 +258,7 @@ public class RangedEnemy : MonoBehaviour
     void StopMoving()
     {
         rb.velocity = new Vector2(0,rb.velocity.y);
+        animator.SetTrigger("Idle");
     }
 
     void UpdateFacingDirection()
@@ -265,9 +296,31 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
+        StopMoving();
+        // 애니메이션을 Dead 상태로 전환
+        if (animator != null)
+        {
+            animator.SetTrigger("Dead");
+        }
+
         Debug.Log("RangedEnemy died.");
-        PortalManager.Instance.killEnemy(1);
-        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
-        gameObject.SetActive(false);
+
+        // 게임 오브젝트 제거
+        StartCoroutine(DestroyAfterDelay(1f));
+    }
+
+    // 일정 시간 후 몬스터 제거하는 코루틴
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject); // 완전히 삭제
+
+        // 아이템 드롭
+        if (itemPrefab != null)
+        {
+            DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
+            droppedItem.DropItem();
+        }
+
     }
 }

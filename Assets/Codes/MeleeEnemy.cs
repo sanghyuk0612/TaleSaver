@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class MeleeEnemy : MonoBehaviour
@@ -5,15 +6,11 @@ public class MeleeEnemy : MonoBehaviour
     [Header("Movement")]
     private float moveSpeed;
     private float detectionRange;
-    
+
     [Header("Ground Check")]
     public float groundCheckDistance = 0.2f;
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
-    
-    [Header("Edge Detection")]
-    public float edgeCheckDistance = 1.0f; // 모서리 감지 거리
-    public LayerMask platformLayer; // 플랫폼 레이어
 
     [Header("Collision")]
     public CompositeCollider2D compositeCollider;
@@ -28,8 +25,8 @@ public class MeleeEnemy : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    private Animator animator;
     private Transform playerTransform;
-    private bool isGrounded;
     private bool isFacingRight = true;
 
     [Header("Health")]
@@ -40,7 +37,6 @@ public class MeleeEnemy : MonoBehaviour
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
-    private InventoryManager inventoryManager;
 
     void Start()
     {
@@ -94,20 +90,6 @@ public class MeleeEnemy : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
-
-        // 플랫폼 레이어 설정
-        platformLayer = LayerMask.GetMask("Ground", "Half Tile");
-    }
-
-    private void Awake()
-    {
-        if (InventoryManager.Instance == null)
-        {
-            Debug.LogError("InventoryManager not found in the scene.");
-            return; // InventoryManager가 없으면 메서드 종료
-        }
-
-        inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
     }
 
     void Update()
@@ -116,119 +98,94 @@ public class MeleeEnemy : MonoBehaviour
         if (PlayerController.IsDead || playerTransform == null)
         {
             // 정지
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            StopMoving();
             return;
         }
 
         // 플레이어와의 거리 체크
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
-        
+
         if (distanceToPlayer <= detectionRange)
         {
             // 플레이어 방향으로 이동
             Vector2 direction = (playerTransform.position - transform.position).normalized;
-            
-            // 이동하기 전에 모서리를 확인
-            bool canMove = CheckGroundAhead(direction.x);
-            
-            // 모서리가 감지되지 않아 이동 가능한 경우에만 이동
-            if (canMove)
+
+            animator.SetTrigger("Walk");
+
+            // x축 방향으로만 이동
+            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+
+            // 스프라이트 방향 전환
+            if (direction.x > 0 && !isFacingRight)
             {
-                // x축 방향으로만 이동
-                rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
-                
-                // 스프라이트 방향 전환
-                if (direction.x > 0 && !isFacingRight)
-                {
-                    Flip();
-                }
-                else if (direction.x < 0 && isFacingRight)
-                {
-                    Flip();
-                }
+                Flip();
             }
-            else
+            else if (direction.x < 0 && isFacingRight)
             {
-                // 모서리가 감지되면 정지
-                rb.velocity = new Vector2(0, rb.velocity.y);
+                Flip();
             }
         }
         else
         {
             // 플레이어가 감지 범위를 벗어나면 정지
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            StopMoving();
+            animator.SetTrigger("Idle");
         }
 
-        // 체력 체크
-        if (calculatedHealth <= 0)
-        {
-            DropItem();
-            Destroy(gameObject);
-        }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
-            calculatedHealth = 0;
-            CheckDeath();
+            Die();
         }
     }
-    //테스트용 
-    // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
-    private void CheckDeath()
+
+    public void ApplyMonsterData(MonsterData data)
     {
-        if (calculatedHealth <= 0)
-        {
-            DropItem();
-            Destroy(gameObject);
-        }
+        // 몬스터 데이터 적용
+        baseHealth = data.health;
+        baseDamage = data.damage;
+        moveSpeed = data.moveSpeed;
+
+        // healthMultiplier에 따라 체력 재계산
+        float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
+        calculatedHealth = baseHealth * healthMultiplierValue;
+        currentHealth = calculatedHealth;
+
+
+        // 스프라이트 및 애니메이션 적용
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+
+        RefreshPolygonCollider();
+
+        if (spriteRenderer != null)
+            spriteRenderer.sprite = data.GetMonsterSprite();
+
+        if (animator != null)
+            animator.runtimeAnimatorController = data.GetAnimatorController(); ;
+    }
+
+    void RefreshPolygonCollider()
+    {
+        PolygonCollider2D old = GetComponent<PolygonCollider2D>();
+        if (old != null) Destroy(old);
+
+        gameObject.AddComponent<PolygonCollider2D>();
+    }
+
+
+    public void UpdateHealth(int newHealth)
+    {
+        currentHealth = newHealth;
+        Debug.Log($"Player health updated to: {currentHealth}");
     }
 
     void Flip()
     {
         isFacingRight = !isFacingRight;
         spriteRenderer.flipX = !isFacingRight;
-    }
-
-    void DropItem()
-    {
-        if (inventoryManager == null)
-        {
-            Debug.LogError("InventoryManager is not initialized.");
-            return; // inventoryManager가 null이면 메서드 종료
-        }
-
-        if (itemPrefab == null)
-        {
-            Debug.LogError("Item prefab is not assigned.");
-            return; // itemPrefab이 null이면 메서드 종료
-        }
-
-        string itemName = inventoryManager.GetItemNameById(0);
-        
-        // 랜덤 ID 생성 (0~4 중 하나)
-        int randomId = Random.Range(0, 5);
-
-        // 드랍 위치
-        Vector3 dropPosition = transform.position;
-
-        // 아이템 생성
-        GameObject droppedItem = Instantiate(itemPrefab, dropPosition, Quaternion.identity);
-
-        // 아이템 초기화
-        DroppedItem itemComponent = droppedItem.GetComponent<DroppedItem>();
-        if (itemComponent != null)
-        {
-            itemName = inventoryManager.GetItemNameById(randomId); // ID에 따른 이름
-            itemComponent.Initialize(randomId, itemName);
-        }
-        else
-        {
-            Debug.LogError("DroppedItem component not found on the instantiated item.");
-        }
-
-        Debug.Log($"Dropped {itemName} at {dropPosition}");
     }
 
     // 디버그용 시각화
@@ -258,7 +215,7 @@ public class MeleeEnemy : MonoBehaviour
                 {
                     Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
                     knockbackDir.y = 0.5f;
-                    
+
                     damageable.TakeDamage(attackDamage, knockbackDir, knockbackForce);
                     nextDamageTime = Time.time + damageCooldown;
                 }
@@ -278,29 +235,37 @@ public class MeleeEnemy : MonoBehaviour
         }
     }
 
-    private void Die()
+    void StopMoving()
     {
-        Debug.Log("MeleeEnemy died.");
-        PortalManager.Instance.killEnemy(1);
-        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
-        gameObject.SetActive(false);
+        rb.velocity = new Vector2(0, rb.velocity.y);
+        animator.SetTrigger("Idle");
     }
 
-    // 전방에 지면이 있는지 확인하는 메서드
-    private bool CheckGroundAhead(float directionX)
+    private void Die()
     {
-        // 캐릭터의 발 위치 계산
-        Vector2 footPosition = new Vector2(transform.position.x, transform.position.y - 0.5f);
-        
-        // 이동 방향으로의 레이캐스트 방향 설정
-        Vector2 rayDirection = new Vector2(directionX, -0.5f).normalized;
-        
-        // 레이캐스트를 통해 전방의 지면 확인
-        RaycastHit2D hit = Physics2D.Raycast(footPosition, rayDirection, edgeCheckDistance, platformLayer);
-        
-        // 디버그용 시각화
-        Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
-        
-        return hit.collider != null;
+        StopMoving();
+        // 애니메이션을 Dead 상태로 전환
+        if (animator != null)
+        {
+            animator.SetTrigger("Dead");
+        }
+
+        Debug.Log("MeleeEnemy died.");
+
+        // 5초 후 게임 오브젝트 제거
+        StartCoroutine(DestroyAfterDelay(1f));
+    }
+
+    // 일정 시간 후 몬스터 제거하는 코루틴
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject); // 완전히 삭제
+        // 아이템 드롭
+        if (itemPrefab != null)
+        {
+            DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
+            droppedItem.DropItem();
+        }
     }
 }
