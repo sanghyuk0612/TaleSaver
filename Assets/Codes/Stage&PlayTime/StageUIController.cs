@@ -128,6 +128,25 @@ public class StageUIController : MonoBehaviour
         }
     }
 
+    //Death Stage 넘겨주기용
+    public string GetFormattedStageName()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "BossStage")
+            return "Boss";
+
+        int stageIndex = GameManager.Instance.Stage;
+        string locationName = GetLocationName(MapManager.Instance.location);
+
+        if (stageIndex == 0)
+            return $"{locationName} Store";
+        else if (stageIndex >= 1 && stageIndex <= 9)
+            return $"{locationName} {stageIndex}";
+        else
+            return "Unknown";
+    }
+
     private void SaveProgress()
     {
         int stageIndex = GameManager.Instance.Stage;

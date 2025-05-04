@@ -17,6 +17,8 @@ public class PlayerDetailUI : MonoBehaviour
 
     public GameObject itemPrefab;         // Inspector에서 프리팹 연결
     public Transform itemContainer;       // itemPrefab들이 들어갈 부모 (ex: ItemContent)
+    public GameObject noDataText;  // Inspector에서 NoDataText 오브젝트 연결
+
 
     public void ClearItems()
     {
@@ -41,6 +43,7 @@ public class PlayerDetailUI : MonoBehaviour
         playerCharacterText.text = data.ContainsKey("character") ? data["character"].ToString() : "Unknown";
 
 
+        bool hasValidData = false; //추가
 
         if (data.TryGetValue("stats", out object statsObj) && statsObj is Dictionary<string, object> stats)
         {
@@ -56,33 +59,48 @@ public class PlayerDetailUI : MonoBehaviour
         {
             foreach (var entry in itemMap)
             {
+
                 var itemData = entry.Value as Dictionary<string, object>;
                 if (itemData != null)
                 {
-                    // 로그 1: 아이템 키 + name, image
-                    string itemName = itemData.ContainsKey("name") ? itemData["name"].ToString() : "이름 없음";
-                    string imageUrl = itemData.ContainsKey("image") ? itemData["image"].ToString() : "(없음)";
-                    Debug.Log($"[ 아이템 로딩] key={entry.Key}, name={itemName}, image={imageUrl}");
-
                     GameObject itemGO = Instantiate(itemPrefab, itemContainer);
-                    var itemImage = itemGO.transform.Find("ItemImage")?.GetComponent<Image>();
                     var itemText = itemGO.transform.Find("ItemName")?.GetComponent<Text>();
 
                     if (itemText != null)
                     {
-                        //itemText.text = itemData.ContainsKey("name") ? itemData["name"].ToString() : "이름 없음";
+                        string itemName = itemData.ContainsKey("name") ? itemData["name"].ToString() : "이름 없음";
                         itemText.text = itemName;
-                        itemText.color = Color.black; // 혹시 투명할까봐 강제 설정
-                        Debug.Log($"[텍스트 설정됨] {itemName}");
-                        Debug.Log($"[텍스트 위치] anchoredPos={itemText.rectTransform.anchoredPosition}, size={itemText.rectTransform.sizeDelta}");
-
+                        itemText.color = Color.black;
                     }
 
-
-                    else
+                    hasValidData = true;
+                    /*var itemData = entry.Value as Dictionary<string, object>;
+                    if (itemData != null)
                     {
-                        Debug.LogError($"[itemText == null] → 'ItemName' 오브젝트를 찾지 못했습니다.");
-                    }
+                        // 로그 1: 아이템 키 + name, image
+                        string itemName = itemData.ContainsKey("name") ? itemData["name"].ToString() : "이름 없음";
+                        string imageUrl = itemData.ContainsKey("image") ? itemData["image"].ToString() : "(없음)";
+                        Debug.Log($"[ 아이템 로딩] key={entry.Key}, name={itemName}, image={imageUrl}");
+
+                        GameObject itemGO = Instantiate(itemPrefab, itemContainer);
+                        var itemImage = itemGO.transform.Find("ItemImage")?.GetComponent<Image>();
+                        var itemText = itemGO.transform.Find("ItemName")?.GetComponent<Text>();
+
+                        if (itemText != null)
+                        {
+                            //itemText.text = itemData.ContainsKey("name") ? itemData["name"].ToString() : "이름 없음";
+                            itemText.text = itemName;
+                            itemText.color = Color.black; // 혹시 투명할까봐 강제 설정
+                            Debug.Log($"[텍스트 설정됨] {itemName}");
+                            Debug.Log($"[텍스트 위치] anchoredPos={itemText.rectTransform.anchoredPosition}, size={itemText.rectTransform.sizeDelta}");
+
+                        }
+
+
+                        else
+                        {
+                            Debug.LogError($"[itemText == null] → 'ItemName' 오브젝트를 찾지 못했습니다.");
+                        }*/
 
                     //if (itemImage != null)
                     //{
@@ -104,6 +122,11 @@ public class PlayerDetailUI : MonoBehaviour
                     }
                 }
             }
+        }
+        // 안내 텍스트 처리
+        if (noDataText != null)
+        {
+            noDataText.SetActive(!hasValidData); // 데이터 없으면 보이기
         }
     }
 
