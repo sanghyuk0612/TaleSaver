@@ -192,7 +192,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 0.56, y: 0.55}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.1
 --- !u!251 &1848237136695092566
 PlatformEffector2D:
   m_ObjectHideFlags: 0
@@ -246,6 +246,7 @@ MonoBehaviour:
   DownAttackPrefab: {fileID: 5605060386581786699, guid: 1351cce8410ee04458c6623aec3e0ad0, type: 3}
   FrontAttackPrefab: {fileID: 5605060386581786699, guid: f8ca09712b79c1d48967be7a3b65f8c6, type: 3}
   anim: {fileID: 0}
+  SlimePrefab: {fileID: 7066774727544269206, guid: 31f22b8f25d9db54ea17870d6615ee99, type: 3}
   skillInterval: 3
   custumSkillnum: 7
 --- !u!95 &4323631921685023803

@@ -52,6 +52,7 @@ public class Wolf : MonoBehaviour
     private Transform Pivot;
     [Header("Animation")]
     public Animator anim;
+    [SerializeField] private GameObject SlimePrefab;
     
 
     
@@ -127,8 +128,10 @@ public class Wolf : MonoBehaviour
     Vector2 direction;
     bool canMove;
     private int direc;
+    private bool isDead = false; 
     void Update()
     {
+
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
@@ -160,6 +163,7 @@ public class Wolf : MonoBehaviour
             rb.velocity = new Vector2(direc* moveSpeed, rb.velocity.y);
         }
         else{
+            anim.SetInteger("animNum",0);
             rb.velocity =new Vector2(0, rb.velocity.y);
         }
             // 스프라이트 방향 전환
@@ -175,10 +179,9 @@ public class Wolf : MonoBehaviour
             rb.velocity = new Vector2(direc * dashForce, rb.velocity.y);
         }
         // 체력 체크
-        if (calculatedHealth <= 0)
+        if (calculatedHealth <= 0&&!isDead)
         {
-            DropItem();
-            Destroy(gameObject);
+            CheckDeath();
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
@@ -186,7 +189,7 @@ public class Wolf : MonoBehaviour
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
-            CheckDeath();
+            
         }
     }
     void Flip()
@@ -227,17 +230,17 @@ public class Wolf : MonoBehaviour
             break;
         case 1:
             anim.SetInteger("skillNum",1);
-            FrontAttack();
+            //FrontAttack();
             //SmashAttack();
             break;
         case 2:
             anim.SetInteger("skillNum",2);
-            FrontAttack();
+            //FrontAttack();
             //DownAttack();
             break;
         case 3:
             anim.SetInteger("skillNum",3);
-            FrontAttack();
+            //FrontAttack();
             break;
         case 4:
             //anim.SetInteger("skillNum",4);
@@ -265,11 +268,11 @@ private void FrontAttack(){
     // 이펙트 생성
     if (FrontAttackPrefab != null)
     {
-        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direc,0.3f,0), Quaternion.identity);
+        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2.5f*direc,0.3f,0), Quaternion.identity);
         effect.transform.SetParent(transform);
         //StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
         
-        Destroy(effect, 0.6f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
     Debug.Log("휘두르기 사용");
@@ -278,14 +281,14 @@ private void FrontAttack(){
 
 private void SmashAttack()
 {
-    StartCoroutine(StopMovement(0.5f));
+    //StartCoroutine(StopMovement(0.5f));
     // 이펙트 생성
     
     if (SlimeSmashPrefab != null)
     {
         GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position+new Vector3(direc*1,0,0), Quaternion.identity);
         effect.transform.SetParent(transform);
-        Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.3f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
     //anim.SetInteger("skillNum",9);
@@ -361,12 +364,13 @@ private IEnumerator StopMovement(float stopDuration)
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
     private void CheckDeath()
     {
-        if (calculatedHealth <= 0)
-        {
-            DropItem();
-            Destroy(gameObject);
-            anim.SetTrigger("death");
-        }
+        isDead=true;
+        anim.SetTrigger("death");
+    }
+    public void death(){
+        DropItem();
+        Destroy(gameObject);
+        Instantiate(SlimePrefab, transform.position, Quaternion.identity);
     }
 
     
