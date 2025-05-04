@@ -133,7 +133,7 @@ public class Wolf : MonoBehaviour
     {
 
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
-        if (PlayerController.IsDead || playerTransform == null)
+        if (PlayerController.IsDead || playerTransform == null || isDead)
         {
             // 정지
             rb.velocity = new Vector2(0, rb.velocity.y);
@@ -179,7 +179,7 @@ public class Wolf : MonoBehaviour
             rb.velocity = new Vector2(direc * dashForce, rb.velocity.y);
         }
         // 체력 체크
-        if (calculatedHealth <= 0&&!isDead)
+        if (calculatedHealth <= 0)
         {
             CheckDeath();
         }
