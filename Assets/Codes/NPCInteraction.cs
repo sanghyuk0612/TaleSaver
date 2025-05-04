@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class NPCInteraction : MonoBehaviour
 {
+    public static NPCInteraction Instance { get; private set; }
+
     public GameObject dialoguePanel;
     public Text dialogueText;
     public Button nextButton;
@@ -25,24 +27,61 @@ public class NPCInteraction : MonoBehaviour
     private bool hasInteractedOnce = false; // NPC와 첫 대화 완료 여부
     private static bool isDialogueActive = false; // 대화창 활성화 상태
 
+    private GameObject player;
+    public bool hasHealed = false;
+
     private enum DialogueState { Normal, Event, Yes, No, Exception }
     private DialogueState currentState = DialogueState.Normal;
 
+    private bool isPlayerInRange = false;
+
     private void Start()
     {
-        nextButton.onClick.AddListener(DisplayNextDialogue);
-        yesButton.onClick.AddListener(OnYesButtonClicked);
-        noButton.onClick.AddListener(OnNoButtonClicked);
+        player = GameObject.FindGameObjectWithTag("Player");
+        hasHealed = false;
 
-        dialoguePanel.SetActive(false);
-        yesButton.gameObject.SetActive(false);
-        noButton.gameObject.SetActive(false);
+        if (player == null)
+        {
+            Debug.LogWarning("Player not found! Make sure the player object has the 'Player' tag.");
+        }
+    }
+
+    private void Update()
+    {
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.Z))
+        {
+            OnNPCButtonClicked();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInRange = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInRange = false;
+        }
     }
 
     public void OnNPCButtonClicked()
     {
+        Debug.Log("OnNPCButtonClicked!");
+
         if (isDialogueActive)
             return; // 대화창이 열려 있으면 클릭 무시
+
+        if (player != null)
+        {
+            player.GetComponent<PlayerController>().canProcessInput = false;
+        }
+
 
         if (hasInteractedOnce && isEventNPC)
         {
@@ -54,9 +93,34 @@ public class NPCInteraction : MonoBehaviour
             hasInteractedOnce = true; // 첫 대화 완료로 표시
         }
 
-        isDialogueActive = true; // 대화 활성화
+        isDialogueActive = true;
+        HideYesNoButtons();
         dialoguePanel.SetActive(true);
         DisplayNextDialogue();
+    }
+
+    private void RestoreHealth()
+    {
+        if (hasHealed) return; // 이미 회복했으면 무시
+
+        player.GetComponent<PlayerController>().RestoreHealth(CharacterSelectionData.Instance.selectedCharacterData.maxHealth);
+        Debug.Log("Player HP fully restored!");
+        hasHealed = true;
+
+    }
+
+    private void NPCEvent()
+    {
+        // 랜덤 아이템 지급
+        if (InventoryManager.Instance != null)
+        {
+            int randomQuantity = Random.Range(0, 5);
+            int randomId = Random.Range(0, 5);
+            string randomItemName = InventoryManager.Instance.GetItemNameById(randomId);
+            InventoryManager.Instance.AddItem(randomId, randomQuantity);
+
+            Debug.Log($"{randomItemName} 아이템을 {randomQuantity} 개 얻음!");
+        }
     }
 
     private void SetDialogueState(DialogueState newState)
@@ -99,6 +163,7 @@ public class NPCInteraction : MonoBehaviour
 
     private void EndOrTransitionDialogue()
     {
+        RestoreHealth();
         if (currentState == DialogueState.Normal && isEventNPC && !hasEventOccurred)
         {
             if (Random.value < eventProbability)
@@ -131,6 +196,7 @@ public class NPCInteraction : MonoBehaviour
 
     public void OnYesButtonClicked()
     {
+        NPCEvent(); // Yes 선택 시 이벤트 실행
         SetDialogueState(DialogueState.Yes);
         HideYesNoButtons();
         nextButton.gameObject.SetActive(true);
@@ -154,8 +220,14 @@ public class NPCInteraction : MonoBehaviour
     private void EndDialogue()
     {
         dialoguePanel.SetActive(false);
+        isDialogueActive = false;
         HideYesNoButtons();
         currentState = DialogueState.Normal;
-        isDialogueActive = false; // 대화 비활성화
+
+        if (player != null)
+        {
+            player.GetComponent<PlayerController>().canProcessInput = true;
+        }
+
     }
 }

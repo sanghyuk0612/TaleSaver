@@ -84,9 +84,6 @@ public class GameManager : MonoBehaviour
         get => currentPlayerHealth;
         set => currentPlayerHealth = value;
     }
-    
-    
-
 
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
@@ -405,6 +402,8 @@ public class GameManager : MonoBehaviour
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
 
+        DestroyNPC();
+
         // 플레이어 위치 리셋
         ResetPlayerPosition();
         PortalManager.Instance.enemyNumber=0;
@@ -432,6 +431,17 @@ public class GameManager : MonoBehaviour
             Destroy(items.gameObject);
         }
     }
+
+    public void DestroyNPC()
+    {
+        foreach (var npc in FindObjectsOfType<NPCInteraction>())
+        {
+            Debug.Log("Destroy NPC");
+            Destroy(npc.gameObject);
+
+        }
+    }
+
 
     private void ResetPlayerPosition()
     {

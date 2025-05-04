@@ -14,7 +14,10 @@ public class InventoryManager : MonoBehaviour
         { 1, "Tree" },
         { 2, "Skin" },
         { 3, "Steel" },
-        { 4, "Gold" }
+        { 4, "Gold" },
+        { 5, "Battery" },
+        { 6, "SteelPiece" },
+        { 7, "BookPage" }
     };
 
     private void Awake()

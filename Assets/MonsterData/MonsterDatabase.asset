@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccbce8c9930cd4d05aec1e313a5866ec, type: 3}
+  m_Name: MonsterDatabase
+  m_EditorClassIdentifier: 
+  spawnDataList:
+  - mapName: Cave
+    monsters:
+    - {fileID: 11400000, guid: 43e34458503e74574b3bb0f336b20ec2, type: 2}
+    - {fileID: 11400000, guid: 8706880a4a0d14741b7d50a4f15a44f5, type: 2}
+    - {fileID: 11400000, guid: a886373b6e5594aaaa9581c63efcbfbf, type: 2}
+  - mapName: Lava
+    monsters:
+    - {fileID: 11400000, guid: ea4b5aedfef334af18053a4c9653e425, type: 2}
+    - {fileID: 11400000, guid: da77c0d18937043bf9dffaa91f96758b, type: 2}
+    - {fileID: 11400000, guid: a886373b6e5594aaaa9581c63efcbfbf, type: 2}
+  - mapName: Forest
+    monsters:
+    - {fileID: 11400000, guid: 192a36cac922c48eb931c099ddd5a526, type: 2}
+    - {fileID: 11400000, guid: 6fd424706db5a4a3599b77d00ff3c6e6, type: 2}
+    - {fileID: 11400000, guid: 61af4ee420235464daa7d77b56fa893b, type: 2}
+  - mapName: Ice
+    monsters:
+    - {fileID: 11400000, guid: da77c0d18937043bf9dffaa91f96758b, type: 2}
+    - {fileID: 11400000, guid: 6edf8a01bb0f8464e85302ee32302c45, type: 2}
+    - {fileID: 11400000, guid: cb0e2941225424a2b9fcc40cdfab5659, type: 2}
+  - mapName: Desert
+    monsters:
+    - {fileID: 11400000, guid: 6c72af21f7f5c4da695a8cb7ba40ded1, type: 2}
+    - {fileID: 11400000, guid: 3895dd4fa14d8426f946f93cc79b9cf4, type: 2}
+    - {fileID: 11400000, guid: 575fd3289182a45baa8fcfa3809c6b49, type: 2}
+  - mapName: Lab
+    monsters:
+    - {fileID: 11400000, guid: f44f0ef1744f648e2a3c4d3dc8417b91, type: 2}
+    - {fileID: 11400000, guid: 950696ac5feec4c1f8fba2f965222bff, type: 2}
