@@ -660,6 +660,7 @@ MonoBehaviour:
   statLuckText: {fileID: 733091462}
   itemPrefab: {fileID: 1176821382}
   itemContainer: {fileID: 470039330}
+  noDataText: {fileID: 1290192918}
   itemSlots: []
 --- !u!1 &357339489
 GameObject:
@@ -1528,7 +1529,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 80734806}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99999547
+  m_Size: 0.9999731
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1616,7 +1617,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00004993815}
+  m_AnchoredPosition: {x: 0, y: 0.00017915752}
   m_SizeDelta: {x: 0, y: 367}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &960876368

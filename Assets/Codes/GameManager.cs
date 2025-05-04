@@ -106,6 +106,7 @@ public class GameManager : MonoBehaviour
     public Text DeathStage;
     public Text DeathTime;
 
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -684,8 +685,17 @@ public class GameManager : MonoBehaviour
         // 스테이지 표시
         if (DeathStage != null)
         {
-            int stage = GameManager.Instance.Stage;
-            DeathStage.text = $"Stage {stage}";
+            StageUIController ui = FindObjectOfType<StageUIController>();
+            if (ui != null)
+            {
+                DeathStage.text = ui.GetFormattedStageName();
+            }
+            else
+            {
+                // fallback: 기본 텍스트
+                int stage = GameManager.Instance.Stage;
+                DeathStage.text = $"Stage {stage}";
+            }
         }
 
         // 시간 표시
@@ -724,7 +734,10 @@ public class GameManager : MonoBehaviour
     {
         // 시간 스케일 복원
         Time.timeScale = 1f;
-        
+
+        // 플레이타임 초기화 추가
+        playTime = 0f;
+
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
     }

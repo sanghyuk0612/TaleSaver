@@ -1,9 +1,28 @@
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class StageUIController : MonoBehaviour
 {
+
+    private static StageUIController instance;
+
+    void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+
+            // Canvas나 UIRoot 전체를 유지하기 위해 root 기준
+            DontDestroyOnLoad(transform.root.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject); // 중복 생성 방지
+        }
+    }
+
     public Text NowStage;
     public Text PlayTime;
 
@@ -67,16 +86,65 @@ public class StageUIController : MonoBehaviour
 
     private void UpdateStageText()
     {
-        int stageIndex = GameManager.Instance.Stage;
+        string sceneName = SceneManager.GetActiveScene().name;
 
-        if (stageIndex >= 0 && stageIndex < stages.Length)
+        // Boss Scene이면 Boss로 고정 표시
+        if (sceneName == "BossStage")
         {
-            NowStage.text = stages[stageIndex];
+            NowStage.text = "Boss";
+            return;
+        }
+
+        int stageIndex = GameManager.Instance.Stage;
+        int chapter = GameManager.Instance.Chapter;
+
+        string locationName = GetLocationName(MapManager.Instance.location);
+
+        if (stageIndex == 0)
+        {
+            NowStage.text = $"{locationName} Store";
+        }
+
+        else if (stageIndex >= 1 && stageIndex <= 9)
+        {
+            NowStage.text = $"{locationName} {stageIndex}";
         }
         else
         {
             NowStage.text = "Unknown";
         }
+    }
+
+    private string GetLocationName(int location)
+    {
+        switch (location){
+            case 0: return "Cave";
+            case 1: return "Desert";
+            case 2: return "Forest";
+            case 3: return "Ice";
+            case 4: return "Lab";
+            case 5: return "Lava";
+            default: return "Unknown";
+        }
+    }
+
+    //Death Stage 넘겨주기용
+    public string GetFormattedStageName()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "BossStage")
+            return "Boss";
+
+        int stageIndex = GameManager.Instance.Stage;
+        string locationName = GetLocationName(MapManager.Instance.location);
+
+        if (stageIndex == 0)
+            return $"{locationName} Store";
+        else if (stageIndex >= 1 && stageIndex <= 9)
+            return $"{locationName} {stageIndex}";
+        else
+            return "Unknown";
     }
 
     private void SaveProgress()
