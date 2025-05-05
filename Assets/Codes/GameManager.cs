@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
-    [SerializeField] public int location =5;
+    [SerializeField] public int location = 0;
 
     private int lastStageBeforeStore = -1;
 
@@ -192,6 +192,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        location = Random.Range(0, 6); // location 랜덤
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기

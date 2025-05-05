@@ -830,7 +830,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 999
+  m_Text: 0
 --- !u!222 &576923599
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3743,7 +3743,6 @@ MonoBehaviour:
     steelPrice: 95
     gold: 10
     goldPrice: 165
-    money: 0
     battery: 0
     machineparts: 1
     storybookpages: 1

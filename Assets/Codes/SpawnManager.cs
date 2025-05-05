@@ -54,7 +54,7 @@ public class SpawnManager : MonoBehaviour
 
         // 몬스터 생성
         GameObject enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
-
+        PortalManager.Instance.updateEnemy(1);
         if (!monsterData.isRanged)
         {
             // 근거리 몬스터 설정

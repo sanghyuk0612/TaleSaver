@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+
 public class RangedEnemy : MonoBehaviour
 {
     [Header("Movement")]
@@ -138,7 +139,6 @@ public class RangedEnemy : MonoBehaviour
                 if (canMove)
                 {
                     MoveTowardsPlayer();
-                    animator.SetTrigger("Walk");
                 }
                 else
                 {
@@ -198,16 +198,21 @@ public class RangedEnemy : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        // BoxCollider2D를 스프라이트 크기에 맞춤
-        BoxCollider2D box = GetComponent<BoxCollider2D>();
-        box.size = spriteRenderer.sprite.bounds.size;
-        box.offset = spriteRenderer.sprite.bounds.center;
+        RefreshPolygonCollider();
 
         if (spriteRenderer != null)
             spriteRenderer.sprite = data.GetMonsterSprite();
 
         if (animator != null)
             animator.runtimeAnimatorController = data.GetAnimatorController(); ;
+    }
+
+    void RefreshPolygonCollider()
+    {
+        PolygonCollider2D old = GetComponent<PolygonCollider2D>();
+        if (old != null) Destroy(old);
+
+        gameObject.AddComponent<PolygonCollider2D>();
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
@@ -253,6 +258,7 @@ public class RangedEnemy : MonoBehaviour
         // x축 방향으로만 이동하도록 수정
         float directionX = playerTransform.position.x > transform.position.x ? 1f : -1f;
         rb.velocity = new Vector2(directionX * moveSpeed, rb.velocity.y); // Y속도 유지
+        animator.SetTrigger("Walk");
     }
 
     void StopMoving()
@@ -297,14 +303,11 @@ public class RangedEnemy : MonoBehaviour
     private void Die()
     {
         StopMoving();
-        // 애니메이션을 Dead 상태로 전환
-        if (animator != null)
-        {
-            animator.SetTrigger("Dead");
-        }
+        animator.SetTrigger("Dead");
 
         Debug.Log("RangedEnemy died.");
-
+        PortalManager.Instance.killEnemy(1);
+        
         // 게임 오브젝트 제거
         StartCoroutine(DestroyAfterDelay(1f));
     }

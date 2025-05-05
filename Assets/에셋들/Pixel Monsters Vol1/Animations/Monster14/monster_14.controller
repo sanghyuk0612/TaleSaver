@@ -163,6 +163,9 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
+    m_ConditionEvent: Dead
+    m_EventTreshold: 0
+  - m_ConditionMode: 1
     m_ConditionEvent: Transition_Up
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
@@ -271,7 +274,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Dead
+    m_ConditionEvent: Idle
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 9048730932613847001}

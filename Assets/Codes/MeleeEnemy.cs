@@ -12,6 +12,10 @@ public class MeleeEnemy : MonoBehaviour
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
 
+    [Header("Edge Detection")]
+    public float edgeCheckDistance = 1.0f; // 모서리 감지 거리
+    public LayerMask platformLayer; // 플랫폼 레이어
+
     [Header("Collision")]
     public CompositeCollider2D compositeCollider;
 
@@ -110,34 +114,49 @@ public class MeleeEnemy : MonoBehaviour
             // 플레이어 방향으로 이동
             Vector2 direction = (playerTransform.position - transform.position).normalized;
 
-            animator.SetTrigger("Walk");
 
-            // x축 방향으로만 이동
-            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+            // 이동하기 전에 모서리를 확인
+            bool canMove = CheckGroundAhead(direction.x);
 
-            // 스프라이트 방향 전환
-            if (direction.x > 0 && !isFacingRight)
+            // 모서리가 감지되지 않아 이동 가능한 경우에만 이동
+            if (canMove)
             {
+                animator.SetTrigger("Walk");
                 Flip();
-            }
-            else if (direction.x < 0 && isFacingRight)
-            {
-                Flip();
-            }
-        }
-        else
-        {
-            // 플레이어가 감지 범위를 벗어나면 정지
-            StopMoving();
-            animator.SetTrigger("Idle");
-        }
+                // x축 방향으로만 이동
+                rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
 
-        //테스트용
-        // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            Debug.Log("Debug: Monster health set to 0 manually.");
-            Die();
+                // 스프라이트 방향 전환
+                if (direction.x > 0 && !isFacingRight)
+                {
+                    Flip();
+                }
+                else if (direction.x < 0 && isFacingRight)
+                {
+                    Flip();
+                }
+            }
+            else
+            {
+                // 플레이어가 감지 범위를 벗어나면 정지
+                StopMoving();
+            }
+
+            /*
+            // 체력 체크
+            if (calculatedHealth <= 0)
+            {
+                Die();
+            }
+            */
+
+            //테스트용
+            // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                Debug.Log("Debug: Monster health set to 0 manually.");
+                Die();
+            }
         }
     }
 
@@ -239,6 +258,24 @@ public class MeleeEnemy : MonoBehaviour
     {
         rb.velocity = new Vector2(0, rb.velocity.y);
         animator.SetTrigger("Idle");
+    }
+
+    // 전방에 지면이 있는지 확인하는 메서드
+    private bool CheckGroundAhead(float directionX)
+    {
+        // 캐릭터의 발 위치 계산
+        Vector2 footPosition = new Vector2(transform.position.x, transform.position.y - 0.5f);
+
+        // 이동 방향으로의 레이캐스트 방향 설정
+        Vector2 rayDirection = new Vector2(directionX, -0.5f).normalized;
+
+        // 레이캐스트를 통해 전방의 지면 확인
+        RaycastHit2D hit = Physics2D.Raycast(footPosition, rayDirection, edgeCheckDistance, platformLayer);
+
+        // 디버그용 시각화
+        Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
+
+        return hit.collider != null;
     }
 
     private void Die()

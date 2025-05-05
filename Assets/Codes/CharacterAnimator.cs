@@ -6,7 +6,6 @@ public class CharacterAnimator : MonoBehaviour
 {
     [SerializeField] private CharacterData characterData;
     private Animator animator;
-    private int i;
 
     private void Awake()
     {
