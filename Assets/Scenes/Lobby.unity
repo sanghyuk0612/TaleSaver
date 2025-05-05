@@ -3603,7 +3603,6 @@ MonoBehaviour:
     steelPrice: 95
     gold: 10
     goldPrice: 165
-    money: 0
     battery: 0
     machineparts: 1
     storybookpages: 1

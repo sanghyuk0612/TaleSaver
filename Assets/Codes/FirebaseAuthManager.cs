@@ -43,14 +43,19 @@ public class FirebaseAuthManager : MonoBehaviour
         firestore = FirebaseFirestore.DefaultInstance;
         isFirebaseReady = true;
 
+        if (currentUser != null)
+            Debug.Log("현재 로그인된 UID: " + currentUser.UserId);
+        else
+            Debug.Log("현재 로그인된 사용자 없음");
+
         Debug.Log("OnFirebaseInitialized 호출됨, Firebase 준비 완료!");
         Debug.Log("현재 로그인된 UID: " + auth.CurrentUser?.UserId);
     }
     public bool IsLoggedIn()
     {
-        if (!isFirebaseReady && currentUser == null)
+        if (!isFirebaseReady || currentUser == null)
         {
-            Debug.LogWarning("IsLoggedIn(): 아직 Firebase 준비 안 됐거나 currentUser가 null입니다.");
+            Debug.LogWarning("IsLoggedIn(): Firebase 미초기화 또는 currentUser가 null입니다.");
             return false;
         }
         return true;
@@ -286,24 +291,17 @@ public class FirebaseAuthManager : MonoBehaviour
             }
         });
     }
-    public IEnumerator WaitUntilUserIsReady(System.Action onReady)
+    public IEnumerator WaitUntilUserIsReady(Action onReady)
     {
-        float timeout = 5f;
-        float timer = 0f;
+        // currentUser가 null이거나 UID가 비어있으면 기다림
+        yield return new WaitUntil(() =>
+            FirebaseAuth.DefaultInstance.CurrentUser != null &&
+            !string.IsNullOrEmpty(FirebaseAuth.DefaultInstance.CurrentUser.UserId)
+        );
 
-        while (!isFirebaseReady || currentUser == null)
-        {
-            Debug.Log("? WaitUntilUserIsReady: 로그인 준비 기다리는 중...");
-            timer += Time.deltaTime;
-            if (timer > timeout)
-            {
-                Debug.LogError("? WaitUntilUserIsReady: 로그인 준비 시간 초과!");
-                yield break;
-            }
-            yield return null;
-        }
-
-        Debug.Log("? WaitUntilUserIsReady: currentUser 준비 완료!");
+        // 완료되면 currentUser 설정하고 콜백 실행
+        currentUser = FirebaseAuth.DefaultInstance.CurrentUser;
+        Debug.Log("? 로그인 준비 완료! UID: " + currentUser.UserId);
         onReady?.Invoke();
     }
 }
