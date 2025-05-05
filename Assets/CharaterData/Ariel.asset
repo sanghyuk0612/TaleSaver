@@ -22,7 +22,7 @@ MonoBehaviour:
   agility: 0
   luck: 0
   maxHealth: 100
-  isUnlocked: 1
+  isUnlocked: 0
   requiredmachineparts: 1
   requiredstorybookpages: 1
   skills:

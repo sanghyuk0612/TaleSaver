@@ -3,6 +3,7 @@ using UnityEngine;
 using Firebase;
 using Firebase.Analytics;
 using Firebase.Extensions;
+using Firebase.Auth;
 
 public class FirebaseInit : MonoBehaviour
 {
@@ -12,8 +13,6 @@ public class FirebaseInit : MonoBehaviour
 
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
-            Debug.Log("?? FirebaseApp.CheckAndFixDependenciesAsync 완료됨");
-
             var dependencyStatus = task.Result;
 
             if (dependencyStatus == DependencyStatus.Available)
@@ -22,14 +21,42 @@ public class FirebaseInit : MonoBehaviour
                 FirebaseAnalytics.LogEvent("unity_start");
                 Debug.Log("? Firebase 초기화 완료!");
 
-                // 여기서 코루틴 실행
-                StartCoroutine(WaitAndInitAuth());
+                FirebaseAuth.DefaultInstance.SignOut();
+                Debug.Log("?? Firebase 자동 로그아웃 실행");
+
+                // ?? logout 반영 기다린 뒤 초기화
+                StartCoroutine(WaitForLogoutThenInitAuth());
             }
             else
             {
                 Debug.LogError($"? Firebase 초기화 실패: {dependencyStatus}");
             }
         });
+    }
+
+    private IEnumerator WaitForLogoutThenInitAuth()
+    {
+        float timeout = 5f;
+        float timer = 0f;
+
+        // ?? SignOut()이 비동기라서 CurrentUser가 null이 될 때까지 기다림
+        while (FirebaseAuth.DefaultInstance.CurrentUser != null && timer < timeout)
+        {
+            Debug.Log($"? 로그아웃 대기 중... UID: {FirebaseAuth.DefaultInstance.CurrentUser.UserId}");
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        if (FirebaseAuth.DefaultInstance.CurrentUser == null)
+        {
+            Debug.Log("? 로그아웃 반영 완료. 초기화로 진행합니다.");
+        }
+        else
+        {
+            Debug.LogWarning("?? 로그아웃 반영되지 않음. 시간 초과로 강제 진행합니다.");
+        }
+
+        StartCoroutine(WaitAndInitAuth());  // 기존 초기화 코루틴 실행
     }
 
     IEnumerator WaitAndInitAuth()
