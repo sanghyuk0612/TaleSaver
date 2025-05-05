@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07f0517b1bba343169285a51e69c6e71, type: 3}
   m_Name: Monster_12
   m_EditorClassIdentifier: 
-  monsterName: 
-  health: 0
-  damage: 0
-  moveSpeed: 0
+  monsterName: Cave_Monster_12
+  health: 100
+  damage: 10
+  moveSpeed: 7
   isRanged: 1
   MonsterPrefab: {fileID: 5003909713395720507, guid: bc7caac1e54c9dd4ab1960e8e11c7060, type: 3}
   monsterSprite: {fileID: 0}

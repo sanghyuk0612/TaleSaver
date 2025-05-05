@@ -270,7 +270,7 @@ public class RangedEnemy : MonoBehaviour
     void UpdateFacingDirection()
     {
         // 플레이어가 왼쪽에 있으면 true, 오른쪽에 있으면 false
-        spriteRenderer.flipX = playerTransform.position.x < transform.position.x;
+        spriteRenderer.flipX = playerTransform.position.x > transform.position.x;
     }
 
     // 디버그용 시각화

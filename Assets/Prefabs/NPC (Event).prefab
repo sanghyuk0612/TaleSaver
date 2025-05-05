@@ -246,8 +246,8 @@ MonoBehaviour:
   - "\uC798\uAC00~!! "
   exceptionDialogue:
   - "\uD654\uC774\uD305~! "
-  isEventNPC: 0
-  eventProbability: 0.3
+  isEventNPC: 1
+  eventProbability: 0
   hasHealed: 0
 --- !u!212 &-1736748539118058785
 SpriteRenderer:

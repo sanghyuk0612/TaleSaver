@@ -19,7 +19,7 @@ public class NPCInteraction : MonoBehaviour
     public string[] exceptionDialogue; // 예외 대화 추가
 
     public bool isEventNPC = false;
-    public float eventProbability = 0.8f; // 이벤트 발생 확률 (0.3 = 30%)
+    private float eventProbability = 0.8f; // 이벤트 발생 확률
 
     private int currentDialogueIndex = 0;
     private string[] Dialogues;
@@ -163,10 +163,17 @@ public class NPCInteraction : MonoBehaviour
 
     private void EndOrTransitionDialogue()
     {
-        RestoreHealth();
+        if (isEventNPC)
+        {
+            RestoreHealth();
+        }
+
         if (currentState == DialogueState.Normal && isEventNPC && !hasEventOccurred)
         {
-            if (Random.value < eventProbability)
+            float roll = Random.value;
+            Debug.Log($"[Event Trigger Check] Random Roll: {roll}, Probability: {eventProbability}");
+
+            if (roll < eventProbability)
             {
                 SetDialogueState(DialogueState.Event);
                 hasEventOccurred = true;

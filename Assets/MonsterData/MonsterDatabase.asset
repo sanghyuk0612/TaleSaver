@@ -18,6 +18,8 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 43e34458503e74574b3bb0f336b20ec2, type: 2}
     - {fileID: 11400000, guid: 8706880a4a0d14741b7d50a4f15a44f5, type: 2}
     - {fileID: 11400000, guid: a886373b6e5594aaaa9581c63efcbfbf, type: 2}
+    - {fileID: 11400000, guid: cd4b438d23041420ba0a8a86f2636327, type: 2}
+    - {fileID: 11400000, guid: 066e44d03a4824863886e5d6f7369eaa, type: 2}
   - mapName: Lava
     monsters:
     - {fileID: 11400000, guid: ea4b5aedfef334af18053a4c9653e425, type: 2}
@@ -28,6 +30,8 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 192a36cac922c48eb931c099ddd5a526, type: 2}
     - {fileID: 11400000, guid: 6fd424706db5a4a3599b77d00ff3c6e6, type: 2}
     - {fileID: 11400000, guid: 61af4ee420235464daa7d77b56fa893b, type: 2}
+    - {fileID: 11400000, guid: d9df82f77f2ee4f4fb2db118fc7ae9b8, type: 2}
+    - {fileID: 11400000, guid: f18d45d3607674028a45f0bddd71fdcd, type: 2}
   - mapName: Ice
     monsters:
     - {fileID: 11400000, guid: da77c0d18937043bf9dffaa91f96758b, type: 2}
@@ -42,3 +46,4 @@ MonoBehaviour:
     monsters:
     - {fileID: 11400000, guid: f44f0ef1744f648e2a3c4d3dc8417b91, type: 2}
     - {fileID: 11400000, guid: 950696ac5feec4c1f8fba2f965222bff, type: 2}
+    - {fileID: 11400000, guid: cd4b438d23041420ba0a8a86f2636327, type: 2}
