@@ -94,6 +94,8 @@ public class MeleeEnemy : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
+        // 플랫폼 레이어 설정
+        platformLayer = LayerMask.GetMask("Ground", "Half Tile");
     }
 
     void Update()
@@ -122,16 +124,15 @@ public class MeleeEnemy : MonoBehaviour
             if (canMove)
             {
                 animator.SetTrigger("Walk");
-                Flip();
                 // x축 방향으로만 이동
                 rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
 
                 // 스프라이트 방향 전환
-                if (direction.x > 0 && !isFacingRight)
+                if (direction.x < 0 && !isFacingRight)
                 {
                     Flip();
                 }
-                else if (direction.x < 0 && isFacingRight)
+                else if (direction.x > 0 && isFacingRight)
                 {
                     Flip();
                 }
@@ -141,23 +142,28 @@ public class MeleeEnemy : MonoBehaviour
                 // 플레이어가 감지 범위를 벗어나면 정지
                 StopMoving();
             }
-
-            /*
-            // 체력 체크
-            if (calculatedHealth <= 0)
-            {
-                Die();
-            }
-            */
-
-            //테스트용
-            // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
-            if (Input.GetKeyDown(KeyCode.K))
-            {
-                Debug.Log("Debug: Monster health set to 0 manually.");
-                Die();
-            }
         }
+        else
+        {
+            StopMoving();
+        }
+
+        /*
+        // 체력 체크
+        if (calculatedHealth <= 0)
+        {
+            Die();
+        }
+        */
+
+        //테스트용
+        // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Debug.Log("Debug: Monster health set to 0 manually.");
+            Die();
+        }
+        
     }
 
     public void ApplyMonsterData(MonsterData data)
