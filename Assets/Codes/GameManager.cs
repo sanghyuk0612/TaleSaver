@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
-    [SerializeField] public int location =5;
+    [SerializeField] public int location = 0;
 
     private int lastStageBeforeStore = -1;
 
@@ -84,9 +84,6 @@ public class GameManager : MonoBehaviour
         get => currentPlayerHealth;
         set => currentPlayerHealth = value;
     }
-    
-    
-
 
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
@@ -195,6 +192,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        location = Random.Range(0, 6); // location 랜덤
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
@@ -405,6 +403,8 @@ public class GameManager : MonoBehaviour
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
 
+        DestroyNPC();
+
         // 플레이어 위치 리셋
         ResetPlayerPosition();
         PortalManager.Instance.enemyNumber=0;
@@ -432,6 +432,17 @@ public class GameManager : MonoBehaviour
             Destroy(items.gameObject);
         }
     }
+
+    public void DestroyNPC()
+    {
+        foreach (var npc in FindObjectsOfType<NPCInteraction>())
+        {
+            Debug.Log("Destroy NPC");
+            Destroy(npc.gameObject);
+
+        }
+    }
+
 
     private void ResetPlayerPosition()
     {

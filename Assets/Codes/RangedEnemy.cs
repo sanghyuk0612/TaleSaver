@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+
 
 public class RangedEnemy : MonoBehaviour
 {
@@ -30,8 +32,12 @@ public class RangedEnemy : MonoBehaviour
     private float nextAttackTime;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    private Animator animator;
     private Transform playerTransform;
     private bool isPlayerInRange = false;
+
+    [Header("Item Drop")]
+    [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
 
     void Start()
     {
@@ -150,6 +156,7 @@ public class RangedEnemy : MonoBehaviour
                 {
                     ShootProjectile();
                     nextAttackTime = Time.time + attackCooldown;
+                    animator.SetTrigger("Attack");
                 }
             }
 
@@ -178,6 +185,34 @@ public class RangedEnemy : MonoBehaviour
         Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
         
         return hit.collider != null;
+    }
+
+    public void ApplyMonsterData(MonsterData data)
+    {
+        // 몬스터 데이터 적용
+        baseHealth = data.health;
+        baseDamage = data.damage;
+        moveSpeed = data.moveSpeed;
+
+        // 스프라이트 및 애니메이션 적용
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+
+        RefreshPolygonCollider();
+
+        if (spriteRenderer != null)
+            spriteRenderer.sprite = data.GetMonsterSprite();
+
+        if (animator != null)
+            animator.runtimeAnimatorController = data.GetAnimatorController(); ;
+    }
+
+    void RefreshPolygonCollider()
+    {
+        PolygonCollider2D old = GetComponent<PolygonCollider2D>();
+        if (old != null) Destroy(old);
+
+        gameObject.AddComponent<PolygonCollider2D>();
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
@@ -223,17 +258,19 @@ public class RangedEnemy : MonoBehaviour
         // x축 방향으로만 이동하도록 수정
         float directionX = playerTransform.position.x > transform.position.x ? 1f : -1f;
         rb.velocity = new Vector2(directionX * moveSpeed, rb.velocity.y); // Y속도 유지
+        animator.SetTrigger("Walk");
     }
 
     void StopMoving()
     {
         rb.velocity = new Vector2(0,rb.velocity.y);
+        animator.SetTrigger("Idle");
     }
 
     void UpdateFacingDirection()
     {
         // 플레이어가 왼쪽에 있으면 true, 오른쪽에 있으면 false
-        spriteRenderer.flipX = playerTransform.position.x < transform.position.x;
+        spriteRenderer.flipX = playerTransform.position.x > transform.position.x;
     }
 
     // 디버그용 시각화
@@ -265,9 +302,28 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
+        StopMoving();
+        animator.SetTrigger("Dead");
+
         Debug.Log("RangedEnemy died.");
         PortalManager.Instance.killEnemy(1);
-        // 사망 처리 로직 (예: 게임 오브젝트 비활성화)
-        gameObject.SetActive(false);
+        
+        // 게임 오브젝트 제거
+        StartCoroutine(DestroyAfterDelay(1f));
+    }
+
+    // 일정 시간 후 몬스터 제거하는 코루틴
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject); // 완전히 삭제
+
+        // 아이템 드롭
+        if (itemPrefab != null)
+        {
+            DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
+            droppedItem.DropItem();
+        }
+
     }
 }

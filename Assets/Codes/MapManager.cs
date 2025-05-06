@@ -20,10 +20,13 @@ public class MapManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     private List<GameObject> mapPrefabs = new List<GameObject>();
     private List<GameObject> currentMapSections = new List<GameObject>();
-    private List<GameObject> droppedItems = new List<GameObject>();
+
+    [Header("Monster Database")]
+    public MonsterDatabase monsterDatabase;
+    private List<MonsterData> currentMonsterList; // 현재 맵에서 사용할 몬스터 목록
 
 
-    private float right;
+    public float right;
     public int location;
 
     private void Awake()
@@ -93,7 +96,9 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnBoss();
         }
         SpawnInitialEntities();
+        LoadMonsterDataForMap();
     }
+
     // IEnumerator를 반환하는 메서드
     IEnumerator RepeatFunction()
     {
@@ -110,6 +115,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
+        location = 1;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch (location)
@@ -175,6 +181,40 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    private void LoadMonsterDataForMap()
+    {
+        string mapName = GetMapNameFromLocation(location);
+        currentMonsterList = monsterDatabase.GetMonstersForMap(mapName);
+        Debug.Log($"Loaded {currentMonsterList.Count} monsters for {mapName}");
+    }
+
+    // 특정 맵에 맞는 몬스터 데이터 가져오기
+    private string GetMapNameFromLocation(int loc)
+    {
+        switch (loc)
+        {
+            case 0: return "Cave";
+            case 1: return "Desert";
+            case 2: return "Forest";
+            case 3: return "Ice";
+            case 4: return "Lab";
+            case 5: return "Lava";
+            case 6: return "Test";
+            default: return "Unknown";
+        }
+    }
+    
+    public MonsterData GetRandomMonsterForCurrentMap()
+    {
+        if (currentMonsterList == null || currentMonsterList.Count == 0)
+        {
+            Debug.LogWarning("No monsters available for this map!");
+            return null;
+        }
+        return currentMonsterList[Random.Range(0, currentMonsterList.Count)];
+    }
+
+
     private float GetMapWidth(Tilemap tilemap)
     {
         BoundsInt bounds = tilemap.cellBounds;
@@ -205,6 +245,7 @@ public class MapManager : MonoBehaviour
 
         return bounds.size.x;
     }
+
     public void GenerateStoreMap()
     {
         GameObject mapSection = Instantiate(storePrefab, Vector3.zero, Quaternion.identity);
@@ -225,57 +266,59 @@ public class MapManager : MonoBehaviour
         right = offsetX;
         SpawnPortal();
     }
+
     public void GenerateBossMap()
     {
-        int offsetX =0;
+        int offsetX = 0;
         GameObject mapSection = Instantiate(BossMapPrefab, Vector3.zero, Quaternion.identity);
-            currentMapSections.Add(mapSection);
-            Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
+        currentMapSections.Add(mapSection);
+        Tilemap sourceTilemap = mapSection.GetComponentInChildren<Tilemap>();
 
-            if (sourceTilemap != null)
+        if (sourceTilemap != null)
+        {
+            BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
+            Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
+            // 타일맵 복사
+            GameObject instance = Instantiate(BossMapPrefab);
+            // 자식 타일맵을 찾는 로직을 추가할 수 있습니다.
+            CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
+            foreach (Transform child in instance.transform)
             {
-                BoundsInt bounds = GetTileBounds(sourceTilemap); // 실제 타일이 존재하는 영역만 가져오기
-                Vector3Int offset = new Vector3Int(Mathf.RoundToInt(offsetX), 0, 0);
-                // 타일맵 복사
-                GameObject instance = Instantiate(BossMapPrefab);
-                // 자식 타일맵을 찾는 로직을 추가할 수 있습니다.
-                CopyTilemapToTarget(sourceTilemap, targetTilemap, bounds, offset);
-                foreach (Transform child in instance.transform)
+                if (child.GetComponent<Tilemap>())
                 {
-                    if (child.GetComponent<Tilemap>())
+                    if (child.tag == "Half Tile")
                     {
-                        if (child.tag == "Half Tile")
-                        {
-                            Tilemap halfTile = child.GetComponent<Tilemap>();
-                            CopyTilemapToTarget(halfTile, HalfTilemap, bounds, offset);
-                        }
-                        if (child.tag == "Trap Tile")
-                        {
-                            Tilemap TrapTile = child.GetComponent<Tilemap>();
-                            CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
-                        }
-                        if (child.tag == "SpawnPoint")
-                        {//스폰포인트
-                            Tilemap SpawnPoint = child.GetComponent<Tilemap>();
-                            Debug.Log("스폰포인트");
-                            GetSpawnPoint(SpawnPoint, bounds, offset);
-                        }
-
+                        Tilemap halfTile = child.GetComponent<Tilemap>();
+                        CopyTilemapToTarget(halfTile, HalfTilemap, bounds, offset);
                     }
+                    if (child.tag == "Trap Tile")
+                    {
+                        Tilemap TrapTile = child.GetComponent<Tilemap>();
+                        CopyTilemapToTarget(TrapTile, TrapTilemap, bounds, offset);
+                    }
+                    if (child.tag == "SpawnPoint")
+                    {//스폰포인트
+                        Tilemap SpawnPoint = child.GetComponent<Tilemap>();
+                        Debug.Log("스폰포인트");
+                        GetSpawnPoint(SpawnPoint, bounds, offset);
+                    }
+
                 }
-                Debug.Log("타일맵의 태그" + mapSection.tag);
-                // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
-                offsetX += bounds.size.x;
-                Destroy(instance);
-                Destroy(mapSection);
-                right = offsetX;
-                portalPosition = new Vector3(
-                offsetX - 2f,  // 오른쪽 끝에서 2칸 왼쪽
-                0 + 2.5f,    // Ground 위로 2.5칸
-                0
-            );
+            }
+            Debug.Log("타일맵의 태그" + mapSection.tag);
+            // 다음 맵을 위한 오프셋 증가 (공백이 아닌 타일 영역만큼 이동)
+            offsetX += bounds.size.x;
+            Destroy(instance);
+            Destroy(mapSection);
+            right = offsetX;
+            portalPosition = new Vector3(
+            offsetX - 2f,  // 오른쪽 끝에서 2칸 왼쪽
+            0 + 2.5f,    // Ground 위로 2.5칸
+            0
+        );
+        }
     }
-    }
+
     public void ClearStage()
     {
         TrapTilemap.ClearAllTiles();
@@ -283,6 +326,8 @@ public class MapManager : MonoBehaviour
         // 기존 몬스터와 투사체 제거
         DestroyAllEnemies();
         DestroyAllProjectiles();
+        DestroyNPC();
+        DestroyAllDroppedItems();
         targetTilemap.ClearAllTiles();
         TrapTilemap.ClearAllTiles();
         HalfTilemap.ClearAllTiles();
@@ -303,6 +348,7 @@ public class MapManager : MonoBehaviour
             Destroy(portal);
         }
     }
+
     public void GenerateStage()
     {
         ClearStage();
@@ -312,11 +358,10 @@ public class MapManager : MonoBehaviour
             return;
         }
 
-
         // 3개의 랜덤한 맵 선택 및 생성
         List<GameObject> availablePrefabs = new List<GameObject>(mapPrefabs);
         float offsetX = 0;
-
+        
         {
             GameObject mapPrefab = availablePrefabs[0];
             GameObject mapSection = Instantiate(mapPrefab, Vector3.zero, Quaternion.identity);
@@ -403,13 +448,18 @@ public class MapManager : MonoBehaviour
 
         SpawnPortal();
 
-
+        // NPC 소환
+        if (GameManager.Instance.Stage == 1)
+        {
+            SpawnManager.Instance.SpawnNPC();
+        }
         // // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
         // if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
         // {
         //     SpawnManager.Instance.SpawnEntities();
         // }
     }
+
     void GetSpawnPoint(Tilemap source, BoundsInt bounds, Vector3Int offset)
     {
         Debug.Log(source.name + "의 태그: " + source.tag);
@@ -529,14 +579,6 @@ public class MapManager : MonoBehaviour
 
     private void SpawnInitialEntities()
     {
-        
-        // 스폰 포인트가 비어있는지 확인
-        // if (spawnPoints == null || spawnPoints.Count == 0)
-        // {
-        //     Debug.LogWarning("스폰 포인트가 없습니다. 적을 생성할 수 없습니다.");
-        //     return;
-        // }
-
         // 플레이어 소환
         if (playerPrefab != null)
         {
@@ -598,6 +640,23 @@ public class MapManager : MonoBehaviour
             {
                 Destroy(projectile);
             }
+        }
+    }
+
+    private void DestroyAllDroppedItems()
+    {
+        foreach (var items in FindObjectsOfType<DroppedItem>())
+        {
+            Destroy(items.gameObject);
+        }
+    }
+
+    public void DestroyNPC()
+    {
+        foreach (var npc in FindObjectsOfType<NPCInteraction>())
+        {
+            Debug.Log("Destroy NPC");
+            Destroy(npc.gameObject);
         }
     }
 }

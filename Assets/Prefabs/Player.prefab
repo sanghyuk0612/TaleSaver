@@ -106,6 +106,7 @@ MonoBehaviour:
     m_Bits: 64
   groundCheckSize: {x: 0.4, y: 0.1}
   maxHealth: 100
+  canProcessInput: 1
   knockbackDuration: 0.2
 --- !u!50 &8573810824455855368
 Rigidbody2D:
