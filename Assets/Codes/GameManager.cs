@@ -194,6 +194,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        //위치 랜덤 지정
+        location = Random.Range(0,6);
+        while(location==4){
+            location = Random.Range(0,6);
+        }
+
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
