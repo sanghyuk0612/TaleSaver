@@ -59,8 +59,9 @@ public class StageUIController : MonoBehaviour
 
     void Update()
     {
-        // 스테이지가 Store가 아니면 시간 증가
-        if (GameManager.Instance.Stage != 0)
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (sceneName == "GameScene" && GameManager.Instance.Stage != 0)
         {
             GameManager.Instance.PlayTime += Time.deltaTime;
             playTime = GameManager.Instance.PlayTime;

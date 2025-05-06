@@ -727,6 +727,10 @@ public class GameManager : MonoBehaviour
 
         // 플레이타임 초기화 추가
         playTime = 0f;
+        stage = 1;
+        chapter = 1;
+        score = 0;
+        currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
 
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
