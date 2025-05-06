@@ -63,7 +63,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.0015821978, z: 0, w: 0.9999988}
   m_LocalPosition: {x: 9.52, y: 1.35, z: 0}
-  m_LocalScale: {x: 8, y: 16, z: 1}
+  m_LocalScale: {x: 6.3, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 47297804589778601}
@@ -109,7 +109,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.4764151, g: 0.4269758, b: 0.4269758, a: 1}
   m_FlipX: 0
@@ -192,7 +192,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 0.56, y: 0.55}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.1
 --- !u!251 &1848237136695092566
 PlatformEffector2D:
   m_ObjectHideFlags: 0
@@ -246,6 +246,7 @@ MonoBehaviour:
   DownAttackPrefab: {fileID: 5605060386581786699, guid: 1351cce8410ee04458c6623aec3e0ad0, type: 3}
   FrontAttackPrefab: {fileID: 5605060386581786699, guid: f8ca09712b79c1d48967be7a3b65f8c6, type: 3}
   anim: {fileID: 0}
+  SlimePrefab: {fileID: 7066774727544269206, guid: 31f22b8f25d9db54ea17870d6615ee99, type: 3}
   skillInterval: 3
   custumSkillnum: 7
 --- !u!95 &4323631921685023803

@@ -274,6 +274,12 @@ public class CharacterManager : MonoBehaviour
     // Select 버튼 클릭
     public void OnSelectButtonClick()
     {
+        //위치 랜덤 지정
+        // GameManager.Instance.location = UnityEngine.Random.Range(0,6);
+        // while(GameManager.Instance.location==4){
+        //     GameManager.Instance.location = UnityEngine.Random.Range(0,6);
+        // }
+
         // 선택된 캐릭터의 데이터를 CharacterSelectionData에 저장
         CharacterData selectedCharacter = characters[currentCharacterIndex];
         if (selectedCharacter == null)

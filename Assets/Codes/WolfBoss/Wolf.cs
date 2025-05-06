@@ -52,6 +52,7 @@ public class Wolf : MonoBehaviour
     private Transform Pivot;
     [Header("Animation")]
     public Animator anim;
+    [SerializeField] private GameObject SlimePrefab;
     
 
     
@@ -109,7 +110,7 @@ public class Wolf : MonoBehaviour
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), enemy.GetComponent<Collider2D>(), true);
         }
-        anim.SetInteger("skillNum",9);
+        anim.SetInteger("animNum",0);
         StartCoroutine(StopMovement(4f));
     }
 
@@ -127,10 +128,12 @@ public class Wolf : MonoBehaviour
     Vector2 direction;
     bool canMove;
     private int direc;
+    private bool isDead = false; 
     void Update()
     {
+
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
-        if (PlayerController.IsDead || playerTransform == null)
+        if (PlayerController.IsDead || playerTransform == null || isDead)
         {
             // 정지
             rb.velocity = new Vector2(0, rb.velocity.y);
@@ -156,9 +159,11 @@ public class Wolf : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
         // x축 방향으로만 이동
         if(canMove){
+            anim.SetInteger("animNum",1);
             rb.velocity = new Vector2(direc* moveSpeed, rb.velocity.y);
         }
         else{
+            anim.SetInteger("animNum",0);
             rb.velocity =new Vector2(0, rb.velocity.y);
         }
             // 스프라이트 방향 전환
@@ -176,8 +181,7 @@ public class Wolf : MonoBehaviour
         // 체력 체크
         if (calculatedHealth <= 0)
         {
-            DropItem();
-            Destroy(gameObject);
+            CheckDeath();
         }
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
@@ -185,7 +189,7 @@ public class Wolf : MonoBehaviour
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
-            CheckDeath();
+            
         }
     }
     void Flip()
@@ -206,7 +210,7 @@ public class Wolf : MonoBehaviour
    IEnumerator mySkill(int skillNum){
         
         if (custumSkillnum==7){
-            skillNum = Random.Range(0,5);
+            skillNum = Random.Range(0,4);
         }
         else{
             skillNum=custumSkillnum;
@@ -217,23 +221,30 @@ public class Wolf : MonoBehaviour
         Debug.Log("스킬 캐스팅 시작 1초뒤 스킬사용");
         yield return new WaitForSeconds(1f);
 
-        anim.SetInteger("skillNum",skillNum);
+        //anim.SetInteger("skillNum",skillNum);
         switch (skillNum)
         {
         case 0:
+            anim.SetInteger("animNum",1);
             Dash();
             break;
         case 1:
-            SmashAttack();
+            anim.SetInteger("skillNum",1);
+            //FrontAttack();
+            //SmashAttack();
             break;
         case 2:
-            DownAttack();
+            anim.SetInteger("skillNum",2);
+            //FrontAttack();
+            //DownAttack();
             break;
         case 3:
-            FrontAttack();
+            anim.SetInteger("skillNum",3);
+            //FrontAttack();
             break;
         case 4:
-            Jump();
+            //anim.SetInteger("skillNum",4);
+            //Jump();
             break;
         default:
             Debug.Log("잘못된 스킬 번호");
@@ -243,7 +254,8 @@ public class Wolf : MonoBehaviour
     }
     public void ResetToIdle() // 애니메이션 이벤트에서 호출될 함수
     {
-        anim.SetInteger("skillNum", 9); // Idle 상태로 변경
+        anim.SetInteger("skillNum", 0); // Idle 상태로 변경
+        anim.SetInteger("animNum",0);
     }
 private void Jump(){
     
@@ -256,11 +268,11 @@ private void FrontAttack(){
     // 이펙트 생성
     if (FrontAttackPrefab != null)
     {
-        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direc,0.3f,0), Quaternion.identity);
+        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2.5f*direc,0.3f,0), Quaternion.identity);
         effect.transform.SetParent(transform);
         //StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
         
-        Destroy(effect, 0.6f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
     Debug.Log("휘두르기 사용");
@@ -269,14 +281,14 @@ private void FrontAttack(){
 
 private void SmashAttack()
 {
-    StartCoroutine(StopMovement(0.5f));
+    //StartCoroutine(StopMovement(0.5f));
     // 이펙트 생성
     
     if (SlimeSmashPrefab != null)
     {
         GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position+new Vector3(direc*1,0,0), Quaternion.identity);
         effect.transform.SetParent(transform);
-        Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
+        Destroy(effect, 0.3f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
     //anim.SetInteger("skillNum",9);
@@ -344,7 +356,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 지속 시간
         yield return new WaitForSeconds(dashTime);
         baseDamage = tmp;
-        anim.SetInteger("skillNum",9);
+        ResetToIdle();
         isDashing = false;
     }
     
@@ -352,12 +364,13 @@ private IEnumerator StopMovement(float stopDuration)
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
     private void CheckDeath()
     {
-        if (calculatedHealth <= 0)
-        {
-            DropItem();
-            Destroy(gameObject);
-            anim.SetTrigger("death");
-        }
+        isDead=true;
+        anim.SetTrigger("death");
+    }
+    public void death(){
+        DropItem();
+        Destroy(gameObject);
+        Instantiate(SlimePrefab, transform.position, Quaternion.identity);
     }
 
     
@@ -412,7 +425,7 @@ private IEnumerator StopMovement(float stopDuration)
     // 새로 스폰되는 Enemy들과도 충돌을 무시하기 위한 트리거 체크
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy")||other.CompareTag("Half Tile")||other.CompareTag("Trap Tile"))
         {
             Physics2D.IgnoreCollision(GetComponent<Collider2D>(), other, true);
         }
