@@ -47,8 +47,12 @@ public class PlayerController : MonoBehaviour, IDamageable
     // 플레이어 사망 상태를 저장하는 static 변수 추가
     public static bool IsDead { get; private set; }
 
+    private bool isInTrap = false; // 트랩 안에 있는지 여부
+    private Coroutine trapDamageCoroutine;
+
+
     // 입력 처리 가능 여부를 저장하는 변수 추가
-    private bool canProcessInput = true;
+    public bool canProcessInput = true;
 
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackDuration = 0.2f;
@@ -60,14 +64,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     [Header("Animator Settings")]
     private Animator playerAnimator;
-    string characterName;
-    string satyAnimName;
-    string jumpAnimName;
-    string runAnimName;
-    string dashAnimName;
-
-    string deadAnimName;
-
 
     void Start()
     {
@@ -170,6 +166,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             {
                 float targetVelocityX = moveInput * moveSpeed;
                 rb.velocity = new Vector2(targetVelocityX, rb.velocity.y);
+                playerAnimator.SetTrigger("Run");
             }
             else
             {
@@ -187,22 +184,23 @@ public class PlayerController : MonoBehaviour, IDamageable
             return;
         }
 
-        characterName = CharacterSelectionData.Instance.selectedCharacterData.animatorController.name;
-
         float moveInput = Input.GetAxisRaw("Horizontal");
         if (moveInput != 0)
         {
             spriteRenderer.flipX = moveInput < 0;
-            runAnimName = $"{characterName}_Run";
-            playerAnimator.Play(runAnimName);
             playerAnimator.SetTrigger("Run");
+
+            // 점프 입력 받기
+            if (Input.GetButtonDown("Jump"))
+            {
+                // 애니메이션 트리거 실행
+                playerAnimator.SetTrigger("Jump");
+            }
         }
 
         // 점프 입력 처리
         if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
         {
-            jumpAnimName = $"{characterName}_Jump";
-            playerAnimator.Play(jumpAnimName);
             playerAnimator.SetTrigger("Jump");
 
             // 땅에 있을 때 점프
@@ -245,8 +243,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 대시 실행
         if (Input.GetKeyDown(KeyCode.Q) && canDash)
         {
-            dashAnimName = $"{characterName}_Dash";
-            playerAnimator.Play(dashAnimName);
             playerAnimator.SetTrigger("Dash");
             Dash();
         }
@@ -297,8 +293,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             remainingJumps = maxJumpCount; // 점프 횟수 초기화
             hasJumped = false; // 점프 상태 초기화
-            satyAnimName = $"{characterName}_Stay";
-            playerAnimator.Play(satyAnimName);
             playerAnimator.SetTrigger("Stay");
         }
 
@@ -322,6 +316,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         rb.velocity = Vector2.zero;
         rb.AddForce(new Vector2(dashDirection * dashForce, 0f), ForceMode2D.Impulse);
         isDashing = true;
+        playerAnimator.SetTrigger("Dash");
 
         // 대시 코루틴 시작
         StartCoroutine(DashCoroutine());
@@ -458,6 +453,41 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Trap Tile")) // 트랩에 닿았을 때
+        {
+            if (!isInTrap) // 처음 닿았을 때만 실행
+            {
+                isInTrap = true;
+                trapDamageCoroutine = StartCoroutine(TakeTrapDamage(collision.transform.position));
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Trap Tile"))
+        {
+            isInTrap = false;
+            if (trapDamageCoroutine != null)
+            {
+                StopCoroutine(trapDamageCoroutine);
+                trapDamageCoroutine = null;
+            }
+        }
+    }
+
+    private IEnumerator TakeTrapDamage(Vector3 trapPosition)
+    {
+        while (isInTrap)
+        {
+            Vector2 knockbackDirection = (transform.position - trapPosition).normalized; // 트랩 반대 방향으로 밀려남
+            TakeDamage(10, knockbackDirection, 5f); // 데미지 + 넉백 추가
+            yield return new WaitForSeconds(2f); // 대기
+        }
+    }
+
     // IDamageable 인터페이스 구현
     public void TakeDamage(int damage, Vector2 knockbackDirection, float knockbackForce)
     {
@@ -538,8 +568,6 @@ public class PlayerController : MonoBehaviour, IDamageable
             }
         }
 
-        deadAnimName = $"{characterName}_Death";
-        playerAnimator.Play(deadAnimName);
         playerAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
         playerAnimator.SetTrigger("Death");
 
@@ -684,9 +712,16 @@ public class PlayerController : MonoBehaviour, IDamageable
                 playerAnimator.runtimeAnimatorController = selectedCharacter.animatorController; // 애니메이터 컨트롤러 할당
 
                 // 애니메이션 상태를 전환
-                playerAnimator.Play($"{selectedCharacter.characterName}_Idle");
+                playerAnimator.SetTrigger("Stay");
+            }
+            else
+            {
+                Debug.Log("Selected Character is null");
             }
         }
+        else
+        {
+            Debug.Log("Selected Character Data is null");
+        }
     }
-
 }

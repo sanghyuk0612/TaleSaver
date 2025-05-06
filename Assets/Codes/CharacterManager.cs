@@ -8,7 +8,6 @@ using Firebase.Auth;
 using Firebase.Firestore;
 using System.Threading.Tasks;
 
-
 public static class FirebaseTaskExtensions
 {
     public static IEnumerator AsCoroutine(this Task task)
@@ -81,15 +80,19 @@ public class CharacterManager : MonoBehaviour
         characterInfoPanel.SetActive(false);
         upgradePanel.SetActive(false);
 
-        // 캐릭터 데이터가 올바르게 로드되었는지 확인
         if (characters == null || characters.Length == 0)
         {
             Debug.LogError("No character data found!");
             return;
         }
 
-        // 초기 캐릭터 로드
-        LoadCharacter(0);
+        StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
+        {
+            StartCoroutine(LoadUnlockedCharactersFromFirebase(() =>
+            {
+                LoadCharacter(0);
+            }));
+        }));
 
         // 캐릭터 데이터 초기화
         foreach (var character in characters)
@@ -103,7 +106,7 @@ public class CharacterManager : MonoBehaviour
             character.luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
             
             // 캐릭터 잠금 상태 로드
-            character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + index, index == 1 ? 1 : 0) == 1;
+            //character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + index, index == 1 ? 1 : 0) == 1;
         }
 
         unlockButton.onClick.AddListener(() => TryUnlockCharacterFirebase(currentCharacterIndex));
@@ -469,7 +472,7 @@ public class CharacterManager : MonoBehaviour
         character.power = PlayerPrefs.GetInt("CharacterPower_" + currentCharacterIndex, 0);
         character.agility = PlayerPrefs.GetInt("CharacterAgility_" + currentCharacterIndex, 0);
         character.luck = PlayerPrefs.GetInt("CharacterLuck_" + currentCharacterIndex, 0);
-        // character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + currentCharacterIndex, currentCharacterIndex == 1 ? 1 : 0) == 1;
+        character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + currentCharacterIndex, currentCharacterIndex == 1 ? 1 : 0) == 1;
 
         // 스킬 로드
         LoadCharacterSkills(character);
@@ -681,6 +684,59 @@ public class CharacterManager : MonoBehaviour
         PlayerPrefs.SetInt("CharacterAgility_" + currentCharacterIndex, character.agility);
         PlayerPrefs.SetInt("CharacterLuck_" + currentCharacterIndex, character.luck);
         PlayerPrefs.Save(); // 변경 사항 저장
+    }
+
+    public IEnumerator LoadUnlockedCharactersFromFirebase(Action onComplete)
+    {
+        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("❌ 로그인 정보 없음: CurrentUser is null");
+            yield break;
+        }
+
+        string uid = user.UserId;
+        var db = FirebaseFirestore.DefaultInstance;
+        var unlockRef = db.Collection("unlockedCharacters").Document(uid);
+
+        var task = unlockRef.GetSnapshotAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (!task.Result.Exists)
+        {
+            Debug.LogWarning("🔐 Firebase에 해금 캐릭터 정보 없음.");
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        var data = task.Result.ToDictionary();
+
+        for (int i = 0; i < characters.Length; i++)
+        {
+            string key = $"char_{characters[i].characterName}";
+            if (data.ContainsKey(key) && data[key] is bool unlocked && unlocked)
+            {
+                characters[i].isUnlocked = true;
+            }
+            else
+            {
+                characters[i].isUnlocked = (i == 1); // 견우만 기본 해금
+            }
+
+            PlayerPrefs.SetInt("CharacterUnlocked_" + i, characters[i].isUnlocked ? 1 : 0);
+
+            if (i < characterButtons.Count)
+            {
+                Image img = characterButtons[i].GetComponent<Image>();
+                if (img != null)
+                {
+                    img.color = characters[i].isUnlocked ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
+                }
+            }
+        }
+        PlayerPrefs.Save();
+        Debug.Log("✅ 해금 캐릭터 정보 로딩 완료");
+        onComplete?.Invoke();
     }
 
     /*private void SetCharacterSkills(CharacterData character)

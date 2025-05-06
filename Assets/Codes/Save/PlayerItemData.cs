@@ -17,7 +17,6 @@ public class PlayerItemData
     public int steelPrice;       // 철 가격 
     public int gold;             // 아이템: Gold 개수
     public int goldPrice;        //  금 가격 
-    public int money;            // 돈
     public int battery;          // 아이템: Battery 개수
     public int machineparts;       //기계 조각
     public int storybookpages;         //동화책 조각각
@@ -38,7 +37,6 @@ public class PlayerItemData
         gold = 10;
         goldPrice = 165;
         battery = 0;
-        money = 0;
         machineparts = 1;
         storybookpages = 1;
         items = new List<int>(); // 빈 리스트로 초기화

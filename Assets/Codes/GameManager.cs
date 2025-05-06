@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
-    [SerializeField] public int location =5;
+    [SerializeField] public int location = 0;
 
     private int lastStageBeforeStore = -1;
 
@@ -84,9 +84,6 @@ public class GameManager : MonoBehaviour
         get => currentPlayerHealth;
         set => currentPlayerHealth = value;
     }
-    
-    
-
 
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
@@ -108,6 +105,7 @@ public class GameManager : MonoBehaviour
     public Button ExitButton; // 재시작 버튼
     public Text DeathStage;
     public Text DeathTime;
+
 
     private void OnEnable()
     {
@@ -199,7 +197,6 @@ public class GameManager : MonoBehaviour
         // while(location==4){
         //     location = Random.Range(0,6);
         // }
-
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
@@ -410,6 +407,8 @@ public class GameManager : MonoBehaviour
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
 
+        DestroyNPC();
+
         // 플레이어 위치 리셋
         ResetPlayerPosition();
         PortalManager.Instance.enemyNumber=0;
@@ -437,6 +436,17 @@ public class GameManager : MonoBehaviour
             Destroy(items.gameObject);
         }
     }
+
+    public void DestroyNPC()
+    {
+        foreach (var npc in FindObjectsOfType<NPCInteraction>())
+        {
+            Debug.Log("Destroy NPC");
+            Destroy(npc.gameObject);
+
+        }
+    }
+
 
     private void ResetPlayerPosition()
     {
@@ -680,8 +690,17 @@ public class GameManager : MonoBehaviour
         // 스테이지 표시
         if (DeathStage != null)
         {
-            int stage = GameManager.Instance.Stage;
-            DeathStage.text = $"Stage {stage}";
+            StageUIController ui = FindObjectOfType<StageUIController>();
+            if (ui != null)
+            {
+                DeathStage.text = ui.GetFormattedStageName();
+            }
+            else
+            {
+                // fallback: 기본 텍스트
+                int stage = GameManager.Instance.Stage;
+                DeathStage.text = $"Stage {stage}";
+            }
         }
 
         // 시간 표시
@@ -720,7 +739,14 @@ public class GameManager : MonoBehaviour
     {
         // 시간 스케일 복원
         Time.timeScale = 1f;
-        
+
+        // 플레이타임 초기화 추가
+        playTime = 0f;
+        stage = 1;
+        chapter = 1;
+        score = 0;
+        currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
+
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
     }

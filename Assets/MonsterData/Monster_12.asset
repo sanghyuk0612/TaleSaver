@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07f0517b1bba343169285a51e69c6e71, type: 3}
+  m_Name: Monster_12
+  m_EditorClassIdentifier: 
+  monsterName: Cave_Monster_12
+  health: 100
+  damage: 10
+  moveSpeed: 7
+  isRanged: 1
+  MonsterPrefab: {fileID: 5003909713395720507, guid: bc7caac1e54c9dd4ab1960e8e11c7060, type: 3}
+  monsterSprite: {fileID: 0}
+  animatorController: {fileID: 0}

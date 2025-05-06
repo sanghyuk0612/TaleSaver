@@ -44,7 +44,7 @@ public class Store : MonoBehaviour
         selectedItem = new List<int>();
         prePrice = new int[5];
         nowPrice = new int[5];
-        nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.money.ToString();
+        nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.battery.ToString();
         
         int randomIndex;
         for (int i = 0; i < 3; i++)
@@ -140,32 +140,32 @@ public class Store : MonoBehaviour
     public void sellItem(int buttonId){
         switch(buttonId){
             case 0:
-            InventoryManager.Instance.inventory.money += InventoryManager.Instance.inventory.stone*nowPrice[buttonId];
+            InventoryManager.Instance.inventory.battery += InventoryManager.Instance.inventory.stone*nowPrice[buttonId];
             InventoryManager.Instance.inventory.stone=0;
             Stone.text = "0개 소유";
             break;
             case 1:
-            InventoryManager.Instance.inventory.money += InventoryManager.Instance.inventory.tree*nowPrice[buttonId];
+            InventoryManager.Instance.inventory.battery += InventoryManager.Instance.inventory.tree*nowPrice[buttonId];
             InventoryManager.Instance.inventory.tree=0;
             Tree.text = "0개 소유";
             break;
             case 2:
-            InventoryManager.Instance.inventory.money += InventoryManager.Instance.inventory.skin*nowPrice[buttonId];
+            InventoryManager.Instance.inventory.battery += InventoryManager.Instance.inventory.skin*nowPrice[buttonId];
             InventoryManager.Instance.inventory.skin=0;
             Skin.text = "0개 소유";
             break;
             case 3:
-            InventoryManager.Instance.inventory.money += InventoryManager.Instance.inventory.steel*nowPrice[buttonId];
+            InventoryManager.Instance.inventory.battery += InventoryManager.Instance.inventory.steel*nowPrice[buttonId];
             InventoryManager.Instance.inventory.steel=0;
             Steel.text = "0개 소유";
             break;
             case 4:
-            InventoryManager.Instance.inventory.money += InventoryManager.Instance.inventory.gold*nowPrice[buttonId];
+            InventoryManager.Instance.inventory.battery += InventoryManager.Instance.inventory.gold*nowPrice[buttonId];
             InventoryManager.Instance.inventory.gold=0;
             Gold.text = "0개 소유";
             break;
         }
-        nowMoney.text = "보유 머니 : "+ InventoryManager.Instance.inventory.money.ToString();
+        nowMoney.text = "보유 머니 : "+ InventoryManager.Instance.inventory.battery.ToString();
     }
     public void CloseStore(){
         Time.timeScale=1;
@@ -175,15 +175,15 @@ public class Store : MonoBehaviour
         itemEx.text = ItemListData.items[selectedItem[buttonId]].explaination;
     }
     public void buyItem(int buyButtonId){
-        if(InventoryManager.Instance.inventory.money<ItemListData.items[selectedItem[buyButtonId]].price){
-            Debug.Log(InventoryManager.Instance.inventory.money);
+        if(InventoryManager.Instance.inventory.battery<ItemListData.items[selectedItem[buyButtonId]].price){
+            Debug.Log(InventoryManager.Instance.inventory.battery);
             Debug.Log("돈없음");
         }
         else{
             InventoryManager.Instance.RemoveItem(5,ItemListData.items[selectedItem[buyButtonId]].price);
             buttonList[buyButtonId].interactable =false;
             InventoryManager.Instance.AddItem(7,ItemListData.items[selectedItem[buyButtonId]].id);
-            nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.money.ToString();
+            nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.battery.ToString();
         }
     }
 }
