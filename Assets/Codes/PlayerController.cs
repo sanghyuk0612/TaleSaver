@@ -94,7 +94,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         IsDead = false;
 
         playerAnimator = GetComponent<Animator>();
-        ApplyCharacterAnimator();
 
         // 캐릭터 데이터에서 최대 체력 설정 (한 곳에서만 처리)
         if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterData != null)
@@ -456,9 +455,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
 
     private void OnEnable()
-    {
-        ApplyCharacterAnimator();
-        
+    {   
         // 체력 UI 즉시 업데이트 - GameScene 진입 시 슬라이더 동기화를 위함
         UpdateHealthUI();
         
@@ -739,30 +736,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             float healthPercent = (float)currentHealth / maxHealth;
             playerUI.UpdateHealthSlider(healthPercent);
-        }
-    }
-
-    private void ApplyCharacterAnimator()
-    {
-        if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterAnimator != null)
-        {
-            CharacterData selectedCharacter = CharacterSelectionData.Instance.selectedCharacterData;
-
-            if (selectedCharacter != null)
-            {
-                playerAnimator.runtimeAnimatorController = selectedCharacter.animatorController; // 애니메이터 컨트롤러 할당
-
-                // 애니메이션 상태를 전환
-                playerAnimator.SetTrigger("Stay");
-            }
-            else
-            {
-                Debug.Log("Selected Character is null");
-            }
-        }
-        else
-        {
-            Debug.Log("Selected Character Data is null");
         }
     }
 }
