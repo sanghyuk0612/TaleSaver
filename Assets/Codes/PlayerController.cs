@@ -38,7 +38,8 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 100;
-    private int currentHealth;
+    [SerializeField] private int currentHealth; // Inspector에서 확인 가능하도록 SerializeField 추가
+    [SerializeField] private int gameManagerHealth; // GameManager의 체력값을 표시할 변수 추가
 
     // 체력 관련 프로퍼티 추가
     public int MaxHealth => maxHealth;
@@ -265,6 +266,9 @@ public class PlayerController : MonoBehaviour, IDamageable
                 }
             }
         }
+
+        // GameManager의 체력값을 실시간으로 업데이트
+        gameManagerHealth = GameManager.Instance.CurrentPlayerHealth;
     }
 
     void CheckGround()
@@ -619,7 +623,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             Debug.Log($"플레이어 체력 회복: +{actualHeal}, 현재 체력: {currentHealth}/{maxHealth}");
             
-            // GameManager에 상태 저장
+            // GameManager에 상태 저장 (currentPlayerHealth도 업데이트됨)
             GameManager.Instance.SavePlayerHealth(currentHealth, maxHealth);
             
             // UI 업데이트
@@ -643,19 +647,16 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 체력 변경 로그
         Debug.Log($"플레이어 체력 업데이트 - 이전: {previousHealth}, 이후: {currentHealth}, 최대: {maxHealth}");
         
-        // 실제 변경이 있을 때만 UI 업데이트
+        // 실제 변경이 있을 때만 UI 업데이트 및 동기화
         if (currentHealth != previousHealth)
         {
+            // GameManager와 명시적 동기화
+            GameManager.Instance.SavePlayerHealth(currentHealth, maxHealth);
+            
             // UI 업데이트
             UpdateHealthUI();
             
-            // GameManager와 동기화
-            if (GameManager.Instance.CurrentPlayerHealth != currentHealth)
-            {
-                int prevGMHealth = GameManager.Instance.CurrentPlayerHealth;
-                GameManager.Instance.CurrentPlayerHealth = currentHealth;
-                Debug.Log($"GameManager 체력과 동기화: {prevGMHealth} -> {currentHealth}");
-            }
+            Debug.Log($"GameManager 체력과 동기화 완료: {GameManager.Instance.CurrentPlayerHealth}");
         }
         
         // 체력이 0이 되면 사망 처리
