@@ -13,6 +13,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.4f, 0.1f);
 
+    [Header("Trap Setting")]
+    private Vector3 previousPosition;
+    private float trapDamageCooldown = 1f; // 데미지 무적 시간
+    private float lastTrapDamageTime = -Mathf.Infinity; // 마지막 데미지 시간 초기화
+
     [Header("Jump Settings")]
     private int remainingJumps;
     private bool hasJumped;
@@ -315,6 +320,8 @@ public class PlayerController : MonoBehaviour, IDamageable
                 }
             }
         }
+        // 매 프레임마다 이전 위치 갱신
+        previousPosition = transform.position;
 
         // GameManager의 체력값을 실시간으로 업데이트
         gameManagerHealth = GameManager.Instance.CurrentPlayerHealth;
@@ -545,9 +552,20 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         while (isInTrap)
         {
-            Vector2 knockbackDirection = (transform.position - trapPosition).normalized; // 트랩 반대 방향으로 밀려남
-            TakeDamage(10, knockbackDirection, 5f); // 데미지 + 넉백 추가
-            yield return new WaitForSeconds(2f); // 대기
+            // 현재 시간이 쿨타임을 지났는지 확인
+            if (Time.time - lastTrapDamageTime >= trapDamageCooldown)
+            {
+                // 넉백 방향 계산 (이전 위치 기준)
+                Vector2 movementDirection = (transform.position - previousPosition).normalized;
+                Vector2 knockbackDirection = -movementDirection;
+
+                TakeDamage(10, knockbackDirection, 5f);
+
+                // 마지막 데미지 시간 갱신
+                lastTrapDamageTime = Time.time;
+            }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
