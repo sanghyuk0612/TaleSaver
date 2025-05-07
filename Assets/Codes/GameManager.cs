@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
-    [SerializeField] public int location = 0;
+    [SerializeField] public int location = 5;
 
     private int lastStageBeforeStore = -1;
 
