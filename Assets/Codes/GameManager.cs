@@ -140,7 +140,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -226,12 +225,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
-        {
-            Debug.Log("✅ GameScene 진입 시 Firebase 로그인 정보 정상!");
-            // 여기서 Firestore 데이터 요청 또는 저장해도 OK
-        }));
-
         //위치 랜덤 지정
         // location = Random.Range(0,6);
         // while(location==4){
@@ -786,13 +779,6 @@ public class GameManager : MonoBehaviour
         chapter = 1;
         score = 0;
         currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
-
-        // PlayerController에 즉시 반영 시도
-        PlayerController player = FindObjectOfType<PlayerController>();
-        if (player != null)
-        {
-            player.UpdateHealth(currentPlayerHealth);
-        }
 
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
