@@ -226,7 +226,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        InventoryManager.Instance.ResetLocalResources(); //✅ 게임 시작 시 로컬 재화 초기화
 
         StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
         {
