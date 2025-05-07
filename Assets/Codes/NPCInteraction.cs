@@ -75,7 +75,9 @@ public class NPCInteraction : MonoBehaviour
         Debug.Log("OnNPCButtonClicked!");
 
         if (isDialogueActive)
+        {
             return; // 대화창이 열려 있으면 클릭 무시
+        }
 
         if (player != null)
         {
