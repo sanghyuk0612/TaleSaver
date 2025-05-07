@@ -399,7 +399,6 @@ public class GameManager : MonoBehaviour
     public void LoadNextStage()
     {
         AdvanceStage();     // 스테이지 증가 및 플레이어 상태 저장
-
         // 현재 씬에서 새로운 스테이지 생성
         MapManager.Instance.GenerateStage();
         // 모든 적 제거
@@ -413,7 +412,10 @@ public class GameManager : MonoBehaviour
         PortalManager.Instance.enemyNumber=0;
         PortalManager.Instance.enemyText.text = "0";
         // 새로운 적 스폰
-        SpawnManager.Instance.SpawnEntities();
+        for (int i=0;i<10;i++){
+            SpawnManager.Instance.SpawnEntities();
+        }
+        
     }
 
     private void DestroyAllEnemies()
