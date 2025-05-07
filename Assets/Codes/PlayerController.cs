@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement; // 씬 관리를 위한 네임스페이스 추가
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
@@ -115,6 +116,55 @@ public class PlayerController : MonoBehaviour, IDamageable
         
         // UI 업데이트
         UpdateHealthUI();
+        
+        // PlayerUI에 플레이어 명시적 연결
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this);
+            Debug.Log("PlayerUI와 플레이어 연결 완료");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerUI를 찾을 수 없습니다!");
+        }
+    }
+
+    private void Awake()
+    {
+        // 씬 로드 이벤트 등록
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        // 이벤트 등록 해제
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    
+    // 씬 로드 이벤트 핸들러
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 약간의 딜레이 후 PlayerUI 연결
+        StartCoroutine(ConnectUIAfterSceneLoad());
+    }
+    
+    private IEnumerator ConnectUIAfterSceneLoad()
+    {
+        // 씬 로드 후 오브젝트들이 초기화될 시간 확보
+        yield return new WaitForSeconds(0.1f);
+        
+        // PlayerUI 찾아서 연결
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this);
+            Debug.Log($"PlayerController: 씬 로드 후 PlayerUI 연결 - 씬: {SceneManager.GetActiveScene().name}");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController: 씬 로드 후 PlayerUI를 찾을 수 없습니다!");
+        }
     }
 
     // 체력 초기화 메서드 - 한 곳에서 관리
@@ -408,6 +458,19 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void OnEnable()
     {
         ApplyCharacterAnimator();
+        
+        // 체력 UI 즉시 업데이트 - GameScene 진입 시 슬라이더 동기화를 위함
+        UpdateHealthUI();
+        
+        // PlayerUI에 플레이어 다시 연결 (씬 전환 시 유용)
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this);
+            Debug.Log("OnEnable: PlayerUI와 플레이어 연결 완료");
+        }
+        
+        Debug.Log($"PlayerController.OnEnable - 체력 UI 업데이트 완료: {currentHealth}/{maxHealth}");
     }
 
 
