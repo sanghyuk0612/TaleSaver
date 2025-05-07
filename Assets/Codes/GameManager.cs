@@ -140,7 +140,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -226,12 +225,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
-        {
-            Debug.Log("✅ GameScene 진입 시 Firebase 로그인 정보 정상!");
-            // 여기서 Firestore 데이터 요청 또는 저장해도 OK
-        }));
-
         //위치 랜덤 지정
         // location = Random.Range(0,6);
         // while(location==4){
