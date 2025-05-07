@@ -809,6 +809,7 @@ public class GameManager : MonoBehaviour
         chapter = 1;
         score = 0;
         currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
+        InventoryManager.Instance.ResetInventory(); // 인벤토리 초기화
 
         // PlayerController에 즉시 반영 시도
         PlayerController player = FindObjectOfType<PlayerController>();

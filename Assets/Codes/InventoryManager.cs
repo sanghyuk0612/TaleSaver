@@ -118,4 +118,12 @@ public class InventoryManager : MonoBehaviour
     {
         inventory = SaveManager.Instance.LoadItemData();
     }
+    public void ResetInventory()
+    {
+        // 인벤토리 초기화
+        inventory = new PlayerItemData();
+
+        Debug.Log("Inventory has been reset.");
+    }
+
 }

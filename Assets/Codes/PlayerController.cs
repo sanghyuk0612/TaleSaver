@@ -13,6 +13,11 @@ public class PlayerController : MonoBehaviour, IDamageable
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.4f, 0.1f);
 
+    [Header("Trap Setting")]
+    private Vector3 previousPosition;
+    private float trapDamageCooldown = 1f; // 데미지 무적 시간
+    private float lastTrapDamageTime = -Mathf.Infinity; // 마지막 데미지 시간 초기화
+
     [Header("Jump Settings")]
     private int remainingJumps;
     private bool hasJumped;
@@ -94,7 +99,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         IsDead = false;
 
         playerAnimator = GetComponent<Animator>();
-        ApplyCharacterAnimator();
 
         // 캐릭터 데이터에서 최대 체력 설정 (한 곳에서만 처리)
         if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterData != null)
@@ -316,6 +320,8 @@ public class PlayerController : MonoBehaviour, IDamageable
                 }
             }
         }
+        // 매 프레임마다 이전 위치 갱신
+        previousPosition = transform.position;
 
         // GameManager의 체력값을 실시간으로 업데이트
         gameManagerHealth = GameManager.Instance.CurrentPlayerHealth;
@@ -456,9 +462,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     }
 
     private void OnEnable()
-    {
-        ApplyCharacterAnimator();
-        
+    {   
         // 체력 UI 즉시 업데이트 - GameScene 진입 시 슬라이더 동기화를 위함
         UpdateHealthUI();
         
@@ -548,9 +552,20 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         while (isInTrap)
         {
-            Vector2 knockbackDirection = (transform.position - trapPosition).normalized; // 트랩 반대 방향으로 밀려남
-            TakeDamage(10, knockbackDirection, 5f); // 데미지 + 넉백 추가
-            yield return new WaitForSeconds(2f); // 대기
+            // 현재 시간이 쿨타임을 지났는지 확인
+            if (Time.time - lastTrapDamageTime >= trapDamageCooldown)
+            {
+                // 넉백 방향 계산 (이전 위치 기준)
+                Vector2 movementDirection = (transform.position - previousPosition).normalized;
+                Vector2 knockbackDirection = -movementDirection;
+
+                TakeDamage(10, knockbackDirection, 5f);
+
+                // 마지막 데미지 시간 갱신
+                lastTrapDamageTime = Time.time;
+            }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
@@ -739,30 +754,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             float healthPercent = (float)currentHealth / maxHealth;
             playerUI.UpdateHealthSlider(healthPercent);
-        }
-    }
-
-    private void ApplyCharacterAnimator()
-    {
-        if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterAnimator != null)
-        {
-            CharacterData selectedCharacter = CharacterSelectionData.Instance.selectedCharacterData;
-
-            if (selectedCharacter != null)
-            {
-                playerAnimator.runtimeAnimatorController = selectedCharacter.animatorController; // 애니메이터 컨트롤러 할당
-
-                // 애니메이션 상태를 전환
-                playerAnimator.SetTrigger("Stay");
-            }
-            else
-            {
-                Debug.Log("Selected Character is null");
-            }
-        }
-        else
-        {
-            Debug.Log("Selected Character Data is null");
         }
     }
 }
