@@ -84,6 +84,7 @@ public class MapManager : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             GenerateStage();
+            LoadMonsterDataForMap();
             StartCoroutine(RepeatFunction());
         }
         else if (SceneManager.GetActiveScene().name == "Store")
@@ -96,7 +97,7 @@ public class MapManager : MonoBehaviour
             SpawnManager.Instance.SpawnBoss();
         }
         
-        LoadMonsterDataForMap();
+        
         SpawnInitialEntities();
     }
 
