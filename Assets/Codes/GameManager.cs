@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
-    [SerializeField] public int location = 0;
+    [SerializeField] public int location = 5;
 
     private int lastStageBeforeStore = -1;
 
@@ -406,7 +406,6 @@ public class GameManager : MonoBehaviour
         DestroyAllEnemies();
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
-
         DestroyNPC();
 
         // 플레이어 위치 리셋

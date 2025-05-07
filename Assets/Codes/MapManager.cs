@@ -115,7 +115,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location = 5;
+        location = GameManager.Instance.location;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch (location)
@@ -352,6 +352,7 @@ public class MapManager : MonoBehaviour
     public void GenerateStage()
     {
         ClearStage();
+        
         if (mapPrefabs.Count < 3)
         {
             Debug.LogError("Not enough map prefabs!");
