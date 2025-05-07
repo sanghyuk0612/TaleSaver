@@ -658,7 +658,7 @@ GameObject:
   - component: {fileID: 1509872501}
   - component: {fileID: 1509872500}
   - component: {fileID: 1509872499}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: TargetHalfGound
   m_TagString: Half Tile
   m_Icon: {fileID: 0}
