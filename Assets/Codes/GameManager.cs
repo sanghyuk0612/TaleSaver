@@ -222,14 +222,18 @@ public class GameManager : MonoBehaviour
 
         // 초기에는 게임오버 패널 비활성화
         gameOverPanel.SetActive(false);
-    }
+    }   
 
     private void Start()
     {
+        InventoryManager.Instance.ResetLocalResources(); //✅ 게임 시작 시 로컬 재화 초기화
+
         StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
         {
             Debug.Log("✅ GameScene 진입 시 Firebase 로그인 정보 정상!");
             // 여기서 Firestore 데이터 요청 또는 저장해도 OK
+
+
         }));
 
         //위치 랜덤 지정
