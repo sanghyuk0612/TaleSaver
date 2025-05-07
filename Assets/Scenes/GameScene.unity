@@ -1331,7 +1331,6 @@ MonoBehaviour:
   rangedEnemyPrefab: {fileID: 1651906025392740170, guid: 5b3750462f1a61a4fa83e1a05b0dc11d, type: 3}
   LavaPrefab: {fileID: 0}
   SlimePrefab: {fileID: 0}
-  Werewolf: {fileID: 0}
   NPCPrefab: {fileID: 6364014128532130162, guid: e50bd652716ce4daba727bfdccab363f, type: 3}
   EventNPCPrefab: {fileID: 7796780820850055549, guid: 6268e168a34a4417c8bbaf0d1df0a9f3, type: 3}
 --- !u!4 &951144598
