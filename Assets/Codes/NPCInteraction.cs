@@ -73,7 +73,7 @@ public class NPCInteraction : MonoBehaviour
     public void OnNPCButtonClicked()
     {
         Debug.Log("OnNPCButtonClicked!");
-
+        Time.timeScale = 0;
         if (isDialogueActive)
             return; // 대화창이 열려 있으면 클릭 무시
 
@@ -235,6 +235,6 @@ public class NPCInteraction : MonoBehaviour
         {
             player.GetComponent<PlayerController>().canProcessInput = true;
         }
-
+        Time.timeScale = 1;
     }
 }
