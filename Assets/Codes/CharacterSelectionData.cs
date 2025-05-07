@@ -48,6 +48,7 @@ public class CharacterSelectionData : MonoBehaviour
         if (characterManager.characters.Length > 0)
         {
             selectedCharacterSprite = characterManager.characters[0].characterSprite;
+            selectedCharacterAnimator = characterManager.characters[0].animatorController;
             Debug.Log("Default character sprite set to: " + selectedCharacterSprite.name);
         }
         else
