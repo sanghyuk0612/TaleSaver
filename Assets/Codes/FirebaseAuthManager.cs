@@ -16,10 +16,23 @@ public class FirebaseAuthManager : MonoBehaviour
     public FirebaseUser CurrentUser => currentUser;
     public static FirebaseAuthManager Instance { get; private set; }
 
-    private FirebaseAuth auth;
     private FirebaseFirestore firestore;
     private bool isFirebaseReady = false;
-    public FirebaseAuth Auth => auth;
+
+        private FirebaseAuth auth;
+    public FirebaseAuth Auth
+    {
+        get
+        {
+            if (auth == null)
+            {
+                Debug.LogWarning("?? Auth is null, reinitializing...");
+                OnFirebaseInitialized();  // ? ??? ???? ???
+            }
+            return auth;
+        }
+    }
+
 
     void Awake()
     {
