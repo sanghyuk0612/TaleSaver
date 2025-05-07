@@ -109,18 +109,6 @@ public class InventoryManager : MonoBehaviour
         GameDataManager.Instance.SaveGoodsToFirestore(); // ✅ 즉시 Firebase 저장
     }
 
-    public void ResetLocalResources()
-    {
-        inventory.stone = 0;
-        inventory.tree = 0;
-        inventory.skin = 0;
-        inventory.steel = 0;
-        inventory.gold = 0;
-        inventory.battery = 0;
-
-        Debug.Log("🧹 로컬 재화 초기화 완료");
-    }
-
     public void SaveInventory()
     {
         SaveManager.Instance.SaveItemData(inventory);
