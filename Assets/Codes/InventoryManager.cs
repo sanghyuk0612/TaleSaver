@@ -44,6 +44,7 @@ public class InventoryManager : MonoBehaviour
     }
 
     // 아이템 추가
+    // 아이템 추가
     public void AddItem(int id, int quantity)
     {
         switch (id)
@@ -54,25 +55,24 @@ public class InventoryManager : MonoBehaviour
             case 3: inventory.steel += quantity; break;
             case 4: inventory.gold += quantity; break;
             case 5: inventory.battery += quantity; break;
-            case 6: // machineparts는 로비 재화
+
+            case 6: // ✅ 로비 재화
                 GameDataManager.Instance.machineParts += quantity;
                 break;
-            case 7: // storybookpages도 로비 재화
+            case 7: // ✅ 로비 재화
                 GameDataManager.Instance.storybookPage += quantity;
-                break;
-            case 8:
-                inventory.items.Add(quantity);
                 break;
         }
 
-        Debug.Log($"Added {quantity} {GetItemNameById(id)} to inventory.");
-
-        // 로컬 재화가 아닌 경우만 저장
+        // ✅ 로비 재화일 때만 Firebase에 저장
         if (id == 6 || id == 7)
         {
             GameDataManager.Instance.SaveGoodsToFirestore();
         }
+
+        Debug.Log($"Added {quantity} {GetItemNameById(id)} to inventory.");
     }
+
 
     // 아이템 제거
     public void RemoveItem(int id, int quantity)

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement; // 씬 관리를 위한 네임스페이스 추가
 
 public class PlayerController : MonoBehaviour, IDamageable
 {
@@ -38,7 +39,8 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 100;
-    private int currentHealth;
+    [SerializeField] private int currentHealth; // Inspector에서 확인 가능하도록 SerializeField 추가
+    [SerializeField] private int gameManagerHealth; // GameManager의 체력값을 표시할 변수 추가
 
     // 체력 관련 프로퍼티 추가
     public int MaxHealth => maxHealth;
@@ -114,6 +116,55 @@ public class PlayerController : MonoBehaviour, IDamageable
         
         // UI 업데이트
         UpdateHealthUI();
+        
+        // PlayerUI에 플레이어 명시적 연결
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this);
+            Debug.Log("PlayerUI와 플레이어 연결 완료");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerUI를 찾을 수 없습니다!");
+        }
+    }
+
+    private void Awake()
+    {
+        // 씬 로드 이벤트 등록
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        // 이벤트 등록 해제
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    
+    // 씬 로드 이벤트 핸들러
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 약간의 딜레이 후 PlayerUI 연결
+        StartCoroutine(ConnectUIAfterSceneLoad());
+    }
+    
+    private IEnumerator ConnectUIAfterSceneLoad()
+    {
+        // 씬 로드 후 오브젝트들이 초기화될 시간 확보
+        yield return new WaitForSeconds(0.1f);
+        
+        // PlayerUI 찾아서 연결
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this);
+            Debug.Log($"PlayerController: 씬 로드 후 PlayerUI 연결 - 씬: {SceneManager.GetActiveScene().name}");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerController: 씬 로드 후 PlayerUI를 찾을 수 없습니다!");
+        }
     }
 
     // 체력 초기화 메서드 - 한 곳에서 관리
@@ -265,6 +316,9 @@ public class PlayerController : MonoBehaviour, IDamageable
                 }
             }
         }
+
+        // GameManager의 체력값을 실시간으로 업데이트
+        gameManagerHealth = GameManager.Instance.CurrentPlayerHealth;
     }
 
     void CheckGround()
@@ -404,6 +458,19 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void OnEnable()
     {
         ApplyCharacterAnimator();
+        
+        // 체력 UI 즉시 업데이트 - GameScene 진입 시 슬라이더 동기화를 위함
+        UpdateHealthUI();
+        
+        // PlayerUI에 플레이어 다시 연결 (씬 전환 시 유용)
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        if (playerUI != null)
+        {
+            playerUI.SetPlayer(this);
+            Debug.Log("OnEnable: PlayerUI와 플레이어 연결 완료");
+        }
+        
+        Debug.Log($"PlayerController.OnEnable - 체력 UI 업데이트 완료: {currentHealth}/{maxHealth}");
     }
 
 
@@ -619,7 +686,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             Debug.Log($"플레이어 체력 회복: +{actualHeal}, 현재 체력: {currentHealth}/{maxHealth}");
             
-            // GameManager에 상태 저장
+            // GameManager에 상태 저장 (currentPlayerHealth도 업데이트됨)
             GameManager.Instance.SavePlayerHealth(currentHealth, maxHealth);
             
             // UI 업데이트
@@ -643,19 +710,16 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 체력 변경 로그
         Debug.Log($"플레이어 체력 업데이트 - 이전: {previousHealth}, 이후: {currentHealth}, 최대: {maxHealth}");
         
-        // 실제 변경이 있을 때만 UI 업데이트
+        // 실제 변경이 있을 때만 UI 업데이트 및 동기화
         if (currentHealth != previousHealth)
         {
+            // GameManager와 명시적 동기화
+            GameManager.Instance.SavePlayerHealth(currentHealth, maxHealth);
+            
             // UI 업데이트
             UpdateHealthUI();
             
-            // GameManager와 동기화
-            if (GameManager.Instance.CurrentPlayerHealth != currentHealth)
-            {
-                int prevGMHealth = GameManager.Instance.CurrentPlayerHealth;
-                GameManager.Instance.CurrentPlayerHealth = currentHealth;
-                Debug.Log($"GameManager 체력과 동기화: {prevGMHealth} -> {currentHealth}");
-            }
+            Debug.Log($"GameManager 체력과 동기화 완료: {GameManager.Instance.CurrentPlayerHealth}");
         }
         
         // 체력이 0이 되면 사망 처리

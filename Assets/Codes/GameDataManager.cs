@@ -26,7 +26,6 @@ public class GameDataManager : MonoBehaviour
         }
     }
 
-    // ?? 로그인 시 호출되는 함수
     public void SetGoodsData(Dictionary<string, object> goodsData)
     {
         if (goodsData.ContainsKey("storybookpages"))
@@ -35,12 +34,13 @@ public class GameDataManager : MonoBehaviour
         if (goodsData.ContainsKey("machineparts"))
             machineParts = int.Parse(goodsData["machineparts"].ToString());
 
-        // Inventory에도 반영
         InventoryManager.Instance.inventory.storybookpages = storybookPage;
         InventoryManager.Instance.inventory.machineparts = machineParts;
+
+        Debug.Log($"? Firestore 데이터 로딩 완료: storybookpages = {storybookPage}, machineparts = {machineParts}");
     }
 
-    // ?? 저장 함수
+    // ? 외부에서 호출 가능한 공개 메서드 추가!
     public void SaveGoodsToFirestore()
     {
         StartCoroutine(SaveGoodsWhenReady());
@@ -117,4 +117,5 @@ public class GameDataManager : MonoBehaviour
             });
         });
     }
+
 }

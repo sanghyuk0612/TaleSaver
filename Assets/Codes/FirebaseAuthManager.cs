@@ -19,7 +19,7 @@ public class FirebaseAuthManager : MonoBehaviour
     private FirebaseFirestore firestore;
     private bool isFirebaseReady = false;
 
-    private FirebaseAuth auth;
+        private FirebaseAuth auth;
     public FirebaseAuth Auth
     {
         get
@@ -27,11 +27,12 @@ public class FirebaseAuthManager : MonoBehaviour
             if (auth == null)
             {
                 Debug.LogWarning("?? Auth is null, reinitializing...");
-                OnFirebaseInitialized();  // ? 자동 초기화 시도
+                OnFirebaseInitialized();  // ? ??? ???? ???
             }
             return auth;
         }
     }
+
 
     void Awake()
     {

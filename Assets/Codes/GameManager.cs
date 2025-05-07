@@ -2,6 +2,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -117,7 +119,8 @@ public class GameManager : MonoBehaviour
     public void SavePlayerHealth(int currentHealth, int maxHealth)
     {
         savedPlayerHealth = currentHealth;
-        Debug.Log($"GameManager에 플레이어 체력 저장: {savedPlayerHealth}");
+        currentPlayerHealth = currentHealth; // currentPlayerHealth도 함께 업데이트
+        Debug.Log($"GameManager에 플레이어 체력 저장: {savedPlayerHealth}, GameManager.currentPlayerHealth: {currentPlayerHealth}");
     }
     
     // PlayerController에서 직접 호출하도록 개선
@@ -140,7 +143,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -154,8 +156,35 @@ public class GameManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindAndConnectGameOverUI();
+        
+        // 체력 UI 업데이트 추가
+        UpdatePlayerHealthUI();
     }
 
+    private void UpdatePlayerHealthUI()
+    {
+        // 약간의 지연을 주어 모든 오브젝트가 초기화된 후 실행
+        StartCoroutine(UpdatePlayerHealthUIDelayed());
+    }
+
+    private IEnumerator UpdatePlayerHealthUIDelayed()
+    {
+        // 1프레임 대기하여 모든 오브젝트가 활성화될 시간 제공
+        yield return null;
+        
+        PlayerController player = FindObjectOfType<PlayerController>();
+        PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+        
+        if (player != null && playerUI != null)
+        {
+            // 플레이어 체력 비율 계산
+            float healthPercent = (float)player.CurrentHealth / player.MaxHealth;
+            
+            // UI 업데이트
+            playerUI.UpdateHealthSlider(healthPercent);
+            Debug.Log($"GameScene 진입 - 체력 UI 업데이트: {player.CurrentHealth}/{player.MaxHealth} ({healthPercent:P0})");
+        }
+    }
 
     private void Awake()
     {
@@ -226,12 +255,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
-        {
-            Debug.Log("✅ GameScene 진입 시 Firebase 로그인 정보 정상!");
-            // 여기서 Firestore 데이터 요청 또는 저장해도 OK
-        }));
-
         //위치 랜덤 지정
         // location = Random.Range(0,6);
         // while(location==4){
@@ -786,6 +809,13 @@ public class GameManager : MonoBehaviour
         chapter = 1;
         score = 0;
         currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
+
+        // PlayerController에 즉시 반영 시도
+        PlayerController player = FindObjectOfType<PlayerController>();
+        if (player != null)
+        {
+            player.UpdateHealth(currentPlayerHealth);
+        }
 
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");

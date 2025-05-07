@@ -3879,6 +3879,10 @@ PrefabInstance:
       propertyPath: m_FillCenter
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5693885838440297355, guid: 0aa8535746ec92846ad97e12e43ed025, type: 3}
+      propertyPath: offset.x
+      value: -5
+      objectReference: {fileID: 0}
     - target: {fileID: 6767437284111935522, guid: 0aa8535746ec92846ad97e12e43ed025, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
