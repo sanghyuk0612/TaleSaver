@@ -286,6 +286,7 @@ public class MeleeEnemy : MonoBehaviour
 
     private void Die()
     {
+        PortalManager.Instance.killEnemy(1);
         StopMoving();
         // 애니메이션을 Dead 상태로 전환
         if (animator != null)
@@ -294,7 +295,7 @@ public class MeleeEnemy : MonoBehaviour
         }
 
         Debug.Log("MeleeEnemy died.");
-
+        
         // 5초 후 게임 오브젝트 제거
         StartCoroutine(DestroyAfterDelay(1f));
     }
