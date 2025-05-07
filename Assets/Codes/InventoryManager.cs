@@ -44,6 +44,7 @@ public class InventoryManager : MonoBehaviour
     }
 
     // 아이템 추가
+    // 아이템 추가
     public void AddItem(int id, int quantity)
     {
         switch (id)
@@ -63,13 +64,15 @@ public class InventoryManager : MonoBehaviour
                 break;
         }
 
+        // ✅ 로비 재화일 때만 Firebase에 저장
         if (id == 6 || id == 7)
         {
             GameDataManager.Instance.SaveGoodsToFirestore();
         }
-        Debug.Log($"Added {quantity} {GetItemNameById(id)} to inventory."); // 아이템 이름 출력
-        GameDataManager.Instance.SaveGoodsToFirestore();  // ✅ Firebase에 바로 저장
+
+        Debug.Log($"Added {quantity} {GetItemNameById(id)} to inventory.");
     }
+
 
     // 아이템 제거
     public void RemoveItem(int id, int quantity)
