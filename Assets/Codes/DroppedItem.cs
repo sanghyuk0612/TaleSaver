@@ -39,7 +39,7 @@ public class DroppedItem : MonoBehaviour
         }
 
         // 랜덤 아이템 ID 설정 (0~8 중 하나)
-        int randomId = Random.Range(0, 9);
+        int randomId = Random.Range(0, 8);
         string randomItemName = inventoryManager.GetItemNameById(randomId);
 
         // 현재 아이템 오브젝트를 초기화

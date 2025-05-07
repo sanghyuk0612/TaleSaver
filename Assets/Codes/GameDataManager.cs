@@ -3,6 +3,7 @@ using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
 using Firebase.Auth;
+using System.Collections;
 
 public class GameDataManager : MonoBehaviour
 {
@@ -41,47 +42,42 @@ public class GameDataManager : MonoBehaviour
     // ?? 저장 함수
     public void SaveGoodsToFirestore()
     {
-        // FirebaseAuthManager가 준비되었는지 체크
-        if (FirebaseAuthManager.Instance == null)
-        {
-            Debug.LogError("? FirebaseAuthManager.Instance 가 null입니다.");
-            return;
-        }
+        StartCoroutine(SaveGoodsWhenReady());
+    }
 
-        if (!FirebaseAuthManager.Instance.IsLoggedIn())
-        {
-            Debug.LogError("? 로그인 상태가 아닙니다. Firestore 저장 불가.");
-            return;
-        }
-
-        FirebaseUser user = FirebaseAuthManager.Instance.Auth.CurrentUser;
-
-        if (user == null)
-        {
-            Debug.LogError("? CurrentUser가 null입니다.");
-            return;
-        }
-
-        string uid = user.UserId;
-
-        Dictionary<string, object> goodsData = new Dictionary<string, object>()
+    private IEnumerator SaveGoodsWhenReady()
     {
-        { "storybookpages", storybookPage },
-        { "machineparts", machineParts }
-    };
-
-        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-
-        db.Collection("goods").Document(uid).SetAsync(goodsData).ContinueWithOnMainThread(task =>
+        yield return FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
         {
-            if (task.IsCompletedSuccessfully)
+            FirebaseUser user = FirebaseAuthManager.Instance.Auth.CurrentUser;
+
+            if (user == null)
             {
-                Debug.Log("? Firestore에 goods 데이터 저장 완료");
+                Debug.LogError("? Firestore 저장 실패: user null");
+                return;
             }
-            else
+
+            string uid = user.UserId;
+            Dictionary<string, object> goodsData = new Dictionary<string, object>()
+        {
+            { "storybookpages", storybookPage },
+            { "machineparts", machineParts }
+        };
+
+            FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+            db.Collection("goods").Document(uid).SetAsync(goodsData).ContinueWithOnMainThread(task =>
             {
-                Debug.LogError($"? goods 저장 실패: {task.Exception?.Message}");
-            }
+                if (task.IsCompletedSuccessfully)
+                {
+                    Debug.Log($"? Firestore에 goods 저장 완료! machineparts: {machineParts}, storybook: {storybookPage}");
+                }
+                else
+                {
+                    Debug.LogError($"? Firestore 저장 실패: {task.Exception?.Message}");
+                }
+            });
         });
     }
+
 }
