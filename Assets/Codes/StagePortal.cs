@@ -12,11 +12,11 @@ public class StagePortal : MonoBehaviour
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
+                PortalManager.Instance.ResetEnemyCount();
                 if (SceneManager.GetActiveScene().name == "GameScene")
                 {
                     int currentStage = GameManager.Instance.Stage;
                     GameManager.Instance.SavePlayerState();
-
                     // 스테이지 4와 8 이후에는 Store 씬으로 이동
                     if (currentStage == 4 || currentStage == 8)
                     {

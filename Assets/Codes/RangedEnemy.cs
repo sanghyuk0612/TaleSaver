@@ -302,11 +302,11 @@ public class RangedEnemy : MonoBehaviour
 
     private void Die()
     {
+        PortalManager.Instance.killEnemy(1);
         StopMoving();
         animator.SetTrigger("Dead");
 
         Debug.Log("RangedEnemy died.");
-        PortalManager.Instance.killEnemy(1);
         
         // 게임 오브젝트 제거
         StartCoroutine(DestroyAfterDelay(1f));

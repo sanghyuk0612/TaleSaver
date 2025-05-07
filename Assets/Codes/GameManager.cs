@@ -278,7 +278,6 @@ public class GameManager : MonoBehaviour
         
         // 플레이어 컨트롤러와 체력 동기화
         SyncPlayerHealth();
-        
         skillCooldownTimers = new float[5];
         Debug.Log("스킬쿨 초기화");
         Debug.Log(skillCooldownTimers);
@@ -354,7 +353,6 @@ public class GameManager : MonoBehaviour
         chapter = 1;
         stage = 1;
         score = 0;
-        
         isPlayerInRange = false;
     }
     
@@ -474,8 +472,8 @@ public class GameManager : MonoBehaviour
 
         // 플레이어 위치 리셋
         ResetPlayerPosition();
-        PortalManager.Instance.enemyNumber=0;
-        PortalManager.Instance.enemyText.text = "0";
+        PortalManager.Instance.ResetEnemyCount();
+
         // 새로운 적 스폰
         SpawnManager.Instance.SpawnEntities();
     }
@@ -662,36 +660,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void LoadCurrentCharacterInfo()
-    {
-        if (CurrentCharacter != null)
-        {
-            Debug.Log($"Current Character: {CurrentCharacter.characterName}");
-
-            if (CurrentCharacter.skills != null && CurrentCharacter.skills.Length > 0)
-            {
-                foreach (var skill in CurrentCharacter.skills)
-                {
-                    if (skill != null)
-                    {
-                        Debug.Log($"Loaded Skill: {skill.skillName}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Skill is null!");
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogWarning("No skills found for this character.");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No character is currently selected.");
-        }
-    }
 
     public void LoadSelectedCharacter()
     {
@@ -810,6 +778,7 @@ public class GameManager : MonoBehaviour
         score = 0;
         currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
         InventoryManager.Instance.ResetInventory(); // 인벤토리 초기화
+        PortalManager.Instance.ResetEnemyCount();
 
         // PlayerController에 즉시 반영 시도
         PlayerController player = FindObjectOfType<PlayerController>();

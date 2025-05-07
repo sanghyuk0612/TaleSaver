@@ -44,8 +44,21 @@ public class PortalManager : MonoBehaviour
 
     void Start()
     {
+        ResetEnemyCount();
         FindEnemyText(); // 처음 시작할 때도 연결 시도
     }
+
+    public void ResetEnemyCount()
+    {
+        enemyNumber = 0;
+        killNumber = 0;
+
+        if (enemyText != null)
+            enemyText.text = enemyNumber.ToString();
+
+        Debug.Log("✅ 적 카운트 리셋 완료");
+    }
+
 
     private void FindEnemyText()
     {
@@ -54,6 +67,7 @@ public class PortalManager : MonoBehaviour
         if (textObj != null)
         {
             enemyText = textObj.GetComponent<Text>();
+            enemyText.text = "0";
             Debug.Log("enemyText 연결 성공");
         }
         else

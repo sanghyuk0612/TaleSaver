@@ -28,6 +28,7 @@ public class MapManager : MonoBehaviour
 
     public float right;
     public int location;
+    public string mapName;
 
     private void Awake()
     {
@@ -183,7 +184,7 @@ public class MapManager : MonoBehaviour
 
     private void LoadMonsterDataForMap()
     {
-        string mapName = GetMapNameFromLocation(location);
+        mapName = GetMapNameFromLocation(location);
         currentMonsterList = monsterDatabase.GetMonstersForMap(mapName);
         Debug.Log($"Loaded {currentMonsterList.Count} monsters for {mapName}");
     }

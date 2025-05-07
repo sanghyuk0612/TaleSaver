@@ -40,7 +40,7 @@ public class LavaGiant : MonoBehaviour
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
-    private InventoryManager inventoryManager;
+
     [Header("Attack")]
     public int dashForce = 30;
     public int dashCooltime = 3;
@@ -122,9 +122,8 @@ public class LavaGiant : MonoBehaviour
             return; // InventoryManager가 없으면 메서드 종료
         }
         canMove = true;
-
-        inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
     }
+
         void Update()
     {
         if(!isDead){
@@ -261,7 +260,6 @@ private void Jump(){
 
 private void SmashAttack()
 {
-    
     // 이펙트 생성
     //StartCoroutine(StopMovement(1f));
     
@@ -321,64 +319,37 @@ private IEnumerator StopMovement(float stopDuration)
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
     private void Death()
     {
-        isDead=true;
+        PortalManager.Instance.killEnemy(1);
+        isDead =true;
         attackDamage=0;
         if (calculatedHealth <= 0)
         {
-            //DropItem();
-            //Destroy(gameObject);
             Debug.Log("보스몬스터 죽음");
             anim.SetTrigger("death");
-            MapManager.Instance.SpawnPortal();
+            StartCoroutine(DestroyAfterDelay(1f));
         }
     }
-    public void OnDeathAnimationEnd()
-{
-    Destroy(gameObject);
-}
 
-    
-
-    void DropItem()
+    private IEnumerator DestroyAfterDelay(float delay)
     {
-        if (inventoryManager == null)
+        yield return new WaitForSeconds(delay);
+        Destroy(gameObject);
+        MapManager.Instance.SpawnPortal();
+        if (itemPrefab != null)
         {
-            Debug.LogError("InventoryManager is not initialized.");
-            return; // inventoryManager가 null이면 메서드 종료
+            int dropCount = 5; // 원하는 아이템 개수
+            for (int i = 0; i < dropCount; i++)
+            {
+                // 약간씩 위치를 랜덤으로 흩뿌리기
+                Vector3 dropPosition = transform.position + (Vector3)Random.insideUnitCircle * 0.5f;
+
+                DroppedItem droppedItem = Instantiate(itemPrefab, dropPosition, Quaternion.identity)
+                    .GetComponent<DroppedItem>();
+                droppedItem.DropItem();
+            }
         }
-
-        if (itemPrefab == null)
-        {
-            Debug.LogError("Item prefab is not assigned.");
-            return; // itemPrefab이 null이면 �서드 종료
-        }
-
-        string itemName = inventoryManager.GetItemNameById(0);
-        
-        // 랜덤 ID 생성 (0~4 중 하나)
-        int randomId = Random.Range(0, 5);
-
-        // 드랍 위치
-        Vector3 dropPosition = transform.position;
-
-        // 아이템 생성
-        GameObject droppedItem = Instantiate(itemPrefab, dropPosition, Quaternion.identity);
-
-        // 아이템 초기화
-        DroppedItem itemComponent = droppedItem.GetComponent<DroppedItem>();
-        if (itemComponent != null)
-        {
-            itemName = inventoryManager.GetItemNameById(randomId); // ID에 따른 이름
-            itemComponent.Initialize(randomId, itemName);
-        }
-        else
-        {
-            Debug.LogError("DroppedItem component not found on the instantiated item.");
-        }
-
-        Debug.Log($"Dropped {itemName} at {dropPosition}");
     }
-
+   
     // 디버그용 시각화
     void OnDrawGizmosSelected()
     {
