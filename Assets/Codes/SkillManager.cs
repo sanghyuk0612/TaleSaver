@@ -399,7 +399,20 @@ public class SkillManager : MonoBehaviour
     {
         // 모든 객체의 체력 값을 로그로 출력
         PlayerController playerCtrl = FindObjectOfType<PlayerController>();
-        Debug.Log($"[디버깅] SkillManager - 체력 값들: PlayerController.currentHealth = {(playerCtrl != null ? playerCtrl.CurrentHealth : -1)}, GameManager.currentPlayerHealth = {GameManager.Instance.CurrentPlayerHealth}");
+        int playerCurrentHealth = playerCtrl != null ? playerCtrl.CurrentHealth : -1;
+        int gameManagerCurrentHealth = GameManager.Instance.CurrentPlayerHealth;
+        
+        Debug.Log($"[디버깅] SkillManager - 체력 값들: PlayerController.currentHealth = {playerCurrentHealth}, GameManager.currentPlayerHealth = {gameManagerCurrentHealth}");
+        
+        // 체력 불일치 감지 및 즉시 동기화
+        if (playerCurrentHealth != gameManagerCurrentHealth && playerCurrentHealth != -1)
+        {
+            Debug.LogWarning($"[디버깅] 체력 불일치 발견! PlayerController: {playerCurrentHealth}, GameManager: {gameManagerCurrentHealth}");
+            
+            // PlayerController의 체력을 우선시하여 GameManager 동기화
+            GameManager.Instance.SavePlayerHealth(playerCurrentHealth, playerCtrl.MaxHealth);
+            Debug.Log($"[디버깅] GameManager 체력을 PlayerController 체력으로 동기화: {gameManagerCurrentHealth} -> {playerCurrentHealth}");
+        }
         
         switch (skill.effectType)
         {
@@ -418,27 +431,12 @@ public class SkillManager : MonoBehaviour
                 }
                 break;
             case CharacterSkill.EffectType.Heal:
-                // 디버깅 로그 추가
-                Debug.Log($"[디버깅] Heal 스킬 처리 시작 - PlayerController 체력: {(playerCtrl != null ? playerCtrl.CurrentHealth : -1)}, GameManager 체력: {GameManager.Instance.CurrentPlayerHealth}");
+                // 현재 체력은 항상 PlayerController에서 직접 가져옴 (GameManager 무시)
+                int currentHealth = playerCtrl != null ? playerCtrl.CurrentHealth : GameManager.Instance.GetSavedPlayerHealth();
+                int maxHealth = playerCtrl != null ? playerCtrl.MaxHealth : GameManager.Instance.MaxHealth;
                 
                 // 체력 회복량 계산
                 int healAmount = CalculateHealAmount(skill.effectValue);
-                
-                // 현재 체력은 PlayerController에서 직접 가져옴
-                int playerCurrentHealth = playerCtrl != null ? playerCtrl.CurrentHealth : -1;
-                
-                // GameManager의 체력 값도 확인
-                int gameManagerCurrentHealth = GameManager.Instance.CurrentPlayerHealth;
-                
-                // 두 값이 다르면 로그로 출력
-                if (playerCurrentHealth != gameManagerCurrentHealth && playerCurrentHealth != -1)
-                {
-                    Debug.LogWarning($"[디버깅] 체력 불일치 발견! PlayerController: {playerCurrentHealth}, GameManager: {gameManagerCurrentHealth}");
-                }
-                
-                // 실제 사용할 체력 값 결정 (PlayerController 우선)
-                int currentHealth = playerCurrentHealth != -1 ? playerCurrentHealth : gameManagerCurrentHealth;
-                int maxHealth = GameManager.Instance.MaxHealth;
                 
                 // 현재 체력 상태 기록
                 Debug.Log($"Heal 스킬 사용 전 - 현재 체력: {currentHealth}, 최대 체력: {maxHealth}");
