@@ -787,13 +787,6 @@ public class GameManager : MonoBehaviour
         score = 0;
         currentPlayerHealth = GetCurrentMaxHealth(); // 최대 체력으로 초기화
 
-        // PlayerController에 즉시 반영 시도
-        PlayerController player = FindObjectOfType<PlayerController>();
-        if (player != null)
-        {
-            player.UpdateHealth(currentPlayerHealth);
-        }
-
         // 현재 씬 다시 로드
         SceneManager.LoadScene("Lobby");
     }
