@@ -85,6 +85,7 @@ public class MapManager : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "GameScene")
         {
             GenerateStage();
+            LoadMonsterDataForMap();
             StartCoroutine(RepeatFunction());
         }
         else if (SceneManager.GetActiveScene().name == "Store")
@@ -96,8 +97,9 @@ public class MapManager : MonoBehaviour
             GenerateBossMap();
             SpawnManager.Instance.SpawnBoss();
         }
+        
+        
         SpawnInitialEntities();
-        LoadMonsterDataForMap();
     }
 
     // IEnumerator를 반환하는 메서드
@@ -106,6 +108,7 @@ public class MapManager : MonoBehaviour
         while (true) // 무한 반복
         {
             yield return new WaitForSeconds(responTime); // 10초 대기
+            SpawnManager.Instance.SpawnEntities();
             SpawnManager.Instance.SpawnEntities();
         }
     }
@@ -116,7 +119,7 @@ public class MapManager : MonoBehaviour
     private void LoadMapPrefabs()
     {
         GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Map/Cave");
-        location = 5;
+        location = GameManager.Instance.location;
         List<GameObject> filteredPrefabs = new List<GameObject>();
 
         switch (location)
@@ -353,6 +356,7 @@ public class MapManager : MonoBehaviour
     public void GenerateStage()
     {
         ClearStage();
+        
         if (mapPrefabs.Count < 3)
         {
             Debug.LogError("Not enough map prefabs!");
@@ -446,7 +450,6 @@ public class MapManager : MonoBehaviour
             }
             Destroy(mapSection);
         }
-
         SpawnPortal();
 
         // NPC 소환
@@ -612,9 +615,12 @@ public class MapManager : MonoBehaviour
         }
 
         // SpawnManager를 통해 적 소환
-        if (SceneManager.GetActiveScene().name != "BossStage")
+        if (SceneManager.GetActiveScene().name == "GameScene")
         {
-            SpawnManager.Instance.SpawnEntities();
+            for(int i=0;i<10;i++){
+                Debug.Log("몬스터 소환");
+                SpawnManager.Instance.SpawnEntities();
+            }
         }
     }
 

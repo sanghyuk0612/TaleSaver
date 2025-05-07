@@ -35,18 +35,27 @@ public class BackgroundManager : MonoBehaviour
     {
         UpdateBackground();
     }
-
+    //임시
     public void UpdateBackground()
     {
         int location = GameManager.Instance.location;
 
-        if (location >= 0 && location < backgroundImages.Length)
+        // location 값을 인덱스로 매핑 (예: location 5 → index 0, location 4 → index 1)
+        int index = -1;
+
+        switch (location)
         {
-            backgroundRenderer.sprite = backgroundImages[location];
+            case 5: index = 0; break; // 화산
+            case 4: index = 1; break; // 연구소 보스
+            default:
+                Debug.LogWarning("지원되지 않는 location입니다: " + location);
+                break;
         }
-        else
+
+        if (index >= 0 && index < backgroundImages.Length)
         {
-            Debug.Log("배경 이미지 인덱스 오류");
+            backgroundRenderer.sprite = backgroundImages[index];
         }
     }
+
 }
