@@ -39,7 +39,7 @@ public class DroppedItem : MonoBehaviour
         }
 
         // 랜덤 아이템 ID 설정 (0~8 중 하나)
-        int randomId = Random.Range(0, 9);
+        int randomId = Random.Range(0, 8);
         string randomItemName = inventoryManager.GetItemNameById(randomId);
 
         // 현재 아이템 오브젝트를 초기화
@@ -56,17 +56,19 @@ public class DroppedItem : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             Debug.Log("Player collided with dropped item!");
-            if (InventoryManager.Instance != null)
-            {
-                InventoryManager.Instance.AddItem(itemId, quantity);
-            }
-            else
+
+            if (InventoryManager.Instance == null)
             {
                 Debug.LogError("InventoryManager 인스턴스를 찾을 수 없음!");
+                return;
             }
 
-            // 아이템 제거
-            Destroy(gameObject);
+            // Firebase 로그인 준비가 되었을 때만 AddItem 호출
+            StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
+            {
+                InventoryManager.Instance.AddItem(itemId, quantity);
+                Destroy(gameObject);  // 아이템 제거는 여기서 해야 함
+            }));
         }
         else
         {

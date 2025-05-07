@@ -106,6 +106,40 @@ public class GameManager : MonoBehaviour
     public Text DeathStage;
     public Text DeathTime;
 
+    // 플레이어 체력 상태 저장용 변수 (단순화)
+    private int savedPlayerHealth = -1;
+    
+    // 체력 관련 메서드
+    public bool HasSavedPlayerHealth() => savedPlayerHealth > 0;
+    
+    public int GetSavedPlayerHealth() => savedPlayerHealth;
+    
+    public void SavePlayerHealth(int currentHealth, int maxHealth)
+    {
+        savedPlayerHealth = currentHealth;
+        Debug.Log($"GameManager에 플레이어 체력 저장: {savedPlayerHealth}");
+    }
+    
+    // PlayerController에서 직접 호출하도록 개선
+    public void RestorePlayerState(PlayerController player)
+    {
+        if (player != null && HasSavedPlayerHealth())
+        {
+            Debug.Log($"GameManager에서 플레이어 체력 복원: {savedPlayerHealth}");
+            player.RestoreHealth(savedPlayerHealth);
+        }
+    }
+    
+    // ModifyHealth 대신 PlayerController에서 처리하도록 변경
+    public void HealPlayer(int amount)
+    {
+        PlayerController player = FindObjectOfType<PlayerController>();
+        if (player != null)
+        {
+            player.RestoreHealth(amount);
+        }
+    }
+
 
     private void OnEnable()
     {
@@ -192,6 +226,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        StartCoroutine(FirebaseAuthManager.Instance.WaitUntilUserIsReady(() =>
+        {
+            Debug.Log("✅ GameScene 진입 시 Firebase 로그인 정보 정상!");
+            // 여기서 Firestore 데이터 요청 또는 저장해도 OK
+        }));
+
         //위치 랜덤 지정
         // location = Random.Range(0,6);
         // while(location==4){
