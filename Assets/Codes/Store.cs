@@ -7,14 +7,19 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class Store : MonoBehaviour
 {
+    public static Store Instance { get; private set; }
+
     public float interactionRange = 2f;
     List<int> selectedItem;
     private int[] prePrice;
     private int[] nowPrice;
+    public int[] changePrice;
+
     [Header("Store Object")]
     public GameObject StoreWindow;
     ItemListData itemList;
     PlayerItemData inventory;
+
     [Header("Item Object")]
     public List<Button> buttonList;
     //public Image item1image;
@@ -86,7 +91,8 @@ public class Store : MonoBehaviour
                 nowPrice[i] = InventoryManager.Instance.inventory.itemPriceRange[i,1];
             }
             changeRate[i].text = "(등락수치 : "+(nowPrice[i]-prePrice[i]).ToString()+")";
-            if(nowPrice[i]-prePrice[i]>0){
+            changePrice[i] = nowPrice[i] - prePrice[i];
+            if (nowPrice[i]-prePrice[i]>0){
                 changeRate[i].color = Color.red;
             }
             else if(nowPrice[i]-prePrice[i]<0){
@@ -100,10 +106,10 @@ public class Store : MonoBehaviour
         }
         //가격 갱신
         InventoryManager.Instance.inventory.stonePrice=nowPrice[0];
-        InventoryManager.Instance.inventory.treePrice= nowPrice[1];
-        InventoryManager.Instance.inventory.skinPrice= nowPrice[2];
-        InventoryManager.Instance.inventory.steelPrice= nowPrice[3];
-        InventoryManager.Instance.inventory.goldPrice= nowPrice[4];
+        InventoryManager.Instance.inventory.treePrice=nowPrice[1];
+        InventoryManager.Instance.inventory.skinPrice=nowPrice[2];
+        InventoryManager.Instance.inventory.steelPrice=nowPrice[3];
+        InventoryManager.Instance.inventory.goldPrice=nowPrice[4];
     }
 
     private void Update()

@@ -452,8 +452,13 @@ public class MapManager : MonoBehaviour
         }
         SpawnPortal();
 
-        // NPC 소환
+        // Event NPC 소환
         if (GameManager.Instance.Stage == 1)
+        {
+            SpawnManager.Instance.SpawnNPC();
+        }
+        // NPC 소환
+        if (GameManager.Instance.Stage == 2)
         {
             SpawnManager.Instance.SpawnNPC();
         }

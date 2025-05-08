@@ -131,8 +131,31 @@ public class NPCInteraction : MonoBehaviour
         switch (currentState)
         {
             case DialogueState.Normal:
-                Dialogues = normalDialogue;
+                if (!isEventNPC)
+                {
+                    int randomId = Random.Range(0, 5);
+                    string itemName = InventoryManager.Instance.GetItemNameById(randomId);
+                    int change = Store.Instance.changePrice[randomId];
+
+                    if (change > 0)
+                    {
+                        Dialogues = new string[] { $"최근 {itemName}의 가격이 상승하고 있어요. 필요하다면 서둘러 구매하는 게 좋겠네요!" };
+                    }
+                    else if (change < 0)
+                    {
+                        Dialogues = new string[] { $"{itemName}의 가격이 요즘 떨어지고 있어요. 지금이 구매 찬스일지도 몰라요!" };
+                    }
+                    else
+                    {
+                        Dialogues = new string[] { $"{itemName}의 가격은 현재 안정적이에요. 특별한 변동은 없네요." };
+                    }
+                }
+                else
+                {
+                    Dialogues = normalDialogue;
+                }
                 break;
+
             case DialogueState.Event:
                 Dialogues = eventDialogue;
                 break;
