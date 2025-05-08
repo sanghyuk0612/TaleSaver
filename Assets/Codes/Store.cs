@@ -13,12 +13,13 @@ public class Store : MonoBehaviour
     List<int> selectedItem;
     private int[] prePrice;
     private int[] nowPrice;
-    public int[] changePrice;
+    public static int[] changePrice = new int[5];
 
     [Header("Store Object")]
     public GameObject StoreWindow;
     ItemListData itemList;
     PlayerItemData inventory;
+    private bool isFirstStoreVisit = true;
 
     [Header("Item Object")]
     public List<Button> buttonList;
@@ -46,6 +47,15 @@ public class Store : MonoBehaviour
     public List<Text> changeRate;
 
     private void Awake() {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         selectedItem = new List<int>();
         prePrice = new int[5];
         nowPrice = new int[5];
@@ -67,7 +77,12 @@ public class Store : MonoBehaviour
         item2Cost.text = ItemListData.items[selectedItem[1]].price.ToString()+ " Gold";
         item3Name.text = ItemListData.items[selectedItem[2]].name;
         item3Cost.text = ItemListData.items[selectedItem[2]].price.ToString()+ " Gold";
-        stockUpdate();
+        //stockUpdate();
+        if (isFirstStoreVisit)
+        {
+            stockUpdate();
+            isFirstStoreVisit = false;
+        }
         Stone.text = InventoryManager.Instance.inventory.stone+"개 소유";
         Tree.text = InventoryManager.Instance.inventory.tree+"개 소유";
         Skin.text = InventoryManager.Instance.inventory.skin+"개 소유";
@@ -143,6 +158,7 @@ public class Store : MonoBehaviour
         StoreWindow.SetActive(true);
         itemEx.text = "";
     }
+
     public void sellItem(int buttonId){
         switch(buttonId){
             case 0:
@@ -177,6 +193,7 @@ public class Store : MonoBehaviour
         Time.timeScale=1;
         StoreWindow.SetActive(false);
     }
+
     public void showItemEx(int buttonId){
         itemEx.text = ItemListData.items[selectedItem[buttonId]].explaination;
     }

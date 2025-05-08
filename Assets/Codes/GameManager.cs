@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     {
         if (lastStageBeforeStore != -1)
             stage = lastStageBeforeStore;
+        Store.Instance.stockUpdate();
     }
     public float PlayTime
     {
@@ -156,7 +157,6 @@ public class GameManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindAndConnectGameOverUI();
-        
         // 체력 UI 업데이트 추가
         UpdatePlayerHealthUI();
     }
@@ -265,7 +265,7 @@ public class GameManager : MonoBehaviour
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
         // 현재 캐릭터의 최대 체력 설정
         maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
-
+        
         // 실시간 디버깅을 위해 체력 초기값 로깅
         Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
         
@@ -466,7 +466,6 @@ public class GameManager : MonoBehaviour
         DestroyAllEnemies();
         // 모든 드랍템 제거
         DestroyAllDroppedItems();
-        DestroyNPC();
 
         // 플레이어 위치 리셋
         ResetPlayerPosition();
