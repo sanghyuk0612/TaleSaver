@@ -28,6 +28,7 @@ public class RangedEnemy : MonoBehaviour
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth; // 계산된 체력
     public float currentHealth; // 현재 체력
+    public bool isDead;
 
     private float nextAttackTime;
     private Rigidbody2D rb;
@@ -56,6 +57,7 @@ public class RangedEnemy : MonoBehaviour
         float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
         calculatedHealth = baseHealth * healthMultiplierValue;
         currentHealth = calculatedHealth;
+        isDead = false;
 
         attackDamage = Mathf.RoundToInt(baseDamage * damageMultiplier.GetDamageMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter));
 
@@ -294,7 +296,7 @@ public class RangedEnemy : MonoBehaviour
         currentHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"RangedEnemy took damage: {damage}. Current health: {currentHealth}");
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && !isDead)
         {
             Die(); // 체력이 0 이하가 되면 사망 처리
         }
@@ -305,7 +307,7 @@ public class RangedEnemy : MonoBehaviour
         PortalManager.Instance.killEnemy(1);
         StopMoving();
         animator.SetTrigger("Dead");
-
+        isDead = true;
         Debug.Log("RangedEnemy died.");
         
         // 게임 오브젝트 제거
