@@ -501,6 +501,7 @@ public class MapManager : MonoBehaviour
             Gizmos.DrawWireSphere(pos, 0.5f); // 원형 그리기
         }
     }
+
     // ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
     void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
     {
