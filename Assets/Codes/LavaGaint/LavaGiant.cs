@@ -111,6 +111,7 @@ public class LavaGiant : MonoBehaviour
     bool canMove;
     private int direc;
     bool isDead;
+    
 
 
     private void Awake()
@@ -329,10 +330,7 @@ private IEnumerator StopMovement(float stopDuration)
             StartCoroutine(DestroyAfterDelay(4f));
         }
     }
-
-    private IEnumerator DestroyAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
+    void OnDeathAnimationEnd(){
         Destroy(gameObject);
         MapManager.Instance.SpawnPortal();
         if (itemPrefab != null)
@@ -348,6 +346,12 @@ private IEnumerator StopMovement(float stopDuration)
                 droppedItem.DropItem();
             }
         }
+    }
+
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
     }
    
     // 디버그용 시각화
