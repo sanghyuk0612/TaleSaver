@@ -7,14 +7,20 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class Store : MonoBehaviour
 {
+    public static Store Instance { get; private set; }
+
     public float interactionRange = 2f;
     List<int> selectedItem;
     private int[] prePrice;
     private int[] nowPrice;
+    public static int[] changePrice = new int[5];
+
     [Header("Store Object")]
     public GameObject StoreWindow;
     ItemListData itemList;
     PlayerItemData inventory;
+    private bool isFirstStoreVisit = true;
+
     [Header("Item Object")]
     public List<Button> buttonList;
     //public Image item1image;
@@ -41,6 +47,15 @@ public class Store : MonoBehaviour
     public List<Text> changeRate;
 
     private void Awake() {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
         selectedItem = new List<int>();
         prePrice = new int[5];
         nowPrice = new int[5];
@@ -62,7 +77,12 @@ public class Store : MonoBehaviour
         item2Cost.text = ItemListData.items[selectedItem[1]].price.ToString()+ " Gold";
         item3Name.text = ItemListData.items[selectedItem[2]].name;
         item3Cost.text = ItemListData.items[selectedItem[2]].price.ToString()+ " Gold";
-        stockUpdate();
+        //stockUpdate();
+        if (isFirstStoreVisit)
+        {
+            stockUpdate();
+            isFirstStoreVisit = false;
+        }
         Stone.text = InventoryManager.Instance.inventory.stone+"개 소유";
         Tree.text = InventoryManager.Instance.inventory.tree+"개 소유";
         Skin.text = InventoryManager.Instance.inventory.skin+"개 소유";
@@ -86,7 +106,8 @@ public class Store : MonoBehaviour
                 nowPrice[i] = InventoryManager.Instance.inventory.itemPriceRange[i,1];
             }
             changeRate[i].text = "(등락수치 : "+(nowPrice[i]-prePrice[i]).ToString()+")";
-            if(nowPrice[i]-prePrice[i]>0){
+            changePrice[i] = nowPrice[i] - prePrice[i];
+            if (nowPrice[i]-prePrice[i]>0){
                 changeRate[i].color = Color.red;
             }
             else if(nowPrice[i]-prePrice[i]<0){
@@ -100,10 +121,10 @@ public class Store : MonoBehaviour
         }
         //가격 갱신
         InventoryManager.Instance.inventory.stonePrice=nowPrice[0];
-        InventoryManager.Instance.inventory.treePrice= nowPrice[1];
-        InventoryManager.Instance.inventory.skinPrice= nowPrice[2];
-        InventoryManager.Instance.inventory.steelPrice= nowPrice[3];
-        InventoryManager.Instance.inventory.goldPrice= nowPrice[4];
+        InventoryManager.Instance.inventory.treePrice=nowPrice[1];
+        InventoryManager.Instance.inventory.skinPrice=nowPrice[2];
+        InventoryManager.Instance.inventory.steelPrice=nowPrice[3];
+        InventoryManager.Instance.inventory.goldPrice=nowPrice[4];
     }
 
     private void Update()
@@ -137,6 +158,7 @@ public class Store : MonoBehaviour
         StoreWindow.SetActive(true);
         itemEx.text = "";
     }
+
     public void sellItem(int buttonId){
         switch(buttonId){
             case 0:
@@ -171,6 +193,7 @@ public class Store : MonoBehaviour
         Time.timeScale=1;
         StoreWindow.SetActive(false);
     }
+
     public void showItemEx(int buttonId){
         itemEx.text = ItemListData.items[selectedItem[buttonId]].explaination;
     }

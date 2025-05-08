@@ -1392,6 +1392,7 @@ MonoBehaviour:
   monsterDatabase: {fileID: 11400000, guid: 26db3fe661af84f869dd03b9809eaf90, type: 2}
   right: 0
   location: 0
+  mapName: 
 --- !u!4 &951659765
 Transform:
   m_ObjectHideFlags: 0

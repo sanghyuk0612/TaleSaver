@@ -451,12 +451,19 @@ public class MapManager : MonoBehaviour
             Destroy(mapSection);
         }
         SpawnPortal();
-
-        // NPC 소환
+        
+        // Event NPC 소환
         if (GameManager.Instance.Stage == 1)
         {
             SpawnManager.Instance.SpawnNPC();
         }
+        
+        // NPC 소환
+        if (GameManager.Instance.Stage == 2 || GameManager.Instance.Stage == 6)
+        {
+            SpawnManager.Instance.SpawnNPC();
+        }
+
         // // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
         // if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
         // {
@@ -494,6 +501,7 @@ public class MapManager : MonoBehaviour
             Gizmos.DrawWireSphere(pos, 0.5f); // 원형 그리기
         }
     }
+
     // ✅ **타일맵 복사 함수 (공백 없이 실제 타일만 복사)**
     void CopyTilemapToTarget(Tilemap source, Tilemap target, BoundsInt bounds, Vector3Int offset)
     {

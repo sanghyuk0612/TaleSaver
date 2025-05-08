@@ -34,6 +34,7 @@ public class NPCInteraction : MonoBehaviour
     private DialogueState currentState = DialogueState.Normal;
 
     private bool isPlayerInRange = false;
+    public int itemId;
 
     private void Start()
     {
@@ -44,6 +45,9 @@ public class NPCInteraction : MonoBehaviour
         {
             Debug.LogWarning("Player not found! Make sure the player object has the 'Player' tag.");
         }
+
+        // NPC가 대화 시작 시 랜덤으로 아이템 ID 선택
+        itemId = Random.Range(0, 5);
     }
 
     private void Update()
@@ -131,8 +135,39 @@ public class NPCInteraction : MonoBehaviour
         switch (currentState)
         {
             case DialogueState.Normal:
-                Dialogues = normalDialogue;
+                if (!isEventNPC)
+                {
+                    if (Store.changePrice == null || InventoryManager.Instance == null)
+                    {
+                        Debug.LogWarning("Store or price change data is not ready.");
+                        Dialogues = new string[] { "요즘 마을에 무슨 일이 있었던 것 같지만, 정보가 부족해..." };
+                    }
+                    else
+                    {
+                        string itemName = InventoryManager.Instance.GetItemNameById(itemId); // itemId에 해당하는 아이템 이름 가져오기
+                        int change = Store.changePrice[itemId]; // 아이템의 가격 변동을 가져오기
+
+                        if (change > 0)
+                        {
+                            Dialogues = new string[] { $"{itemName} 을 비싸게 매입한다는데?", "지금이 매입 찬스일지도 몰라!" };
+                        }
+                        else if (change < 0)
+                        {
+                            Dialogues = new string[] { $"{itemName} 의 가격 하락이 예상되는데?", "더 이상 매입하지 않아도 될 것 같네 !" };
+                        }
+                        else
+                        {
+                            Dialogues = new string[] { $"{itemName} 은 아무런 소식이 없어...", "다른 자원을 모아보자!" };
+                        }
+                    }
+                }
+                else
+                {
+                    Dialogues = normalDialogue;
+                }
                 break;
+
+
             case DialogueState.Event:
                 Dialogues = eventDialogue;
                 break;
@@ -163,7 +198,7 @@ public class NPCInteraction : MonoBehaviour
 
     private void EndOrTransitionDialogue()
     {
-        if (isEventNPC)
+        if (isEventNPC || hasHealed)
         {
             RestoreHealth();
         }

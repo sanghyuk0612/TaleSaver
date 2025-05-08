@@ -127,19 +127,27 @@ public class SpawnManager : MonoBehaviour
         GameObject npcPrefab;
         int currentStage = GameManager.Instance.Stage;
 
-        if (currentStage == 1)
+        // Event NPC 생성 
+        if (currentStage == 6)
         {
             npcPrefab = EventNPCPrefab;
+            Debug.Log($"{currentStage} EventNPCPrefab is assigned!");
         }
+        // NPC 생성 ( 조건 필요시 else if로 조건 설정 필요 )
         else
         {
             npcPrefab = NPCPrefab;
+            Debug.Log($"{currentStage} NPCPrefab is assigned!");
         }
 
-        Vector3 npcSpawnPos = new Vector3(43, 2.7f, 0);
-        GameObject npc = Instantiate(npcPrefab, npcSpawnPos, Quaternion.identity);
-        npc.transform.localScale = new Vector3(1.1f, 1.1f, 1f); // 2배로 확대
+        // 스폰 위치 설정
+        int ran = Random.Range(0, MapManager.Instance.spawnPoints.Count);
+        Vector3 npcSpawnPos = MapManager.Instance.spawnPoints[ran];
 
+        GameObject npc = Instantiate(npcPrefab, npcSpawnPos, Quaternion.identity);
+        
+        npc.transform.localScale = new Vector3(1.1f, 1.1f, 1f); // 2배로 확대
+        
         GameObject canvas = GameObject.Find("DialoguePanel"); // 캔버스
 
         if (canvas != null)
