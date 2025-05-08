@@ -38,6 +38,7 @@ public class MeleeEnemy : MonoBehaviour
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
     public float currentHealth; // 현재 체력
+    public bool isDead;
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
@@ -59,6 +60,7 @@ public class MeleeEnemy : MonoBehaviour
         calculatedHealth = baseHealth * healthMultiplierValue;
         currentHealth = calculatedHealth;
         Debug.Log($"MeleeEnemy spawned with current health: {currentHealth}");
+        isDead = false;
 
         attackDamage = Mathf.RoundToInt(baseDamage * damageMultiplier.GetDamageMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter));
 
@@ -150,7 +152,7 @@ public class MeleeEnemy : MonoBehaviour
 
         /*
         // 체력 체크
-        if (calculatedHealth <= 0)
+        if (calculatedHealth <= 0 && !isDead)
         {
             Die();
         }
@@ -158,7 +160,7 @@ public class MeleeEnemy : MonoBehaviour
 
         //테스트용
         // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
-        if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyDown(KeyCode.K) && !isDead)
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
             Die();
@@ -254,7 +256,7 @@ public class MeleeEnemy : MonoBehaviour
         currentHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"MeleeEnemy took damage: {damage}. Current health: {currentHealth}");
 
-        if (currentHealth <= 0)
+        if (currentHealth <= 0 && !isDead)
         {
             Die(); // 체력이 0 이하가 되면 사망 처리
         }
@@ -288,6 +290,7 @@ public class MeleeEnemy : MonoBehaviour
     {
         PortalManager.Instance.killEnemy(1);
         StopMoving();
+        isDead = true;
         // 애니메이션을 Dead 상태로 전환
         if (animator != null)
         {
