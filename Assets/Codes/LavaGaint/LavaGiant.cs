@@ -326,7 +326,7 @@ private IEnumerator StopMovement(float stopDuration)
         {
             Debug.Log("보스몬스터 죽음");
             anim.SetTrigger("death");
-            StartCoroutine(DestroyAfterDelay(1f));
+            StartCoroutine(DestroyAfterDelay(4f));
         }
     }
 
