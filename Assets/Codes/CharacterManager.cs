@@ -245,7 +245,8 @@ public class CharacterManager : MonoBehaviour
             // 스킬 쿨타임 확인
             if (skillCooldownTimers[skillIndex] <= 0)
             {
-                skillManager.UseSkill(skill, transform);
+                skillManager.UseSkill(skill, transform, character); // character는 현재 선택된 캐릭터
+
 
                 // 쿨타임 설정
                 skillCooldownTimers[skillIndex] = skill.skillCooldown;
