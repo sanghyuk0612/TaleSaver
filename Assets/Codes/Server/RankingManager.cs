@@ -14,17 +14,19 @@ public class RankingManager : MonoBehaviour
     private bool isFirebaseInitialized = false;
     public RankingUI rankingUI;
     public static RankingManager Instance { get; private set; }
+    private bool shouldLoadDataAfterInit = false;
+
     void Awake()
     {
-        if (Instance == null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Destroy(gameObject); // ✅ 중복 오브젝트 제거
+            return;
         }
-        else
-        {
-            Destroy(gameObject); // 중복 방지
-        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);   // ✅ 씬 전환에도 유지
+        InitializeFirebase();            // ✅ Firebase 초기화는 즉시 실행
     }
 
     void Start()
@@ -32,10 +34,28 @@ public class RankingManager : MonoBehaviour
         rankingUI = FindObjectOfType<RankingUI>();
         if (rankingUI == null)
         {
-            Debug.LogError("❌ RankingUI가 씬에서 찾을 수 없습니다.");
-            return;
+            Debug.LogWarning("⚠️ RankingUI가 씬에서 없습니다. BossStage 등일 수 있음.");
         }
-        InitializeFirebase();
+        else
+        {
+            if (isFirebaseInitialized)
+            {
+                LoadData();  // 바로 실행
+            }
+            else
+            {
+                Debug.Log("🕓 Firebase 초기화 전 - LoadData 예약됨");
+                shouldLoadDataAfterInit = true;
+            }
+        }
+    }
+    private static Queue<(string, string, float)> pendingSavesStatic = new Queue<(string, string, float)>();
+    private Queue<(string, string, float)> pendingSaves = new Queue<(string, string, float)>();
+
+    public static void QueueSaveRequest(string playerId, string character, float clearTime)
+    {
+        Debug.LogWarning("📥 RankingManager.Instance가 아직 생성되지 않았습니다. static 큐에 등록");
+        pendingSavesStatic.Enqueue((playerId, character, clearTime));
     }
 
     private void InitializeFirebase()
@@ -48,7 +68,22 @@ public class RankingManager : MonoBehaviour
                 db = FirebaseFirestore.DefaultInstance;
                 isFirebaseInitialized = true;
                 Debug.Log("✅ Firebase 초기화 완료!");
-                LoadData();
+
+                // 🔥 static 큐 병합
+                while (pendingSavesStatic.Count > 0)
+                {
+                    var request = pendingSavesStatic.Dequeue();
+                    pendingSaves.Enqueue(request);
+                }
+
+                // 🔥 대기 저장 실행
+                while (pendingSaves.Count > 0)
+                {
+                    var (playerId, character, clearTime) = pendingSaves.Dequeue();
+                    SaveClearData(playerId, character, clearTime);
+                }
+
+                LoadData(); // 기존 랭킹 불러오기
             }
             else
             {
@@ -57,7 +92,7 @@ public class RankingManager : MonoBehaviour
         });
     }
 
-    private void LoadData()
+    private async void LoadData()
     {
         if (!isFirebaseInitialized)
         {
@@ -65,45 +100,42 @@ public class RankingManager : MonoBehaviour
             return;
         }
 
-        db.Collection("rankings").GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        QuerySnapshot snapshot = await db.Collection("rankings").GetSnapshotAsync();
+        List<PlayerData> rankingList = new List<PlayerData>();
+
+        foreach (var document in snapshot.Documents)
         {
-            if (task.IsFaulted)
+            Dictionary<string, object> rankingData = document.ToDictionary();
+
+            string playerId = rankingData.ContainsKey("playerId") ? rankingData["playerId"].ToString() : "Unknown";
+            string cleartime = rankingData.ContainsKey("cleartime") ? rankingData["cleartime"].ToString() : "00:00";
+            string playcharacter = rankingData.ContainsKey("playcharacter") ? rankingData["playcharacter"].ToString() : "Unknown";
+
+            // 🔍 username 불러오기
+            string username = playerId;
+            try
             {
-                Debug.LogError("🔥 Firestore 데이터를 가져오는 데 실패했습니다: " + task.Exception);
-                return;
-            }
-
-            List<PlayerData> rankingList = new List<PlayerData>();
-
-            foreach (var document in task.Result.Documents)
-            {
-                Dictionary<string, object> rankingData = document.ToDictionary();
-                try
+                DocumentSnapshot userDoc = await db.Collection("users").Document(playerId).GetSnapshotAsync();
+                if (userDoc.Exists && userDoc.ContainsField("username"))
                 {
-                    string playerId = document.Id;
-                    string cleartime = rankingData.ContainsKey("cleartime") ? rankingData["cleartime"].ToString() : "00:00";
-                    string playcharacter = rankingData.ContainsKey("playcharacter") ? rankingData["playcharacter"].ToString() : "Unknown";
-                    string playerID = rankingData.ContainsKey("playerId") ? rankingData["playerId"].ToString() : "Unknown";
-                    int rank = rankingData.ContainsKey("rank") ? System.Convert.ToInt32(rankingData["rank"]) : -1;
-
-
-                    rankingList.Add(new PlayerData(playerID, playcharacter, cleartime, rank));
-                    Debug.Log($"🏆 랭킹 데이터: Player ID: {playerID} | Rank: {rank} | Character: {playcharacter} | Clear Time: {cleartime}");
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"❌ 예외 발생: {e.Message}\n{e.StackTrace}");
+                    username = userDoc.GetValue<string>("username");
                 }
             }
-
-            rankingList.Sort((a, b) => ConvertTimeToSeconds(a.clearTime).CompareTo(ConvertTimeToSeconds(b.clearTime)));
-            for (int i = 0; i < rankingList.Count; i++)
+            catch (Exception e)
             {
-                rankingList[i].rank = i + 1;
+                Debug.LogWarning($"⚠️ 사용자 이름 불러오기 실패: {e.Message}");
             }
 
-            rankingUI.UpdateRankingUI(rankingList);
-        });
+            rankingList.Add(new PlayerData(username, playcharacter, cleartime, -1));
+        }
+
+        rankingList.Sort((a, b) => ConvertTimeToSeconds(a.clearTime).CompareTo(ConvertTimeToSeconds(b.clearTime)));
+        for (int i = 0; i < rankingList.Count; i++)
+        {
+            rankingList[i].rank = i + 1;
+        }
+
+        rankingUI.UpdateRankingUI(rankingList);
     }
 
     private int ConvertTimeToSeconds(string timeString)
@@ -126,44 +158,49 @@ public class RankingManager : MonoBehaviour
     }
     public void SaveClearData(string playerId, string character, float clearTime)
     {
-        Debug.Log($"🔥 SaveClearData 시작 - Firebase 초기화 여부: {isFirebaseInitialized}");
+        Debug.Log($"🔥 SaveClearData 진입 - Firebase 초기화 여부: {isFirebaseInitialized}");
 
         if (!isFirebaseInitialized)
         {
-            Debug.LogError("❗ Firebase 초기화 안 됨");
+            Debug.LogWarning($"⏳ 초기화 전 - 저장 큐에 등록됨: {playerId}, {character}, {clearTime}");
+            pendingSaves.Enqueue((playerId, character, clearTime));
             return;
         }
+
+        Debug.Log($"📤 SaveClearData 실행됨: {playerId}, {character}, {clearTime}");
 
         string formattedTime = $"{Mathf.FloorToInt(clearTime / 60f):00}:{Mathf.FloorToInt(clearTime % 60f):00}";
 
         Dictionary<string, object> data = new Dictionary<string, object>
-    {
-        { "playerId", playerId },
-        { "playcharacter", character },
-        { "cleartime", formattedTime },
-        { "timestamp", Timestamp.GetCurrentTimestamp() }
-    };
-
-        db.Collection("rankings").Document(playerId).SetAsync(data).ContinueWithOnMainThread(task =>
         {
-            if (task.IsCompletedSuccessfully)
-            {
-                Debug.Log("✅ 클리어 기록 Firebase 저장 완료!");
-            }
-            else
-            {
-                Debug.LogError("❌ 저장 실패: " + task.Exception?.Flatten().Message);
-            }
-        });
-    }
+            { "playerId", playerId },
+            { "playcharacter", character },
+            { "cleartime", formattedTime },
+            { "timestamp", Timestamp.GetCurrentTimestamp() }
+        };
 
+        Debug.Log($"📄 Firestore에 저장될 데이터: {data["playerId"]}, {data["playcharacter"]}, {data["cleartime"]}");
+
+        db.Collection("rankings").Document(playerId).SetAsync(data, SetOptions.MergeAll)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCompletedSuccessfully)
+                {
+                    Debug.Log("✅ 클리어 기록 Firebase 저장 완료!");
+                }
+                else
+                {
+                    Debug.LogError("❌ 저장 실패: " + task.Exception?.Flatten().Message);
+                }
+            });
+    }
 }
 
-
-[Serializable]
+    [Serializable]
 public class PlayerData
 {
     public string playerID;
+    public string username;
     public string playcharacter;
     public string clearTime;
     public int rank;
