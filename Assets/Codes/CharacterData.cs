@@ -22,6 +22,11 @@ public class CharacterData : ScriptableObject
     // 스킬 배열 추가
     public CharacterSkill[] skills; // 스킬 배열
 
+    // 캐릭터별 스킬 이펙트 오버라이드
+    public GameObject fireballEffectOverride;
+    public GameObject baseGEffectOverride;
+    public GameObject ultimoEffectOverride;
+
     // 스킬 초기화 메서드
     public void InitializeSkills()
     {
