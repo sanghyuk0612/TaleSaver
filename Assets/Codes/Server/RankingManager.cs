@@ -13,6 +13,19 @@ public class RankingManager : MonoBehaviour
     private FirebaseFirestore db;
     private bool isFirebaseInitialized = false;
     public RankingUI rankingUI;
+    public static RankingManager Instance { get; private set; }
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject); // 중복 방지
+        }
+    }
 
     void Start()
     {
@@ -73,6 +86,7 @@ public class RankingManager : MonoBehaviour
                     string playerID = rankingData.ContainsKey("playerId") ? rankingData["playerId"].ToString() : "Unknown";
                     int rank = rankingData.ContainsKey("rank") ? System.Convert.ToInt32(rankingData["rank"]) : -1;
 
+
                     rankingList.Add(new PlayerData(playerID, playcharacter, cleartime, rank));
                     Debug.Log($"🏆 랭킹 데이터: Player ID: {playerID} | Rank: {rank} | Character: {playcharacter} | Clear Time: {cleartime}");
                 }
@@ -110,7 +124,41 @@ public class RankingManager : MonoBehaviour
         }
         return 0;
     }
+    public void SaveClearData(string playerId, string character, float clearTime)
+    {
+        Debug.Log($"🔥 SaveClearData 시작 - Firebase 초기화 여부: {isFirebaseInitialized}");
+
+        if (!isFirebaseInitialized)
+        {
+            Debug.LogError("❗ Firebase 초기화 안 됨");
+            return;
+        }
+
+        string formattedTime = $"{Mathf.FloorToInt(clearTime / 60f):00}:{Mathf.FloorToInt(clearTime % 60f):00}";
+
+        Dictionary<string, object> data = new Dictionary<string, object>
+    {
+        { "playerId", playerId },
+        { "playcharacter", character },
+        { "cleartime", formattedTime },
+        { "timestamp", Timestamp.GetCurrentTimestamp() }
+    };
+
+        db.Collection("rankings").Document(playerId).SetAsync(data).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompletedSuccessfully)
+            {
+                Debug.Log("✅ 클리어 기록 Firebase 저장 완료!");
+            }
+            else
+            {
+                Debug.LogError("❌ 저장 실패: " + task.Exception?.Flatten().Message);
+            }
+        });
+    }
+
 }
+
 
 [Serializable]
 public class PlayerData

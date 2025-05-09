@@ -26,7 +26,9 @@ public class StagePortal : MonoBehaviour
                         GameManager.Instance.EnterStore(); // Store 진입 처리
                         SceneManager.LoadScene("Store"); // Store 씬으로 이동
                     }
-                    else if(currentStage == 9){
+                    else if (currentStage == 9)
+                    {
+                        GameManager.Instance.Stage = 10; // ✅ 보스 스테이지 진입 전 Stage를 10으로 설정
                         SceneManager.LoadScene("BossStage");
                     }
                     else

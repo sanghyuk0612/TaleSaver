@@ -709,12 +709,18 @@ public class GameManager : MonoBehaviour
                                      // 시간 멈춤 (선택 사항)
 
 
+
         if (gameOverPanel == null)
         {
             Debug.LogError("GameOverPanel is null!");
             return;
         }
 
+        if (SceneManager.GetActiveScene().name == "BossStage")
+        {
+            Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
+            return; // GameOver UI 안 띄움
+        }
 
         gameOverPanel.SetActive(true);
 
@@ -742,12 +748,36 @@ public class GameManager : MonoBehaviour
             int seconds = Mathf.FloorToInt(currentPlayTime % 60f);
             DeathTime.text = $"Time: {minutes:00}:{seconds:00}";
         }
-
+        Debug.Log($"🧪 현재 Stage 값: {Stage}");
         // Boss 스테이지일 경우 clearTime 저장
-        if (Stage == 10) // Boss 스테이지 인덱스
+
+        Debug.Log("💀 ShowGameOver() 호출됨");
+        Debug.Log($"🧪 현재 Stage 값: {Stage}");
+
+        if (Stage == 10)
         {
+            Debug.Log("🎯 현재 보스 스테이지에서 클리어함!");
+
             SaveManager.Instance.SaveProgressData(new PlayerProgressData(GameManager.Instance.PlayTime, GameManager.Instance.Stage));
             Debug.Log("Boss ClearTime 저장됨");
+
+
+            RankingManager rankingManager = FindObjectOfType<RankingManager>();
+            Debug.Log("📦 rankingManager 존재 여부: " + (rankingManager != null));
+
+            if (rankingManager != null)
+            {
+                string playerId = FirebaseAuthManager.Instance.GetUserId();
+                string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
+                float clearTime = GameManager.Instance.PlayTime;
+
+                Debug.Log($"📤 SaveClearData 호출됨: {playerId}, {characterName}, {clearTime}");
+                rankingManager.SaveClearData(playerId, characterName, clearTime);
+            }
+            else
+            {
+                Debug.LogError("❌ rankingManager가 null입니다!");
+            }
         }
     }
 
