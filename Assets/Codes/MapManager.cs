@@ -51,10 +51,11 @@ public class MapManager : MonoBehaviour
         // 캐릭터 로드 후 currentPlayerHealth를 maxHealth로 명시적으로 설정
         if (GameManager.Instance.CurrentCharacter != null)
         {
-            int characterMaxHealth = GameManager.Instance.CurrentCharacter.maxHealth;
+            // vitality가 반영된 최대 체력 계산 방식 사용
+            int characterMaxHealth = GameManager.Instance.MaxHealth;
             // GameManager의 currentPlayerHealth와 maxHealth 설정
             GameManager.Instance.CurrentPlayerHealth = characterMaxHealth;
-            Debug.Log($"MapManager: Character {GameManager.Instance.CurrentCharacter.characterName} loaded. Setting health to {characterMaxHealth}");
+            Debug.Log($"MapManager: Character {GameManager.Instance.CurrentCharacter.characterName} loaded. Setting health to {characterMaxHealth} (with vitality bonus)");
         }
         else
         {

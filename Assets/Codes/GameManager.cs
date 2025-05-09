@@ -263,8 +263,18 @@ public class GameManager : MonoBehaviour
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
-        // 현재 캐릭터의 최대 체력 설정
-        maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        
+        // 현재 캐릭터의 최대 체력 설정 (vitality 반영)
+        if (CurrentCharacter != null)
+        {
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            int vitalityLevel = CurrentCharacter.vitality;
+            maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+        }
+        else
+        {
+            maxHealth = playerMaxHealth;
+        }
         
         // 실시간 디버깅을 위해 체력 초기값 로깅
         Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
@@ -409,17 +419,20 @@ public class GameManager : MonoBehaviour
             // 항상 최신 체력 값을 사용하도록 단순화
             if (CurrentCharacter != null)
             {
+                // 계산된 최대 체력 가져오기 (vitality 반영)
+                int calculatedMaxHealth = MaxHealth;
+                
                 // 체력이 최대 체력을 초과하지 않도록 확인
-                if (currentPlayerHealth > CurrentCharacter.maxHealth)
+                if (currentPlayerHealth > calculatedMaxHealth)
                 {
-                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    currentPlayerHealth = calculatedMaxHealth;
                     Debug.Log($"Health exceeds max health, limiting to: {currentPlayerHealth}");
                 }
                 
                 // 체력이 0 이하인 경우 최대 체력으로 설정
                 if (currentPlayerHealth <= 0)
                 {
-                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    currentPlayerHealth = calculatedMaxHealth;
                     Debug.Log($"Health was 0 or negative, setting to max health: {currentPlayerHealth}");
                 }
             }
@@ -619,14 +632,26 @@ public class GameManager : MonoBehaviour
     { 
         get 
         {
-            // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를, 없으면 기본값 반환
-            return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+            // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를 vitality 스탯에 따라 계산, 없으면 기본값 반환
+            if (CurrentCharacter != null)
+            {
+                int baseMaxHealth = CurrentCharacter.maxHealth;
+                int vitalityLevel = CurrentCharacter.vitality;
+                return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+            }
+            return playerMaxHealth;
         }
     }
 
     public int GetCurrentMaxHealth()
     {
-        return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        if (CurrentCharacter != null)
+        {
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            int vitalityLevel = CurrentCharacter.vitality;
+            return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+        }
+        return playerMaxHealth;
     }
 
     private void LogCurrentCharacterInfo()
@@ -669,9 +694,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
             
-            // 캐릭터의 maxHealth를 게임매니저의 값으로 설정
-            maxHealth = CurrentCharacter.maxHealth;
-            Debug.Log($"Character {CurrentCharacter.characterName} loaded with maxHealth: {maxHealth}");
+            // 캐릭터의 maxHealth를 vitality 스탯에 따라 계산
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            int vitalityLevel = CurrentCharacter.vitality;
+            maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+            
+            Debug.Log($"Character {CurrentCharacter.characterName} loaded with baseMaxHealth: {baseMaxHealth}, vitality: {vitalityLevel}, calculated maxHealth: {maxHealth}");
         }
         else
         {
