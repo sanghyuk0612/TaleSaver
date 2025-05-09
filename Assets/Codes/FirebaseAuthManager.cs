@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using Firebase;
 using Firebase.Auth;
@@ -72,6 +71,11 @@ public class FirebaseAuthManager : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    public string GetUserId()
+    {
+        return FirebaseAuth.DefaultInstance.CurrentUser?.UserId ?? "UnknownUser";
     }
 
     public IEnumerator WaitForLoginReady(System.Action onReady)
@@ -303,6 +307,8 @@ public class FirebaseAuthManager : MonoBehaviour
                 }
             }
         });
+
+
     }
     public IEnumerator WaitUntilUserIsReady(Action onReady)
     {
