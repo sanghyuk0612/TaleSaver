@@ -25,18 +25,24 @@ public class SkillManager : MonoBehaviour
     private Vector3 ultimoPosition; // Ultimo 스킬 사용 시 위치 저장
     private Vector3 baseAttackPosition; // BaseG 스킬 사용 시 위치 저장
     private Vector3 closestEnemyPosition; // 가장 가까운 적의 위치 저장
+
     private GameObject hitEffectPrefab; // 타격 이펙트 프리팹
     private GameObject fireballEffectPrefab; // Fireball 이펙트 프리팹
-
     private GameObject ultimoEffectPrefab; // Ultimo 이펙트 프리팹
 
-    public void UseSkill(CharacterSkill skill, Transform characterTransform)
+    public void UseSkill(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
+    {
+        ApplySkillEffect(skill, characterTransform, casterData);
+    }
+
+
+    /*public void UseSkill(CharacterSkill skill, Transform characterTransform)
     {
         Debug.Log($"Using skill: {skill.skillName} with damage: {skill.skillDamage} or effect value: {skill.effectValue}");
         ApplySkillEffect(skill, characterTransform);
-    }
+    }*/
 
-    private void ApplySkillEffect(CharacterSkill skill, Transform characterTransform)
+    private void ApplySkillEffect(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
     {
         // 공통 변수 선언
         Vector3 cameraPosition;
@@ -113,10 +119,14 @@ public class SkillManager : MonoBehaviour
                 if (closestEnemy != null)
                 {
                     closestEnemyPosition = closestEnemy.transform.position; // 가장 가까운 적의 위치 저장
+                                                                            // 캐릭터별 FX 선택 (null 병합 연산자 활용)
+                    GameObject baseGFX = casterData.baseGEffectOverride ?? hitEffectPrefab;
                     // 타격 이펙트 생성
-                    if (hitEffectPrefab != null)
+                    //if (hitEffectPrefab != null)
+                    if (baseGFX != null)
                     {
-                        GameObject hitEffect = Instantiate(hitEffectPrefab, closestEnemy.transform.position, Quaternion.identity);
+                        //GameObject hitEffect = Instantiate(hitEffectPrefab, closestEnemy.transform.position, Quaternion.identity);
+                        GameObject hitEffect = Instantiate(baseGFX, closestEnemy.transform.position, Quaternion.identity);
                         Destroy(hitEffect, 0.5f); // 0.5초 후 이펙트 제거
                     }
 
@@ -159,12 +169,21 @@ public class SkillManager : MonoBehaviour
                 Debug.Log($"Player found - flipX: {isFlipped}, SpriteRenderer: {(spriteRenderer != null ? "Found" : "Not Found")}");
 
                 // Fireball 이펙트 생성
-                if (fireballEffectPrefab != null)
+                //if (fireballEffectPrefab != null)
+                GameObject fireballFX = casterData.fireballEffectOverride ?? fireballEffectPrefab;
+                if (fireballFX != null)
                 {
                     // 캐릭터의 방향에 따라 회전 설정
                     float rotationZ = isFlipped ? 180f : 0f;
-                    GameObject fireballEffect = Instantiate(fireballEffectPrefab, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
-                    Destroy(fireballEffect, 0.4f); // 0.4초 후 이펙트 제거
+                    GameObject fireballEffect = Instantiate(fireballFX, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
+                    //GameObject fireballEffect = Instantiate(fireballEffectPrefab, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
+                    FireballBehavior behavior = fireballEffect.GetComponent<FireballBehavior>();
+                    if (behavior != null)
+                    {
+                        Vector3 moveDirection = isFlipped ? Vector3.left : Vector3.right;
+                        behavior.Initialize(skill.skillDamage, skill.effectRadius, moveDirection);
+                    }
+                    //Destroy(fireballEffect, 0.4f);
                 }
 
                 // 범위 내의 적 찾기
@@ -274,7 +293,7 @@ public class SkillManager : MonoBehaviour
                             else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                             {
                                 Debug.Log($"Starting poison effect on RangedEnemy: {enemy.name}");
-                                StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
+                                //StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
                             }
                         }
                         // flipX가 안되어있으면 오른쪽 방향만 인식
@@ -290,7 +309,7 @@ public class SkillManager : MonoBehaviour
                             else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                             {
                                 Debug.Log($"Starting poison effect on RangedEnemy: {enemy.name}");
-                                StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
+                                //StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
                             }
                         }
                         else
@@ -320,12 +339,15 @@ public class SkillManager : MonoBehaviour
                 ultimoPosition = playerObject_ultimo.transform.position;
 
                 // Ultimo 이펙트 생성
-                if (ultimoEffectPrefab != null)
+                //if (ultimoEffectPrefab != null)
+                GameObject ultimoFX = casterData.ultimoEffectOverride ?? ultimoEffectPrefab;
+                if (ultimoFX != null)
                 {
-                    GameObject ultimoEffect = Instantiate(ultimoEffectPrefab, ultimoPosition, Quaternion.identity);
-                    Destroy(ultimoEffect, 1.0f); // 1초 후 이펙트 제거
+                    Vector3 spawnPosition = ultimoPosition + new Vector3(0f, 1.5f, 0f); // y축으로 +1f 만큼 위로 올림
+                    GameObject ultimoEffect = Instantiate(ultimoFX, spawnPosition, Quaternion.identity);
+                    Destroy(ultimoEffect, 1.0f);
                 }
-                
+
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_ultimo = GameObject.FindGameObjectsWithTag("Enemy");
                 enemyCount = 0;
@@ -567,7 +589,7 @@ public class SkillManager : MonoBehaviour
         Debug.Log($"Poison effect on MeleeEnemy: {enemy.name} has ended. Total damage: {initialHealth - meleeEnemy.currentHealth}");
     }
 
-    private IEnumerator ApplyPoisonEffectRanged(CharacterSkill skill, GameObject enemy, int effectTime)
+    /*private IEnumerator ApplyPoisonEffectRanged(CharacterSkill skill, GameObject enemy, int effectTime)
     {
         // effectValue를 float로 변환
         float damagePerSecond;
@@ -592,7 +614,22 @@ public class SkillManager : MonoBehaviour
         float initialHealth = rangedEnemy.currentHealth;
         Debug.Log($"RangedEnemy {enemy.name} initial health: {initialHealth}");
 
-        while (elapsedTime < effectTime && enemy != null && enemy.activeInHierarchy)
+        while (elapsedTime < effectTime)
+        {
+            if (enemy == null || !enemy.activeInHierarchy)
+                break;
+
+            if (rangedEnemy == null)
+                break;
+
+            rangedEnemy.TakeDamage(damagePerSecond);
+
+            elapsedTime += 1f;
+            yield return new WaitForSeconds(1f);
+        }
+
+
+        /*while (elapsedTime < effectTime && enemy != null && enemy.activeInHierarchy)
         {
             // 적에게 독 데미지 적용
             rangedEnemy.TakeDamage(damagePerSecond);
@@ -600,10 +637,10 @@ public class SkillManager : MonoBehaviour
 
             elapsedTime += 1f; // 1초 경과
             yield return new WaitForSeconds(1f); // 1초 대기
-        }
-        
-        Debug.Log($"Poison effect on RangedEnemy: {enemy.name} has ended. Total damage: {initialHealth - rangedEnemy.currentHealth}");
-    }
+        }*/
+
+       /* Debug.Log($"Poison effect on RangedEnemy: {enemy.name} has ended. Total damage: {initialHealth - rangedEnemy.currentHealth}");
+    }*/
 
     private IEnumerator DelayedDamage(MeleeEnemy enemy, float damage, float delay)
     {

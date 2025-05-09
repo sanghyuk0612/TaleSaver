@@ -555,7 +555,8 @@ public class GameManager : MonoBehaviour
             return; // 쿨타임이 남아있으면 사용하지 않음
         }
 
-        skillManager.UseSkill(skill, transform); // 스킬 사용
+        skillManager.UseSkill(skill, transform, CurrentCharacter); // 스킬 사용
+        //UseSkill(skill, transform);
         skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
     }
 
