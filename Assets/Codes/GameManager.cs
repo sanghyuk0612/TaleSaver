@@ -735,9 +735,6 @@ public class GameManager : MonoBehaviour
     public void ShowGameOver()
     {
         FindAndConnectGameOverUI();  // 혹시 몰라 한 번 더 호출
-                                     // 시간 멈춤 (선택 사항)
-
-
 
         if (gameOverPanel == null)
         {
@@ -745,12 +742,48 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (SceneManager.GetActiveScene().name == "BossStage")
+        string sceneName = SceneManager.GetActiveScene().name;
+        bool isBossStage = sceneName == "BossStage";
+
+        float clearTime = GameManager.Instance.PlayTime;
+        int minutes = Mathf.FloorToInt(clearTime / 60f);
+        int seconds = Mathf.FloorToInt(clearTime % 60f);
+
+        Debug.Log($"💀 ShowGameOver() 호출됨");
+        Debug.Log($"🧾 현재 씬 이름: {sceneName}, Stage 값: {Stage}");
+        Debug.Log($"⏱ 클리어 시간: {minutes:00}:{seconds:00} ({clearTime}초)");
+
+        // 🔥 클리어 타임 저장은 무조건 실행 (보스든 일반 스테이지든)
+        var rankingManager = RankingManager.Instance;
+        Debug.Log("📦 rankingManager 존재 여부: " + (rankingManager != null));
+
+        if (rankingManager != null)
         {
-            Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
-            return; // GameOver UI 안 띄움
+            string playerId = FirebaseAuthManager.Instance.GetUserId();
+            string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
+
+            Debug.Log($"📤 SaveClearData 호출됨: {playerId}, {characterName}, {clearTime}");
+            rankingManager.SaveClearData(playerId, characterName, clearTime);
+        }
+        else
+        {
+            Debug.LogWarning("⏳ RankingManager가 아직 null입니다. 저장 대기 큐에 수동 등록함.");
+
+            // 🔥 직접 대기큐에 넣기
+            string playerId = FirebaseAuthManager.Instance.GetUserId();
+            string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
+
+            RankingManager.QueueSaveRequest(playerId, characterName, clearTime); // ✅ 이 static 메서드도 RankingManager.cs에 추가해야 함
         }
 
+        // BossStage면 UI는 띄우지 않고 종료
+        if (isBossStage)
+        {
+            Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
+            return;
+        }
+
+        // 일반 스테이지라면 UI 표시
         gameOverPanel.SetActive(true);
 
         // 스테이지 표시
@@ -763,7 +796,6 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // fallback: 기본 텍스트
                 int stage = GameManager.Instance.Stage;
                 DeathStage.text = $"Stage {stage}";
             }
@@ -772,43 +804,10 @@ public class GameManager : MonoBehaviour
         // 시간 표시
         if (DeathTime != null)
         {
-            float currentPlayTime = GameManager.Instance.PlayTime;
-            int minutes = Mathf.FloorToInt(currentPlayTime / 60f);
-            int seconds = Mathf.FloorToInt(currentPlayTime % 60f);
             DeathTime.text = $"Time: {minutes:00}:{seconds:00}";
         }
-        Debug.Log($"🧪 현재 Stage 값: {Stage}");
-        // Boss 스테이지일 경우 clearTime 저장
-
-        Debug.Log("💀 ShowGameOver() 호출됨");
-        Debug.Log($"🧪 현재 Stage 값: {Stage}");
-
-        if (Stage == 10)
-        {
-            Debug.Log("🎯 현재 보스 스테이지에서 클리어함!");
-
-            SaveManager.Instance.SaveProgressData(new PlayerProgressData(GameManager.Instance.PlayTime, GameManager.Instance.Stage));
-            Debug.Log("Boss ClearTime 저장됨");
-
-
-            RankingManager rankingManager = FindObjectOfType<RankingManager>();
-            Debug.Log("📦 rankingManager 존재 여부: " + (rankingManager != null));
-
-            if (rankingManager != null)
-            {
-                string playerId = FirebaseAuthManager.Instance.GetUserId();
-                string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
-                float clearTime = GameManager.Instance.PlayTime;
-
-                Debug.Log($"📤 SaveClearData 호출됨: {playerId}, {characterName}, {clearTime}");
-                rankingManager.SaveClearData(playerId, characterName, clearTime);
-            }
-            else
-            {
-                Debug.LogError("❌ rankingManager가 null입니다!");
-            }
-        }
     }
+
 
 
 
