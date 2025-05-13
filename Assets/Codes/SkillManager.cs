@@ -141,6 +141,19 @@ public class SkillManager : MonoBehaviour
                     {
                         rangedEnemy.TakeDamage(skill.skillDamage);
                     }
+                    else if (closestEnemy.TryGetComponent(out LavaGiant lavaGiant))
+                    {
+                        lavaGiant.TakeDamage(skill.skillDamage);
+                    }
+                    else if (closestEnemy.TryGetComponent(out Slime slime))
+                    {
+                        slime.TakeDamage(skill.skillDamage);
+                    }
+                    else if (closestEnemy.TryGetComponent(out Wolf wolf))
+                    {
+                        wolf.TakeDamage(skill.skillDamage);
+                    }
+
                 }
                 break;
 
@@ -216,6 +229,19 @@ public class SkillManager : MonoBehaviour
                             {
                                 rangedEnemy.TakeDamage(skill.skillDamage); // RangedEnemy의 currentHealth 감소
                             }
+                            else if (enemy.TryGetComponent(out LavaGiant lavaGiant))
+                            {
+                                lavaGiant.TakeDamage(skill.skillDamage);
+                            }
+                            else if (enemy.TryGetComponent(out Slime slime))
+                            {
+                                slime.TakeDamage(skill.skillDamage);
+                            }
+                            else if (enemy.TryGetComponent(out Wolf wolf))
+                            {
+                                wolf.TakeDamage(skill.skillDamage);
+                            }      
+                            
                         }
                         // flipX가 안되어있으면 오른쪽 방향만 인식
                         else if (!isFlipped && directionToEnemy.x > 0)
@@ -230,6 +256,19 @@ public class SkillManager : MonoBehaviour
                             {
                                 rangedEnemy.TakeDamage(skill.skillDamage); // RangedEnemy의 currentHealth 감소
                             }
+                            else if (enemy.TryGetComponent(out LavaGiant lavaGiant))
+                            {
+                                lavaGiant.TakeDamage(skill.skillDamage);
+                            }
+                            else if (enemy.TryGetComponent(out Slime slime))
+                            {
+                                slime.TakeDamage(skill.skillDamage);
+                            }
+                            else if (enemy.TryGetComponent(out Wolf wolf))
+                            {
+                                wolf.TakeDamage(skill.skillDamage);
+                            }   
+                            
                         }
                         else
                         {
@@ -383,6 +422,69 @@ public class SkillManager : MonoBehaviour
                             }
                             // 1초 후 데미지 적용
                             StartCoroutine(DelayedDamage(meleeEnemy, skill.skillDamage, 0.5f));
+                        }
+                        else if (enemy.TryGetComponent(out LavaGiant lavaGiant))
+                        {
+                            // KnockBack 효과 먼저 적용
+                            Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
+                            if (enemyRb != null)
+                            {
+                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                enemyRb.velocity = Vector2.zero;
+                                enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
+                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
+                                // 위치 고정 및 해제 코루틴 시작
+                                StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
+                            }
+                            // 1초 후 데미지 적용
+                            StartCoroutine(DelayedDamage(lavaGiant, skill.skillDamage, 0.5f));
+                        }
+                        else if (enemy.TryGetComponent(out Wolf wolf))
+                        {
+                            // KnockBack 효과 먼저 적용
+                            Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
+                            if (enemyRb != null)
+                            {
+                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                enemyRb.velocity = Vector2.zero;
+                                enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
+                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
+                                // 위치 고정 및 해제 코루틴 시작
+                                StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
+                            }
+                            // 1초 후 데미지 적용
+                            StartCoroutine(DelayedDamage(wolf, skill.skillDamage, 0.5f));
+                        }
+                        else if (enemy.TryGetComponent(out Slime slime))
+                        {
+                            // KnockBack 효과 먼저 적용
+                            Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
+                            if (enemyRb != null)
+                            {
+                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                enemyRb.velocity = Vector2.zero;
+                                enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
+                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
+                                // 위치 고정 및 해제 코루틴 시작
+                                StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
+                            }
+                            // 1초 후 데미지 적용
+                            StartCoroutine(DelayedDamage(slime, skill.skillDamage, 0.5f));
                         }
                         else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                         {
@@ -647,8 +749,23 @@ public class SkillManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         enemy.TakeDamage(damage);
     }
+    private IEnumerator DelayedDamage(Slime enemy, float damage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemy.TakeDamage(damage);
+    }
+    private IEnumerator DelayedDamage(Wolf enemy, float damage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemy.TakeDamage(damage);
+    }
 
     private IEnumerator DelayedDamage(RangedEnemy enemy, float damage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        enemy.TakeDamage(damage);
+    }
+    private IEnumerator DelayedDamage(LavaGiant enemy, float damage, float delay)
     {
         yield return new WaitForSeconds(delay);
         enemy.TakeDamage(damage);
