@@ -352,6 +352,8 @@ public class SkillManager : MonoBehaviour
                     if (cowDrop != null)
                     {
                         cowDrop.SetLandingY(playerObject_ultimo.transform.position.y);
+                        Debug.Log($"cowImpactFXPrefab: {(cowImpactFXPrefab == null ? "null" : cowImpactFXPrefab.name)}");
+
                         cowDrop.impactFXPrefab = cowImpactFXPrefab; // 등록 필요
 
                     }

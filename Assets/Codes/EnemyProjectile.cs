@@ -17,6 +17,13 @@ public class EnemyProjectile : MonoBehaviour
 
     private bool isReturning = false; // 반환 중인지 확인하는 플래그
 
+    private GameObject hitEffect;
+
+    public void SetHitEffect(GameObject effect)
+    {
+        hitEffect = effect;
+    }
+
     private void Awake()
     {
         // GameManager에서 넉백 힘 가져오기
@@ -109,7 +116,14 @@ public class EnemyProjectile : MonoBehaviour
                 Vector2 knockbackDir = rb.velocity.normalized;
                 damageable.TakeDamage(damageAmount, knockbackDir, knockbackForce);
             }
-            
+
+            // 명중 이펙트
+            if (hitEffect != null)
+            {
+                GameObject fx = Instantiate(hitEffect, transform.position, Quaternion.identity);
+                Destroy(fx, 1f);
+            }
+
             ReturnToPool();
         }
     }

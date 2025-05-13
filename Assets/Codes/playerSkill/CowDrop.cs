@@ -32,53 +32,31 @@ public class CowDrop : MonoBehaviour
     {
         if (!hasLanded)
         {
-            // 빠르게 착지 지점까지 낙하
             transform.position += Vector3.down * fastFallSpeed * Time.deltaTime;
 
             if (transform.position.y <= landingY)
             {
                 hasLanded = true;
-                isSlowFalling = true;
-                slowFallStartY = transform.position.y;
+                transform.position = new Vector3(transform.position.x, landingY, transform.position.z);
 
-                // 소 착지 시
+                // 먼지 애니메이션 생성
                 if (impactFXPrefab != null)
                 {
+                    Debug.Log($" Dust FX 생성 위치: {transform.position}");
                     Instantiate(impactFXPrefab, transform.position, Quaternion.identity);
+
                 }
 
-                // 중력 비활성화
-                if (rb != null)
-                {
-                    rb.gravityScale = 0f;
-                    rb.velocity = Vector2.zero;
-                }
-
-                // 카메라 흔들기
-                //SkillManager skillManager = FindObjectOfType<SkillManager>();
-                //if (skillManager != null)
-                //{
-                    //skillManager.StartCoroutine(skillManager.ShakeCamera(0.3f, 0.2f));
-                //}
-            }
-        }
-        else if (isSlowFalling)
-        {
-            transform.position += Vector3.down * slowFallSpeed * Time.deltaTime;
-
-            if (transform.position.y <= slowFallStartY - slowFallDistance)
-            {
-                isSlowFalling = false;
-
-                // 착지 후 정지 후 사라짐
+                // 3초 뒤 소 제거
                 StartCoroutine(FadeOutAndDestroy());
             }
         }
     }
 
+
     private IEnumerator FadeOutAndDestroy()
     {
-        yield return new WaitForSeconds(0f); // 1초간 정지
+        yield return new WaitForSeconds(0.3f); // 1초간 정지
         Destroy(gameObject);
     }
 }

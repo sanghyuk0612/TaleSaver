@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 8074594999749243265}
   - component: {fileID: 1933004604527528077}
   - component: {fileID: 7970910385552898288}
-  - component: {fileID: 2266192846811578336}
   m_Layer: 0
   m_Name: 12_0
   m_TagString: Untagged
@@ -123,30 +122,4 @@ MonoBehaviour:
   fastFallSpeed: 15
   slowFallSpeed: 2
   slowFallDistance: 1.5
---- !u!50 &2266192846811578336
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8513749983858254812}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  impactFXPrefab: {fileID: 2653733086067110015, guid: 8325830c56a538342a0287440abcc70c, type: 3}

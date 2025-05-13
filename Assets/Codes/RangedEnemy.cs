@@ -218,42 +218,75 @@ public class RangedEnemy : MonoBehaviour
     }
 
     // virtual로 변경하여 오버라이드 가능하게 함
-    protected virtual void ShootProjectile()
+    protected void ShootProjectile()
     {
-        // 플레이어가 죽었다면 발사하지 않음
         if (PlayerController.IsDead) return;
 
-        GameObject projectile = PoolManager.Instance.GetObject(projectileKey);
-        
-        // null 체크 추가
-        if (projectile == null)
+        EnemySkillInfo skillInfo = GetComponent<EnemySkillInfo>();
+        if (skillInfo == null || skillInfo.projectilePrefab == null)
         {
-            Debug.LogError("발사체를 가져오는 데 실패했습니다.");
+            Debug.LogWarning("EnemySkillInfo 누락 or projectilePrefab 없음");
             return;
         }
 
-        Vector3 spawnPosition = firePoint.position;
-        projectile.transform.position = spawnPosition;
-
-        EnemyProjectile projectileComponent = projectile.GetComponent<EnemyProjectile>();
-        if (projectileComponent != null)
+        // 발사 이펙트
+        if (skillInfo.skillEffectPrefab != null)
         {
-            // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
-            Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
-            Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
-            
-            // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
-            projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
-            
-            // 초기화는 풀 관리자 설정 후에 호출
-            projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+            Instantiate(skillInfo.skillEffectPrefab, firePoint.position, Quaternion.identity);
         }
-        else
+
+        GameObject projectile = Instantiate(skillInfo.projectilePrefab, firePoint.position, Quaternion.identity);
+
+        EnemyProjectile projectileComp = projectile.GetComponent<EnemyProjectile>();
+        if (projectileComp != null)
         {
-            Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
-            projectile.SetActive(false); // 오류 시 발사체 비활성화
+            Vector3 adjustedTarget = playerTransform.position + new Vector3(0f, 0.4f, 0f);
+            Vector2 direction = (adjustedTarget - firePoint.position).normalized;
+
+            projectileComp.Initialize(direction, skillInfo.projectileSpeed, skillInfo.damage);
+
+            // 이펙트 프리팹을 Projectile에게 전달
+            projectileComp.SetHitEffect(skillInfo.hitEffectPrefab);
         }
     }
+
+
+    //protected virtual void ShootProjectile()
+    //{
+    //    // 플레이어가 죽었다면 발사하지 않음
+    //    if (PlayerController.IsDead) return;
+
+    //    GameObject projectile = PoolManager.Instance.GetObject(projectileKey);
+
+    //    // null 체크 추가
+    //    if (projectile == null)
+    //    {
+    //        Debug.LogError("발사체를 가져오는 데 실패했습니다.");
+    //        return;
+    //    }
+
+    //    Vector3 spawnPosition = firePoint.position;
+    //    projectile.transform.position = spawnPosition;
+
+    //    EnemyProjectile projectileComponent = projectile.GetComponent<EnemyProjectile>();
+    //    if (projectileComponent != null)
+    //    {
+    //        // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
+    //        Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
+    //        Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
+
+    //        // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
+    //        projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
+
+    //        // 초기화는 풀 관리자 설정 후에 호출
+    //        projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
+    //        projectile.SetActive(false); // 오류 시 발사체 비활성화
+    //    }
+    //}
 
     void MoveTowardsPlayer()
     {
