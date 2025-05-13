@@ -142,7 +142,7 @@ MonoBehaviour:
   baseDamage: 10
   damageMultiplier: {fileID: 11400000, guid: 346e44b35f0a47541abd528d6e601d2e, type: 2}
   attackDamage: 0
-  baseHealth: 100
+  baseHealth: 3000
   healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
   itemPrefab: {fileID: 0}

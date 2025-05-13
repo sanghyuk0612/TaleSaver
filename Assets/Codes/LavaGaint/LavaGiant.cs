@@ -34,7 +34,7 @@ public class LavaGiant : MonoBehaviour
     private bool isFacingRight = true;
 
     [Header("Health")]
-    public float baseHealth = 100f; // 기본 체력
+    public float baseHealth = 2000f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
 
@@ -352,6 +352,11 @@ private IEnumerator StopMovement(float stopDuration)
     {
         yield return new WaitForSeconds(delay);
         
+    }
+    public void TakeDamage(float damage)
+    {
+        calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
+        Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
     }
    
     // 디버그용 시각화
