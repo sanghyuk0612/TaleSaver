@@ -1,10 +1,9 @@
 fileFormatVersion: 2
-guid: 7be2cbbc2e7c8bf46ab9ed5a04b59f36
+guid: ba85b05e1e350b944bb36d4a5b72a741
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - cowImpactFXPrefab: {fileID: 2653733086067110015, guid: 8325830c56a538342a0287440abcc70c, type: 3}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
