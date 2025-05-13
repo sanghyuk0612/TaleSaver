@@ -29,7 +29,7 @@ public class SkillManager : MonoBehaviour
     private GameObject hitEffectPrefab; // 타격 이펙트 프리팹
     private GameObject fireballEffectPrefab; // Fireball 이펙트 프리팹
     private GameObject ultimoEffectPrefab; // Ultimo 이펙트 프리팹
-
+    public GameObject cowImpactFXPrefab;
     public void UseSkill(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
     {
         ApplySkillEffect(skill, characterTransform, casterData);
@@ -154,8 +154,9 @@ public class SkillManager : MonoBehaviour
                 }
 
                 // 플레이어의 위치를 기준으로 Fireball 위치 설정
-                fireballPosition = playerObject_fireball.transform.position;
-                
+                fireballPosition = playerObject_fireball.transform.position + new Vector3(0f, 0.5f, 0f);
+
+
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_fireball = GameObject.FindGameObjectsWithTag("Enemy");
                 enemyCount = 0;
@@ -343,9 +344,19 @@ public class SkillManager : MonoBehaviour
                 GameObject ultimoFX = casterData.ultimoEffectOverride ?? ultimoEffectPrefab;
                 if (ultimoFX != null)
                 {
-                    Vector3 spawnPosition = ultimoPosition + new Vector3(0f, 1.5f, 0f); // y축으로 +1f 만큼 위로 올림
-                    GameObject ultimoEffect = Instantiate(ultimoFX, spawnPosition, Quaternion.identity);
-                    Destroy(ultimoEffect, 1.0f);
+                    Vector3 cowSpawnPosition = playerObject_ultimo.transform.position + new Vector3(0f, 5f, 0f);
+                    GameObject cowEffect = Instantiate(ultimoFX, cowSpawnPosition, Quaternion.identity);
+
+                    // 착지 기준을 플레이어 위치로
+                    CowDrop cowDrop = cowEffect.GetComponent<CowDrop>();
+                    if (cowDrop != null)
+                    {
+                        cowDrop.SetLandingY(playerObject_ultimo.transform.position.y);
+                        cowDrop.impactFXPrefab = cowImpactFXPrefab; // 등록 필요
+
+                    }
+
+                    //Destroy(cowEffect, 1.5f); // 효과 시간 후 제거
                 }
 
                 // 모든 Enemy 오브젝트 찾기
@@ -667,7 +678,8 @@ public class SkillManager : MonoBehaviour
         Debug.Log($"Position unfrozen for {rb.gameObject.name}");
     }
 
-    private IEnumerator ShakeCamera(float duration, float magnitude)
+
+    public IEnumerator ShakeCamera(float duration, float magnitude)
     {
         Vector3 originalPos = Camera.main.transform.localPosition;
         float elapsed = 0f;
@@ -685,6 +697,25 @@ public class SkillManager : MonoBehaviour
 
         Camera.main.transform.localPosition = originalPos;
     }
+
+    //public IEnumerator ShakeCamera(float duration, float magnitude)
+    // {
+    //     Vector3 originalPos = Camera.main.transform.localPosition;
+    //     float elapsed = 0f;
+
+    //     while (elapsed < duration)
+    //     {
+    //         float x = Random.Range(-1f, 1f) * magnitude;
+    //         float y = Random.Range(-1f, 1f) * magnitude;
+
+    //         Camera.main.transform.localPosition = new Vector3(x, y, originalPos.z);
+
+    //         elapsed += Time.deltaTime;
+    //         yield return null;
+    //     }
+
+    //     Camera.main.transform.localPosition = originalPos;
+    // }
 
     private void OnDrawGizmos()
     {
