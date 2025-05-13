@@ -13,7 +13,7 @@ public class FireballBehavior : MonoBehaviour
        this.damage = damage;
        this.radius = radius;
        this.direction = direction.normalized;
-       this.startPosition = transform.position; ; // 시작 위치 저장
+       this.startPosition = transform.position; // 시작 위치 저장
    }
     private void Update()
    {
