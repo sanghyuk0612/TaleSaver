@@ -104,7 +104,8 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterData != null)
         {
             CharacterData characterData = CharacterSelectionData.Instance.selectedCharacterData;
-            maxHealth = characterData.maxHealth;
+            // GameManager에서 계산된 체력 값 사용 (vitality 레벨 반영)
+            maxHealth = GameManager.Instance.MaxHealth;
             spriteRenderer.sprite = characterData.characterSprite;
             
             // 애니메이터 적용

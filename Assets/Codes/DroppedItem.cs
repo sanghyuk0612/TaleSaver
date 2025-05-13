@@ -11,12 +11,23 @@ public class DroppedItem : MonoBehaviour
     private int itemId;
     private string itemName;
     private int quantity = 1; // 기본 수량
+    //드랍 아이템 에셋
+    [SerializeField] private Sprite[] itemSprites;
 
     public void Initialize(int id, string name)
     {
         itemId = id;
         itemName = name;
 
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null && itemSprites != null && id >= 0 && id < itemSprites.Length)
+        {
+            sr.sprite = itemSprites[id]; // 아이템 ID에 해당하는 스프라이트로 교체
+        }
+        else
+        {
+            Debug.LogWarning($"⚠️ Sprite 적용 실패: id={id}, itemSprites 설정 확인 필요");
+        }
     }
 
     private void Awake()
@@ -38,8 +49,8 @@ public class DroppedItem : MonoBehaviour
             return;
         }
 
-        // 랜덤 아이템 ID 설정 (0~8 중 하나)
-        int randomId = Random.Range(0, 8);
+        // 랜덤 아이템 ID 설정 (0~7 중 하나)
+        int randomId = Random.Range(0, 7);
         string randomItemName = inventoryManager.GetItemNameById(randomId);
 
         // 현재 아이템 오브젝트를 초기화

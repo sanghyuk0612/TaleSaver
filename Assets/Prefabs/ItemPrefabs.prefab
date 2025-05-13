@@ -172,3 +172,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefab: {fileID: 8044234074128147666}
+  itemSprites:
+  - {fileID: 21300000, guid: bec2a3eb3a5ce2e4eb2ed43b0aea6ff1, type: 2}
+  - {fileID: 21300000, guid: f170f8f9cec2c7841a186175a4da9bfc, type: 2}
+  - {fileID: 21300000, guid: 7543e5a3fc244c14c8d75540f809f625, type: 2}
+  - {fileID: -374056671, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
+  - {fileID: -670996413, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
+  - {fileID: 1462015692, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
+  - {fileID: 1944577763, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}

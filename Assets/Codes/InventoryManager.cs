@@ -15,9 +15,9 @@ public class InventoryManager : MonoBehaviour
         { 2, "Skin" },
         { 3, "Steel" },
         { 4, "Gold" },
-        { 5, "Battery" },
-        { 6, "Machineparts" },
-        { 7, "Storybookpages" }
+        { 5, "Machineparts" },
+        { 6, "Storybookpages" },
+        { 7, "Battery" }
     };
 
     private void Awake()
@@ -54,18 +54,17 @@ public class InventoryManager : MonoBehaviour
             case 2: inventory.skin += quantity; break;
             case 3: inventory.steel += quantity; break;
             case 4: inventory.gold += quantity; break;
-            case 5: inventory.battery += quantity; break;
-
-            case 6: // ✅ 로비 재화
+            case 5: // ✅ 로비 재화
                 GameDataManager.Instance.machineParts += quantity;
                 break;
-            case 7: // ✅ 로비 재화
+            case 6: // ✅ 로비 재화
                 GameDataManager.Instance.storybookPage += quantity;
                 break;
+            case 7: inventory.battery += quantity; break;
         }
 
         // ✅ 로비 재화일 때만 Firebase에 저장
-        if (id == 6 || id == 7)
+        if (id == 5 || id == 6)
         {
             GameDataManager.Instance.SaveGoodsToFirestore();
         }
@@ -94,16 +93,16 @@ public class InventoryManager : MonoBehaviour
             case 4: // 금
                 inventory.gold -= quantity;
                 break;
-            case 5: // 배터리
-                inventory.battery -= quantity;
-                break;
-            case 6://기계 조각
+            case 5://기계 조각
                 inventory.machineparts -= quantity;
                 GameDataManager.Instance.machineParts -= quantity;
                 break;
-            case 7: //동화 페이지
+            case 6: //동화 페이지
                 inventory.storybookpages -= quantity;
                 GameDataManager.Instance.storybookPage -= quantity;
+                break;
+            case 7: // 배터리
+                inventory.battery -= quantity;
                 break;
         }
         GameDataManager.Instance.SaveGoodsToFirestore(); // ✅ 즉시 Firebase 저장

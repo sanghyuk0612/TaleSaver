@@ -91,7 +91,6 @@ public class GameManager : MonoBehaviour
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
     public SpriteRenderer playerSpriteRenderer; // 게임 캐릭터의 SpriteRenderer
-    public RuntimeAnimatorController playerAnimator;
     public Text monsterNumber;
 
 
@@ -264,8 +263,18 @@ public class GameManager : MonoBehaviour
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
-        // 현재 캐릭터의 최대 체력 설정
-        maxHealth = CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        
+        // 현재 캐릭터의 최대 체력 설정 (vitality 반영)
+        if (CurrentCharacter != null)
+        {
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            int vitalityLevel = CurrentCharacter.vitality;
+            maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+        }
+        else
+        {
+            maxHealth = playerMaxHealth;
+        }
         
         // 실시간 디버깅을 위해 체력 초기값 로깅
         Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
@@ -282,10 +291,10 @@ public class GameManager : MonoBehaviour
         skillCooldownTimers = new float[5];
         Debug.Log("스킬쿨 초기화");
         Debug.Log(skillCooldownTimers);
-
+        
         // 게임 시작 시간 기록
         //gameStartTime = Time.time;
-
+        
         // 게임오버 UI 초기화
         if (gameOverPanel != null)
         {
@@ -410,17 +419,20 @@ public class GameManager : MonoBehaviour
             // 항상 최신 체력 값을 사용하도록 단순화
             if (CurrentCharacter != null)
             {
+                // 계산된 최대 체력 가져오기 (vitality 반영)
+                int calculatedMaxHealth = MaxHealth;
+                
                 // 체력이 최대 체력을 초과하지 않도록 확인
-                if (currentPlayerHealth > CurrentCharacter.maxHealth)
+                if (currentPlayerHealth > calculatedMaxHealth)
                 {
-                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    currentPlayerHealth = calculatedMaxHealth;
                     Debug.Log($"Health exceeds max health, limiting to: {currentPlayerHealth}");
                 }
                 
                 // 체력이 0 이하인 경우 최대 체력으로 설정
                 if (currentPlayerHealth <= 0)
                 {
-                    currentPlayerHealth = CurrentCharacter.maxHealth;
+                    currentPlayerHealth = calculatedMaxHealth;
                     Debug.Log($"Health was 0 or negative, setting to max health: {currentPlayerHealth}");
                 }
             }
@@ -555,7 +567,9 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning($"Skill {skill.skillName} is on cooldown for {skillCooldownTimers[skillIndex]:F1} more seconds.");
             return; // 쿨타임이 남아있으면 사용하지 않음
         }
-        skillManager.UseSkill(skill, transform); // 스킬 사용
+
+        skillManager.UseSkill(skill, transform, CurrentCharacter); // 스킬 사용
+        //UseSkill(skill, transform);
         skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
     }
 
@@ -619,14 +633,26 @@ public class GameManager : MonoBehaviour
     { 
         get 
         {
-            // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를, 없으면 기본값 반환
-            return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+            // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를 vitality 스탯에 따라 계산, 없으면 기본값 반환
+            if (CurrentCharacter != null)
+            {
+                int baseMaxHealth = CurrentCharacter.maxHealth;
+                int vitalityLevel = CurrentCharacter.vitality;
+                return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+            }
+            return playerMaxHealth;
         }
     }
 
     public int GetCurrentMaxHealth()
     {
-        return CurrentCharacter != null ? CurrentCharacter.maxHealth : playerMaxHealth;
+        if (CurrentCharacter != null)
+        {
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            int vitalityLevel = CurrentCharacter.vitality;
+            return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+        }
+        return playerMaxHealth;
     }
 
     private void LogCurrentCharacterInfo()
@@ -669,9 +695,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
             
-            // 캐릭터의 maxHealth를 게임매니저의 값으로 설정
-            maxHealth = CurrentCharacter.maxHealth;
-            Debug.Log($"Character {CurrentCharacter.characterName} loaded with maxHealth: {maxHealth}");
+            // 캐릭터의 maxHealth를 vitality 스탯에 따라 계산
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            int vitalityLevel = CurrentCharacter.vitality;
+            maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+            
+            Debug.Log($"Character {CurrentCharacter.characterName} loaded with baseMaxHealth: {baseMaxHealth}, vitality: {vitalityLevel}, calculated maxHealth: {maxHealth}");
         }
         else
         {
@@ -706,8 +735,6 @@ public class GameManager : MonoBehaviour
     public void ShowGameOver()
     {
         FindAndConnectGameOverUI();  // 혹시 몰라 한 번 더 호출
-                                     // 시간 멈춤 (선택 사항)
-
 
         if (gameOverPanel == null)
         {
@@ -715,7 +742,48 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        string sceneName = SceneManager.GetActiveScene().name;
+        bool isBossStage = sceneName == "BossStage";
 
+        float clearTime = GameManager.Instance.PlayTime;
+        int minutes = Mathf.FloorToInt(clearTime / 60f);
+        int seconds = Mathf.FloorToInt(clearTime % 60f);
+
+        Debug.Log($"💀 ShowGameOver() 호출됨");
+        Debug.Log($"🧾 현재 씬 이름: {sceneName}, Stage 값: {Stage}");
+        Debug.Log($"⏱ 클리어 시간: {minutes:00}:{seconds:00} ({clearTime}초)");
+
+        // 🔥 클리어 타임 저장은 무조건 실행 (보스든 일반 스테이지든)
+        var rankingManager = RankingManager.Instance;
+        Debug.Log("📦 rankingManager 존재 여부: " + (rankingManager != null));
+
+        if (rankingManager != null)
+        {
+            string playerId = FirebaseAuthManager.Instance.GetUserId();
+            string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
+
+            Debug.Log($"📤 SaveClearData 호출됨: {playerId}, {characterName}, {clearTime}");
+            rankingManager.SaveClearData(playerId, characterName, clearTime);
+        }
+        else
+        {
+            Debug.LogWarning("⏳ RankingManager가 아직 null입니다. 저장 대기 큐에 수동 등록함.");
+
+            // 🔥 직접 대기큐에 넣기
+            string playerId = FirebaseAuthManager.Instance.GetUserId();
+            string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
+
+            RankingManager.QueueSaveRequest(playerId, characterName, clearTime); // ✅ 이 static 메서드도 RankingManager.cs에 추가해야 함
+        }
+
+        // BossStage면 UI는 띄우지 않고 종료
+        if (isBossStage)
+        {
+            Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
+            return;
+        }
+
+        // 일반 스테이지라면 UI 표시
         gameOverPanel.SetActive(true);
 
         // 스테이지 표시
@@ -728,7 +796,6 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // fallback: 기본 텍스트
                 int stage = GameManager.Instance.Stage;
                 DeathStage.text = $"Stage {stage}";
             }
@@ -737,19 +804,10 @@ public class GameManager : MonoBehaviour
         // 시간 표시
         if (DeathTime != null)
         {
-            float currentPlayTime = GameManager.Instance.PlayTime;
-            int minutes = Mathf.FloorToInt(currentPlayTime / 60f);
-            int seconds = Mathf.FloorToInt(currentPlayTime % 60f);
             DeathTime.text = $"Time: {minutes:00}:{seconds:00}";
         }
-
-        // Boss 스테이지일 경우 clearTime 저장
-        if (Stage == 10) // Boss 스테이지 인덱스
-        {
-            SaveManager.Instance.SaveProgressData(new PlayerProgressData(GameManager.Instance.PlayTime, GameManager.Instance.Stage));
-            Debug.Log("Boss ClearTime 저장됨");
-        }
     }
+
 
 
 

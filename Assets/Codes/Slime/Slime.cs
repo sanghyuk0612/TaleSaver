@@ -351,16 +351,23 @@ private IEnumerator StopMovement(float stopDuration)
         anim.SetInteger("skillNum",9);
         isDashing = false;
     }
-    
+
     //테스트용 
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
 
     public void OnDeathAnimationEnd()
-{
-    
-    Destroy(gameObject);
-    SceneManager.LoadScene("ScoreBoard");
-}
+    {
+        Debug.Log("💀 보스 죽음 애니메이션 종료 - 게임오버 처리 시작");
+        GameManager.Instance.ShowGameOver();
+        StartCoroutine(DelayLoadScoreBoard());
+    }
+
+    private IEnumerator DelayLoadScoreBoard()
+    {
+        yield return new WaitForSeconds(1.0f); // 🔥 저장할 시간 확보
+        SceneManager.LoadScene("ScoreBoard");
+    }
+
     private void Death()
     {
         isDead=true;
@@ -375,7 +382,9 @@ private IEnumerator StopMovement(float stopDuration)
         }
     }
 
-    
+
+
+
 
     void DropItem()
     {

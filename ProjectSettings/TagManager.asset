@@ -16,6 +16,7 @@ TagManager:
   - Point
   - SpawnPoint
   - Trap Tile
+  - SpawnNpc
   layers:
   - Default
   - TransparentFX
