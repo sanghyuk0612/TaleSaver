@@ -91,6 +91,7 @@ public class GameManager : MonoBehaviour
     [Header("UI Prefabs")]
     public GameObject playerUIPrefab; // PlayerUI 프리팹을 위한 변수
     public SpriteRenderer playerSpriteRenderer; // 게임 캐릭터의 SpriteRenderer
+    public RuntimeAnimatorController playerAnimator;
     public Text monsterNumber;
 
 
@@ -281,10 +282,10 @@ public class GameManager : MonoBehaviour
         skillCooldownTimers = new float[5];
         Debug.Log("스킬쿨 초기화");
         Debug.Log(skillCooldownTimers);
-        
+
         // 게임 시작 시간 기록
         //gameStartTime = Time.time;
-        
+
         // 게임오버 UI 초기화
         if (gameOverPanel != null)
         {
@@ -554,7 +555,6 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning($"Skill {skill.skillName} is on cooldown for {skillCooldownTimers[skillIndex]:F1} more seconds.");
             return; // 쿨타임이 남아있으면 사용하지 않음
         }
-
         skillManager.UseSkill(skill, transform); // 스킬 사용
         skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
     }

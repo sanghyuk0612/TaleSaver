@@ -221,7 +221,8 @@ public class PlayerController : MonoBehaviour, IDamageable
                 float targetVelocityX = moveInput * moveSpeed;
                 rb.velocity = new Vector2(targetVelocityX, rb.velocity.y);
                 playerAnimator.SetTrigger("Run");
-            }
+                playerAnimator.SetBool("IsRunning", true);
+;            }
             else
             {
                 float currentVelocityX = rb.velocity.x;
@@ -243,12 +244,14 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             spriteRenderer.flipX = moveInput < 0;
             playerAnimator.SetTrigger("Run");
+            playerAnimator.SetBool("IsRunning", true);
 
             // 점프 입력 받기
             if (Input.GetButtonDown("Jump"))
             {
                 // 애니메이션 트리거 실행
                 playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("IsRunning", false);
             }
         }
 
@@ -256,6 +259,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
         {
             playerAnimator.SetTrigger("Jump");
+            playerAnimator.SetBool("IsRunning", false);
 
             // 땅에 있을 때 점프
             if (IsGrounded)
