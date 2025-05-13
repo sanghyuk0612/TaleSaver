@@ -358,8 +358,13 @@ private IEnumerator StopMovement(float stopDuration)
     public void OnDeathAnimationEnd()
     {
         Debug.Log("💀 보스 죽음 애니메이션 종료 - 게임오버 처리 시작");
-        GameManager.Instance.ShowGameOver();  // ✅ 이거 반드시 추가
-        Destroy(gameObject);
+        GameManager.Instance.ShowGameOver();
+        StartCoroutine(DelayLoadScoreBoard());
+    }
+
+    private IEnumerator DelayLoadScoreBoard()
+    {
+        yield return new WaitForSeconds(1.0f); // 🔥 저장할 시간 확보
         SceneManager.LoadScene("ScoreBoard");
     }
 
