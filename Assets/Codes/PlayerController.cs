@@ -241,6 +241,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
 
         float moveInput = Input.GetAxisRaw("Horizontal");
+        playerAnimator.SetTrigger("Stay");
         if (moveInput != 0)
         {
             spriteRenderer.flipX = moveInput < 0;
@@ -255,10 +256,7 @@ public class PlayerController : MonoBehaviour, IDamageable
                 playerAnimator.SetBool("IsRunning", false);
             }
         }
-        else
-        {
-            playerAnimator.SetTrigger("Stay");
-        }
+
 
         // 점프 입력 처리
         if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
