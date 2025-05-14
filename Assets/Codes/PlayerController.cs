@@ -255,6 +255,10 @@ public class PlayerController : MonoBehaviour, IDamageable
                 playerAnimator.SetBool("IsRunning", false);
             }
         }
+        else
+        {
+            playerAnimator.SetTrigger("Stay");
+        }
 
         // 점프 입력 처리
         if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
