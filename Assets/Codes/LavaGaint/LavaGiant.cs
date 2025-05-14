@@ -37,6 +37,9 @@ public class LavaGiant : MonoBehaviour
     public float baseHealth = 2000f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
+    private Color originalColor;
+    private SpriteRenderer sr;
+
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
@@ -116,6 +119,9 @@ public class LavaGiant : MonoBehaviour
 
     private void Awake()
     {
+        sr = GetComponent<SpriteRenderer>();
+        originalColor = sr.color;
+
         isDead = false;
         if (InventoryManager.Instance == null)
         {
@@ -123,6 +129,7 @@ public class LavaGiant : MonoBehaviour
             return; // InventoryManager가 없으면 메서드 종료
         }
         canMove = true;
+
     }
 
         void Update()
@@ -266,10 +273,17 @@ private void SmashAttack()
     
     if (FrontAttack != null)
     {
-        GameObject effect = Instantiate(FrontAttack, Pivot.position+new Vector3(direc*2f,0,0), Quaternion.identity);
-        effect.transform.SetParent(transform);
-        Destroy(effect, 0.3f); // 0.5초 후 이펙트 제거
-        Debug.Log("이펙트 출력");
+            Vector3 spawnPosition = Pivot.position + new Vector3(direc * 2f, 0, 0);
+            GameObject effect = Instantiate(FrontAttack, Pivot.position+new Vector3(direc*2f,0,0), Quaternion.identity);
+            effect.transform.SetParent(transform);
+
+            // 방향에 따라 x축 반전 적용
+            Vector3 effectScale = effect.transform.localScale;
+            effectScale.x = Mathf.Abs(effectScale.x) * direc;
+            effect.transform.localScale = effectScale;
+
+            Destroy(effect, 0.3f); // 0.5초 후 이펙트 제거
+            Debug.Log("이펙트 출력");
     }
     //anim.SetInteger("skillNum",9);
     Debug.Log("전방공격");
@@ -357,8 +371,17 @@ private IEnumerator StopMovement(float stopDuration)
     {
         calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
+        StartCoroutine(FlashDamageEffect());
     }
-   
+
+    private IEnumerator FlashDamageEffect()
+    {
+        sr.color = Color.white; // 회색으로 변경
+        yield return new WaitForSeconds(0.3f); // 0.1초 유지
+        sr.color = originalColor; // 원래 색상 복원
+    }
+
+
     // 디버그용 시각화
     void OnDrawGizmosSelected()
     {

@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a934121f94cfaf41b2b5457725005cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 4058689799700607059, guid: 57d30263d479ec94787c9708f71d491d, type: 3}
+  projectilePrefab: {fileID: 6915753770271991320, guid: 8d459c293ab845348a3f929b55e42fa9, type: 3}
   projectileSpeed: 6
   damage: 10
   skillEffectPrefab: {fileID: 0}

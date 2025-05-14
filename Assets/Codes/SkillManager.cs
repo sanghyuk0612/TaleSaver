@@ -29,6 +29,7 @@ public class SkillManager : MonoBehaviour
     private GameObject hitEffectPrefab; // 타격 이펙트 프리팹
     private GameObject fireballEffectPrefab; // Fireball 이펙트 프리팹
     private GameObject ultimoEffectPrefab; // Ultimo 이펙트 프리팹
+    [SerializeField] private GameObject healEffectPrefab;
     public GameObject cowImpactFXPrefab;
     public void UseSkill(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
     {
@@ -390,7 +391,7 @@ public class SkillManager : MonoBehaviour
                     CowDrop cowDrop = cowEffect.GetComponent<CowDrop>();
                     if (cowDrop != null)
                     {
-                        cowDrop.SetLandingY(playerObject_ultimo.transform.position.y);
+                        cowDrop.SetLandingY(playerObject_ultimo.transform.position.y + 1.5f);
                         Debug.Log($"cowImpactFXPrefab: {(cowImpactFXPrefab == null ? "null" : cowImpactFXPrefab.name)}");
 
                         cowDrop.impactFXPrefab = cowImpactFXPrefab; // 등록 필요
@@ -527,12 +528,12 @@ public class SkillManager : MonoBehaviour
                 break;
 
             default: // Heal 계열 스킬
-                ApplyDefaultEffect(skill, characterTransform);
+                ApplyDefaultEffect(skill, characterTransform, casterData);
                 break;
         }
     }
 
-    private void ApplyDefaultEffect(CharacterSkill skill, Transform characterTransform)
+    private void ApplyDefaultEffect(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
     {
         // 모든 객체의 체력 값을 로그로 출력
         PlayerController playerCtrl = FindObjectOfType<PlayerController>();
@@ -588,13 +589,29 @@ public class SkillManager : MonoBehaviour
                 if (actualHealAmount > 0)
                 {
                     Debug.Log($"[디버깅] Heal 스킬 적용 전 - PlayerController 체력: {playerCurrentHealth}, GameManager 체력: {gameManagerCurrentHealth}, 적용할 체력: {newHealth}");
-                    
+
+                    // Heal 이펙트 생성
+                    GameObject healFXPrefabToUse = casterData?.healEffectOverride ?? healEffectPrefab;
+                    if (healFXPrefabToUse != null && playerCtrl != null)
+                    {
+                        GameObject healFX = Instantiate(healFXPrefabToUse, playerCtrl.transform.position + new Vector3(0f, 2.5f, 0f), Quaternion.identity);
+
+                        HealEffectFollow followScript = healFX.GetComponent<HealEffectFollow>();
+                        if (followScript != null)
+                        {
+                            followScript.Initialize(playerCtrl.transform, 2.5f); // 생성 위치와 동일한 y offset
+                        }
+
+                        Destroy(healFX, 1.0f);
+                    }
+
                     // PlayerController 직접 찾아서 체력 동기화
                     if (playerCtrl != null)
                     {
                         playerCtrl.UpdateHealth(newHealth);
                         Debug.Log($"[디버깅] PlayerController.UpdateHealth({newHealth}) 호출 완료");
-                        
+
+
                         // PlayerUI 찾아서 슬라이더 직접 업데이트
                         PlayerUI playerUI = FindObjectOfType<PlayerUI>();
                         if (playerUI != null)
