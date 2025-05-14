@@ -461,18 +461,6 @@ public class CharacterManager : MonoBehaviour
         Debug.Log($"🎉 캐릭터 {character.characterName} 해금 완료");
     }
 
-    private void UnlockCharacter(int index)
-    {
-        Button[] Buttons = characterContainer.GetComponentsInChildren<Button>();
-        Button characterButton = Buttons[index];
-
-        Image buttonImage = characterButton.GetComponent<Image>();
-        buttonImage.color = Color.white;
-
-        PlayerPrefs.SetInt("CharacterUnlocked_" + index, 1);
-        PlayerPrefs.Save();
-    }
-
     public void LoadCharacter(int index)
     {
         if (index < 0 || index >= characters.Length)
