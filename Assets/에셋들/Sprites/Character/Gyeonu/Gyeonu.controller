@@ -39,7 +39,7 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: Run
     m_EventTreshold: 0
-  - m_ConditionMode: 1
+  - m_ConditionMode: 2
     m_ConditionEvent: IsRunning
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
@@ -48,9 +48,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25000003
-  m_TransitionOffset: 0.03798358
-  m_ExitTime: 0.14630713
+  m_TransitionDuration: 0.13980123
+  m_TransitionOffset: 0.15703882
+  m_ExitTime: 0.39205894
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -76,10 +76,10 @@ AnimatorStateMachine:
     m_Position: {x: 310, y: 30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4927330384528894840}
-    m_Position: {x: 310, y: -90, z: 0}
+    m_Position: {x: 310, y: -50, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4271010522116973489}
-    m_Position: {x: 310, y: -30, z: 0}
+    m_Position: {x: 310, y: -100, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6997441826412301136}
     m_Position: {x: 310, y: 100, z: 0}
@@ -202,9 +202,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.15093786
   m_TransitionOffset: 0
-  m_ExitTime: 0.75
+  m_ExitTime: 0.4387456
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -244,9 +244,6 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 2
-    m_ConditionEvent: IsRunning
-    m_EventTreshold: 0
   - m_ConditionMode: 1
     m_ConditionEvent: Stay
     m_EventTreshold: 0
@@ -256,9 +253,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0
+  m_TransitionDuration: 0.15550995
+  m_TransitionOffset: 0.18219382
+  m_ExitTime: 0.121462554
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -448,17 +445,14 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: Jump
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: IsRunning
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2140900678302674638}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
+  m_TransitionDuration: 0.16216287
+  m_TransitionOffset: 0.20352651
   m_ExitTime: 0
   m_HasExitTime: 1
   m_HasFixedDuration: 1
