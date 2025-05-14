@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3195909133455907571}
   - component: {fileID: 5786577491697970021}
   - component: {fileID: 898919415333133900}
+  - component: {fileID: 5666237569000159812}
   m_Layer: 0
   m_Name: StorePortal
   m_TagString: Portal
@@ -28,8 +29,8 @@ Transform:
   m_GameObject: {fileID: 986335438792068369}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.98, y: 3.45, z: 0}
-  m_LocalScale: {x: 1.161408, y: 1.7974232, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d941500b536904345a853028868d4114, type: 3}
+  m_Sprite: {fileID: -590007827, guid: 025b7d15014de4d4ca3f7962466a6e43, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -133,3 +134,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d1e9b482c4508e4ca64d8af71507312, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &5666237569000159812
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986335438792068369}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 51090e3d917510c4c84971f6b37c3546, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
