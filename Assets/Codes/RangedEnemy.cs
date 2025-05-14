@@ -137,7 +137,7 @@ public class RangedEnemy : MonoBehaviour
             {
                 // 이동하기 전에 모서리 확인
                 bool canMove = CheckGroundAhead((playerTransform.position.x > transform.position.x) ? 1f : -1f);
-                
+
                 if (canMove)
                 {
                     MoveTowardsPlayer();
@@ -176,16 +176,16 @@ public class RangedEnemy : MonoBehaviour
     {
         // 캐릭터의 발 위치 계산 (캐릭터의 바닥부분)
         Vector2 footPosition = new Vector2(transform.position.x, transform.position.y - 0.5f);
-        
+
         // 이동 방향으로의 레이캐스트 방향 설정
         Vector2 rayDirection = new Vector2(directionX, -0.5f).normalized;
-        
+
         // 레이캐스트를 통해 전방의 지면 확인
         RaycastHit2D hit = Physics2D.Raycast(footPosition, rayDirection, edgeCheckDistance, platformLayer);
-        
+
         // 디버그용 시각화
         Debug.DrawRay(footPosition, rayDirection * edgeCheckDistance, hit ? Color.green : Color.red);
-        
+
         return hit.collider != null;
     }
 
@@ -298,7 +298,7 @@ public class RangedEnemy : MonoBehaviour
 
     void StopMoving()
     {
-        rb.velocity = new Vector2(0,rb.velocity.y);
+        rb.velocity = new Vector2(0, rb.velocity.y);
         animator.SetTrigger("Idle");
     }
 
@@ -328,6 +328,15 @@ public class RangedEnemy : MonoBehaviour
     {
         currentHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"RangedEnemy took damage: {damage}. Current health: {currentHealth}");
+        int i = Random.Range(0, 2);
+        if (i == 0)
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE, 0.5f);
+        }
+        else
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
+        }
 
         if (currentHealth <= 0 && !isDead)
         {
@@ -342,7 +351,7 @@ public class RangedEnemy : MonoBehaviour
         animator.SetTrigger("Dead");
         isDead = true;
         Debug.Log("RangedEnemy died.");
-        
+
         // 게임 오브젝트 제거
         StartCoroutine(DestroyAfterDelay(1f));
     }
