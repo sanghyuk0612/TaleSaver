@@ -49,6 +49,26 @@ public class CharacterManager : MonoBehaviour
     public Text agilityText;
     public Text luckText;
 
+    [Header("캐릭터 스탯 및 스킬 디버그")]
+    [SerializeField] private string selectedCharacterName;
+    [SerializeField] private int selectedPowerLevel;
+    [SerializeField] private float damageMultiplier;
+    [System.Serializable]
+    public class SkillDebugInfo
+    {
+        public string skillName;
+        public int baseDamage;
+        public int calculatedDamage;
+        
+        public SkillDebugInfo(string name, int baseDmg, int calcDmg)
+        {
+            skillName = name;
+            baseDamage = baseDmg;
+            calculatedDamage = calcDmg;
+        }
+    }
+    [SerializeField] private List<SkillDebugInfo> skillDebugInfos = new List<SkillDebugInfo>();
+
     [Header("Upgrade Buttons")]
     public Button vitalityUpgradeButton; // Vitality 업그레이드 버튼
     public Button powerUpgradeButton;     // Power 업그레이드 버튼
@@ -205,6 +225,9 @@ public class CharacterManager : MonoBehaviour
     }
     private void Update()
     {
+        // 디버그 정보 업데이트
+        UpdateDebugInfo();
+        
         // 키보드의 `키`를 눌렀을 때 현재 선택된 캐릭터의 레벨을 증가
         if (Input.GetKeyDown(KeyCode.BackQuote)) IncreaseCharacterLevel(); // `키는 BackQuote로 표현
         // 스킬 쿨타임 타이머 업데이트
@@ -245,8 +268,10 @@ public class CharacterManager : MonoBehaviour
             // 스킬 쿨타임 확인
             if (skillCooldownTimers[skillIndex] <= 0)
             {
+                // STR 레벨에 따른 데미지 로그 추가
+                Debug.Log($"캐릭터 '{character.characterName}'의 스킬 '{skill.skillName}' 사용 - 기본 데미지: {skill.skillDamage}, STR 레벨: {character.power}");
+                
                 skillManager.UseSkill(skill, transform, character); // character는 현재 선택된 캐릭터
-
 
                 // 쿨타임 설정
                 skillCooldownTimers[skillIndex] = skill.skillCooldown;
@@ -801,4 +826,32 @@ public class CharacterManager : MonoBehaviour
             };
         }
     }*/
+
+    // 인스펙터용 디버그 정보 업데이트
+    private void UpdateDebugInfo()
+    {
+        CharacterData character = characters[currentCharacterIndex];
+        if (character != null)
+        {
+            selectedCharacterName = character.characterName;
+            selectedPowerLevel = character.power;
+            damageMultiplier = 1 + (selectedPowerLevel * 0.1f);
+            
+            // 스킬 데미지 정보 업데이트
+            skillDebugInfos.Clear();
+            
+            if (character.skills != null)
+            {
+                foreach (CharacterSkill skill in character.skills)
+                {
+                    if (skill != null)
+                    {
+                        int baseDamage = skill.skillDamage;
+                        int calculatedDamage = Mathf.RoundToInt(baseDamage * damageMultiplier);
+                        skillDebugInfos.Add(new SkillDebugInfo(skill.skillName, baseDamage, calculatedDamage));
+                    }
+                }
+            }
+        }
+    }
 }
