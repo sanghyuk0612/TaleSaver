@@ -131,17 +131,17 @@ public class CharacterManager : MonoBehaviour
             Button button = existingButtons[i];
 
             Text buttonText = button.GetComponentInChildren<Text>(); // 버튼의 텍스트
-            Image buttonImage = button.GetComponent<Image>(); // 버튼 자체의 이미지
+            Image buttonImage = button.GetComponent<Image>();        // 캐릭터 이미지가 여기에 있음
 
             if (buttonText != null)
             {
                 buttonText.text = characters[index].characterName;
             }
 
-            // 캐릭터가 잠겨 있으면 버튼을 어둡게 처리
-            if (!characters[index].isUnlocked)
+            // ✅ 항상 색상 설정: 해금이면 흰색, 아니면 회색
+            if (buttonImage != null)
             {
-                buttonImage.color = new Color(0.5f, 0.5f, 0.5f, 1f); // 어두운 색상 적용
+                buttonImage.color = characters[index].isUnlocked ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
             }
 
             // 버튼 클릭 이벤트 추가
@@ -150,6 +150,7 @@ public class CharacterManager : MonoBehaviour
             // 리스트에 추가
             characterButtons.Add(button);
         }
+
 
         // CharacterSelectionData에 스프라이트 설정 요청
         CharacterSelectionData.Instance.SetDefaultCharacterSprite(this);
@@ -706,6 +707,23 @@ public class CharacterManager : MonoBehaviour
         if (!task.Result.Exists)
         {
             Debug.LogWarning("🔐 Firebase에 해금 캐릭터 정보 없음.");
+
+            for (int i = 0; i < characters.Length; i++)
+            {
+                characters[i].isUnlocked = (i == 1); // 견우(index==1)만 해금
+                PlayerPrefs.SetInt("CharacterUnlocked_" + i, characters[i].isUnlocked ? 1 : 0);
+
+                if (i < characterButtons.Count)
+                {
+                    Image img = characterButtons[i].GetComponent<Image>();
+                    if (img != null)
+                    {
+                        img.color = characters[i].isUnlocked ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
+                    }
+                }
+            }
+            PlayerPrefs.Save();
+
             onComplete?.Invoke();
             yield break;
         }
