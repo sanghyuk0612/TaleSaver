@@ -5,10 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class BGMManager : MonoBehaviour
 {
-    private static BGMManager instance;
+    public static BGMManager instance;
     public AudioClip lobbyBGM;
     public AudioClip GameBGM;
     public AudioSource audioSource;
+    public AudioClip slashSE;
+    public AudioClip blackBirdSE;
+    public AudioClip CowSE;
+    public AudioClip HealSE;
+    public AudioClip slash2SE;
+
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -28,6 +35,11 @@ public class BGMManager : MonoBehaviour
             Destroy(gameObject); // 중복 방지
         }
         SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    public void PlaySE(AudioClip clip, float vol)
+    {
+        if (clip != null)
+            audioSource.PlayOneShot(clip,vol);
     }
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
