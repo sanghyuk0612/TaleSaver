@@ -33,7 +33,7 @@ public class Wolf : MonoBehaviour
     private bool isFacingRight = false;
 
     [Header("Health")]
-    public float baseHealth = 100f; // 기본 체력
+    public float baseHealth = 3000f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
 
@@ -190,6 +190,20 @@ public class Wolf : MonoBehaviour
             Debug.Log("Debug: Monster health set to 0 manually.");
             calculatedHealth = 0;
             
+        }
+    }
+    public void TakeDamage(float damage)
+    {
+        calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
+        Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
+        int i = Random.Range(0, 2);
+        if (i == 0)
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE, 0.5f);
+        }
+        else
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
         }
     }
     void Flip()

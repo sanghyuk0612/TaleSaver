@@ -59,6 +59,15 @@ public class GameManager : MonoBehaviour
     public float playerDashForce = 15f;
     public float playerDashCooldown = 5f;
     public int playerMaxHealth = 100; // 기본값으로만 사용됨
+    
+    [Header("캐릭터 스탯 디버그")]
+    [SerializeField] private string currentCharacterName;
+    [SerializeField] private int currentVitLevel;
+    [SerializeField] private int currentStrLevel;
+    [SerializeField] private int currentAgiLevel;
+    [SerializeField] private int currentLukLevel;
+    [SerializeField] private float strDamageMultiplier;
+    [SerializeField] private int calculatedMaxHealth;
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
@@ -320,6 +329,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // 캐릭터 디버그 정보 업데이트
+        UpdateCharacterDebugInfo();
+        
         // 스킬 쿨타임 타이머 업데이트
         for (int i = 0; i < skillCooldownTimers.Length; i++)
         {
@@ -568,6 +580,9 @@ public class GameManager : MonoBehaviour
             return; // 쿨타임이 남아있으면 사용하지 않음
         }
 
+        // STR 레벨에 따른 데미지 로그 추가
+        Debug.Log($"GameManager - 캐릭터 '{CurrentCharacter.characterName}'의 스킬 '{skill.skillName}' 사용 - 기본 데미지: {skill.skillDamage}, STR 레벨: {CurrentCharacter.power}");
+        
         skillManager.UseSkill(skill, transform, CurrentCharacter); // 스킬 사용
         //UseSkill(skill, transform);
         skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
@@ -861,6 +876,36 @@ public class GameManager : MonoBehaviour
         else
         {
             Application.Quit();
+        }
+    }
+
+    // 캐릭터 디버그 정보 업데이트 (Inspector 확인용)
+    private void UpdateCharacterDebugInfo()
+    {
+        if (CurrentCharacter != null)
+        {
+            currentCharacterName = CurrentCharacter.characterName;
+            currentVitLevel = CurrentCharacter.vitality;
+            currentStrLevel = CurrentCharacter.power;
+            currentAgiLevel = CurrentCharacter.agility;
+            currentLukLevel = CurrentCharacter.luck;
+            
+            // 데미지 배율 계산
+            strDamageMultiplier = 1 + (currentStrLevel * 0.1f);
+            
+            // 최대 체력 계산
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + (currentVitLevel * 0.1f)));
+        }
+        else
+        {
+            currentCharacterName = "None";
+            currentVitLevel = 0;
+            currentStrLevel = 0;
+            currentAgiLevel = 0;
+            currentLukLevel = 0;
+            strDamageMultiplier = 1.0f;
+            calculatedMaxHealth = playerMaxHealth;
         }
     }
 

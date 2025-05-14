@@ -153,9 +153,11 @@ public class Store : MonoBehaviour
     }
     private void OpenStore()
     {
+        
         Debug.Log("상점 열림");
         Time.timeScale = 0;
         StoreWindow.SetActive(true);
+        // 버튼에 효과음 주입
         itemEx.text = "";
     }
 

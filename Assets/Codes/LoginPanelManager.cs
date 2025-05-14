@@ -178,7 +178,7 @@ public class LoginPanelManager : MonoBehaviour
                 // 첫 클릭시에만 비우기
                 if (emailFirstClick && Input.mousePresent && Input.GetMouseButton(0))
                 {
-                    emailInput.text = "";
+                emailInput.text = "";
                     emailFirstClick = false;
                 }
             });
@@ -196,7 +196,7 @@ public class LoginPanelManager : MonoBehaviour
             passwordInput.onSelect.AddListener((string text) => {
                 if (passwordFirstFocus)
                 {
-                    passwordInput.text = "";
+                passwordInput.text = "";
                     passwordFirstFocus = false;
                     Debug.Log("비밀번호 필드 첫 포커스 - 내용 지움");
                 }
@@ -215,7 +215,7 @@ public class LoginPanelManager : MonoBehaviour
         // 키보드 네비게이션을 위한 설정
         SetupKeyboardNavigation();
     }
-    
+
     // 키보드 네비게이션 설정
     private void SetupKeyboardNavigation()
     {
@@ -241,7 +241,7 @@ public class LoginPanelManager : MonoBehaviour
     {
         // loginPanel 변수가 Inspector에서 할당되지 않았으면 아무것도 하지 않음
         if (loginPanel == null)
-        {
+            {
             Debug.LogWarning("loginPanel이 할당되지 않았습니다. Inspector에서 확인해주세요.");
             return;
         }
@@ -317,19 +317,19 @@ public class LoginPanelManager : MonoBehaviour
     {
         // 참조된 게임 오브젝트들의 null 체크 추가
         if (loginPanel != null)
-            loginPanel.SetActive(false);
+        loginPanel.SetActive(false);
             
         if (gameStartButton != null)
-            gameStartButton.SetActive(true);
+        gameStartButton.SetActive(true);
             
         if (gameOptionButton != null)
-            gameOptionButton.SetActive(true);
+        gameOptionButton.SetActive(true);
             
         if (gameLoginButton != null)
-            gameLoginButton.SetActive(true);
+        gameLoginButton.SetActive(true);
             
         if (gameExitButton != null)
-            gameExitButton.SetActive(true);
+        gameExitButton.SetActive(true);
             
         Debug.Log("로그인 패널 닫힘");
     }

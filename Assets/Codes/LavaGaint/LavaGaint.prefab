@@ -192,7 +192,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 1.82, y: 1.87}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.1
 --- !u!251 &1848237136695092566
 PlatformEffector2D:
   m_ObjectHideFlags: 0
@@ -233,7 +233,7 @@ MonoBehaviour:
   baseDamage: 10
   damageMultiplier: {fileID: 11400000, guid: 346e44b35f0a47541abd528d6e601d2e, type: 2}
   attackDamage: 0
-  baseHealth: 100
+  baseHealth: 2000
   healthMultiplier: {fileID: 11400000, guid: cb1019c93ba0be943b490ba77429d6b4, type: 2}
   calculatedHealth: 0
   itemPrefab: {fileID: 8044234074128147666, guid: 5c9944f6524634fb6887103db97b7143, type: 3}

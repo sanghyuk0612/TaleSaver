@@ -3,7 +3,8 @@ guid: 7be2cbbc2e7c8bf46ab9ed5a04b59f36
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - cowImpactFXPrefab: {fileID: 2653733086067110015, guid: 8325830c56a538342a0287440abcc70c, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
