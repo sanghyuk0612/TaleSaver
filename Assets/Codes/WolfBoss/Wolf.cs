@@ -208,6 +208,16 @@ public class Wolf : MonoBehaviour
         {
             CheckDeath();  // 혹은 Death() 호출 방식에 맞게
         }
+        
+        int i = Random.Range(0, 2);
+        if (i == 0)
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE, 0.5f);
+        }
+        else
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
+        }
     }
     void Flip()
     {

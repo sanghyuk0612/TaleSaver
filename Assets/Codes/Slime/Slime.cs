@@ -461,6 +461,15 @@ private IEnumerator StopMovement(float stopDuration)
     }
     public void TakeDamage(float damage)
     {
+        int i = Random.Range(0, 2);
+        if (i == 0)
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE, 1f);
+        }
+        else
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 1f);
+        }
         calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
 
