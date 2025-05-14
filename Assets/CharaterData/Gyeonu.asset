@@ -34,3 +34,4 @@ MonoBehaviour:
   fireballEffectOverride: {fileID: 8728166249680686446, guid: 56c9886cfb52d0f4db1349dd87e92a2d, type: 3}
   baseGEffectOverride: {fileID: 6832610008575768763, guid: 96f5eb061b4089045b8a91972979d57f, type: 3}
   ultimoEffectOverride: {fileID: 8513749983858254812, guid: 60dcd3fb3f0e3f94481f525bf7e1bc91, type: 3}
+  healEffectOverride: {fileID: 3065006451712295366, guid: 35d063e5368b8334790b11d2155d92b2, type: 3}

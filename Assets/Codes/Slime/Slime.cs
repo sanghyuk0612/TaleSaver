@@ -53,7 +53,8 @@ public class Slime : MonoBehaviour
     private Transform Pivot;
     [Header("Animation")]
     public Animator anim;
-    
+
+    private Coroutine hitEffectCoroutine;
 
     bool isDead;
 
@@ -260,10 +261,15 @@ private void FrontAttack(){
     // 이펙트 생성
     if (FrontAttackPrefab != null)
     {
-        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2*direc,0.3f,0), Quaternion.identity);
+        GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(5*direc,4,0), Quaternion.identity);
         effect.transform.SetParent(transform);
         //StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
-        
+
+        // 방향에 따라 flip
+        Vector3 scale = effect.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * direc;
+        effect.transform.localScale = scale;
+
         Destroy(effect, 0.6f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
@@ -278,8 +284,14 @@ private void SmashAttack()
     
     if (SlimeSmashPrefab != null)
     {
-        GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position+new Vector3(direc*1,0,0), Quaternion.identity);
+        GameObject effect = Instantiate(SlimeSmashPrefab, Pivot.position+new Vector3(direc*2,0,0), Quaternion.identity);
         effect.transform.SetParent(transform);
+
+            // 방향에 따라 flip
+        Vector3 scale = effect.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * direc;
+        effect.transform.localScale = scale;
+
         Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
         Debug.Log("이펙트 출력");
     }
@@ -300,9 +312,15 @@ private void DownAttack()
     {
 
         // 레이저 이펙트 생성
-        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(3*direc,-0.7f,0), Quaternion.identity);
-        
-        // 이펙트 이동 (속도 조절 가능)
+        GameObject effect = Instantiate(DownAttackPrefab, Pivot.position+new Vector3(5*direc,-0.5f,0), Quaternion.identity);
+
+
+            // 방향에 따라 flip
+        Vector3 scale = effect.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * direc;
+        effect.transform.localScale = scale;
+
+            // 이펙트 이동 (속도 조절 가능)
         Rigidbody2D effectRb = effect.GetComponent<Rigidbody2D>();
         if (effectRb != null)
         {
@@ -351,6 +369,22 @@ private IEnumerator StopMovement(float stopDuration)
         anim.SetInteger("skillNum",9);
         isDashing = false;
     }
+
+    //데미지시 번쩍
+    private IEnumerator FlashOnHit()
+    {
+        // 하얗게 변하기
+        spriteRenderer.color = Color.white;
+
+        // 0.1초 후 원래 색으로 복원
+        yield return new WaitForSeconds(0.2f);
+        spriteRenderer.color = Color.red; // 또는 원래 색깔 (기본은 흰색이 아님)
+
+        // 자동 회복 (기본 흰색인 경우)
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.color = Color.white;
+    }
+
 
     //테스트용 
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
@@ -438,6 +472,17 @@ private IEnumerator StopMovement(float stopDuration)
         }
         calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
+
+        // 피격 시 반짝임
+        if (hitEffectCoroutine != null)
+            StopCoroutine(hitEffectCoroutine);
+
+        hitEffectCoroutine = StartCoroutine(FlashOnHit());
+
+        if (calculatedHealth <= 0 && !isDead)
+        {
+            Death();
+        }
     }
 
     // 디버그용 시각화

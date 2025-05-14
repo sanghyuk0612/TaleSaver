@@ -42,6 +42,7 @@ public class CowDrop : MonoBehaviour
                 // 먼지 애니메이션 생성
                 if (impactFXPrefab != null)
                 {
+                    Vector3 fxPosition = transform.position + new Vector3(0f, 1.5f, 0f); // y축 0.3f 위로 올림
                     Debug.Log($" Dust FX 생성 위치: {transform.position}");
                     Instantiate(impactFXPrefab, transform.position, Quaternion.identity);
 

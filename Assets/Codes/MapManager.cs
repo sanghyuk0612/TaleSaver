@@ -566,8 +566,8 @@ public class MapManager : MonoBehaviour
             float groundY = lastGround.transform.position.y;
 
             portalPosition = new Vector3(
-                right - 2f,  // 오른쪽 끝에서 2칸 왼쪽
-                groundY + 2.5f,    // Ground 위로 2.5칸
+                right - 2.5f,  // 오른쪽 끝에서 2칸 왼쪽
+                groundY + 3.5f,    // Ground 위로 2.5칸
                 0
             );
 
