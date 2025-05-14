@@ -26,6 +26,8 @@ public class CharacterData : ScriptableObject
     public GameObject fireballEffectOverride;
     public GameObject baseGEffectOverride;
     public GameObject ultimoEffectOverride;
+    public GameObject healEffectOverride;
+
 
     // 스킬 초기화 메서드
     public void InitializeSkills()

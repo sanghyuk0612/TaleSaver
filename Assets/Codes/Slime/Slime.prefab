@@ -151,9 +151,9 @@ MonoBehaviour:
   dashDemage: 30
   jumpForce: 20
   jumpHorizontalForce: 30
-  SlimeSmashPrefab: {fileID: 3415900879390828816, guid: 4fa0097b07b404e41af45216135f2094, type: 3}
-  DownAttackPrefab: {fileID: 5605060386581786699, guid: f4596d95b384735469fb4eca79edca30, type: 3}
-  FrontAttackPrefab: {fileID: 5605060386581786699, guid: c7344367892154546ae8d777828ae977, type: 3}
+  SlimeSmashPrefab: {fileID: 8833675648719093094, guid: b05f93b9e3fb2c548bf312288694abd9, type: 3}
+  DownAttackPrefab: {fileID: 5143574489745698158, guid: 2e37f338fdb05f04aab5e5299d694ebd, type: 3}
+  FrontAttackPrefab: {fileID: 6923337269778492295, guid: 6dccf17aeec20fb488a63e8ba1df5b90, type: 3}
   anim: {fileID: 0}
   skillInterval: 3
   custumSkillnum: 7

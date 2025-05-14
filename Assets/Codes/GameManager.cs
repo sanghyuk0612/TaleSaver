@@ -791,8 +791,11 @@ public class GameManager : MonoBehaviour
             RankingManager.QueueSaveRequest(playerId, characterName, clearTime); // ✅ 이 static 메서드도 RankingManager.cs에 추가해야 함
         }
 
-        // BossStage면 UI는 띄우지 않고 종료
-        if (isBossStage)
+        // BossStage라도 플레이어가 죽은 경우 Game Over UI를 띄움
+        // 실제 사망 여부를 PlayerController.IsDead로 확인
+        bool isPlayerDead = PlayerController.IsDead;
+
+        if (isBossStage && !isPlayerDead)
         {
             Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
             return;

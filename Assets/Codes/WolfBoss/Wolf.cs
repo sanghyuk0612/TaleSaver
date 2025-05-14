@@ -53,9 +53,10 @@ public class Wolf : MonoBehaviour
     [Header("Animation")]
     public Animator anim;
     [SerializeField] private GameObject SlimePrefab;
-    
 
-    
+    private Coroutine hitEffectCoroutine;
+
+
 
     void Start()
     {
@@ -196,6 +197,18 @@ public class Wolf : MonoBehaviour
     {
         calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
+
+        // 피격 반짝임 효과 실행
+        if (hitEffectCoroutine != null)
+            StopCoroutine(hitEffectCoroutine);
+
+        hitEffectCoroutine = StartCoroutine(FlashOnHit());
+
+        if (calculatedHealth <= 0 && !isDead)
+        {
+            CheckDeath();  // 혹은 Death() 호출 방식에 맞게
+        }
+        
         int i = Random.Range(0, 2);
         if (i == 0)
         {
@@ -214,7 +227,18 @@ public class Wolf : MonoBehaviour
         scale.x *= -1;
         transform.localScale = scale;
     }
-    
+
+    //맞았을 때 번쩍 번쩍
+    private IEnumerator FlashOnHit()
+    {
+        spriteRenderer.color = Color.white;  // 하얗게
+        yield return new WaitForSeconds(0.2f);
+        spriteRenderer.color = Color.red;    // 일시적으로 붉게 (피격 느낌)
+        yield return new WaitForSeconds(0.1f);
+        spriteRenderer.color = Color.white;  // 원래대로 복원 (기본이 흰색이라면)
+    }
+
+
     private void myFlip(){
         
     }
@@ -283,7 +307,12 @@ private void FrontAttack(){
     if (FrontAttackPrefab != null)
     {
         GameObject effect = Instantiate(FrontAttackPrefab, Pivot.position+new Vector3(2.5f*direc,0.3f,0), Quaternion.identity);
-        effect.transform.SetParent(transform);
+            // 방향에 따라 X축 스케일 반전
+            Vector3 scale = effect.transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * direc;  // direc이 1이면 그대로, -1이면 반전
+            effect.transform.localScale = scale;
+
+            effect.transform.SetParent(transform);
         //StartCoroutine(DashCoroutine(0.1f)); //앞으로 이동하며 공격
         
         Destroy(effect, 0.4f); // 0.5초 후 이펙트 제거
