@@ -5,38 +5,59 @@ using UnityEngine.SceneManagement;
 
 public class BGMManager : MonoBehaviour
 {
-    private static BGMManager instance;
+    public static BGMManager instance;
+
     public AudioClip lobbyBGM;
     public AudioClip GameBGM;
-    public AudioSource audioSource;
-    void Start()
-    {
-        audioSource = GetComponent<AudioSource>();
-        audioSource.clip = lobbyBGM;
-        audioSource.loop = true;
-        audioSource.Play();
-    }
+
+    public AudioClip slashSE;
+    public AudioClip blackBirdSE;
+    public AudioClip CowSE;
+    public AudioClip HealSE;
+    public AudioClip slash2SE;
+    public AudioClip demagedSE;
+    public AudioClip demagedSE2;
+
+    public AudioSource bgmSource;  // 🎵 BGM 전용
+    public AudioSource seSource;   // 🔊 SE 전용
+
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
-            Destroy(gameObject); // 중복 방지
+            Destroy(gameObject);
         }
-        SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    void Start()
+    {
+        bgmSource.clip = lobbyBGM;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if(scene.name=="GameScene"||scene.name=="BossStage"){
-            audioSource.clip = GameBGM;
+        if (scene.name == "GameScene" || scene.name == "BossStage")
+        {
+            bgmSource.clip = GameBGM;
         }
-        else{
-            audioSource.clip = lobbyBGM;
+        else
+        {
+            bgmSource.clip = lobbyBGM;
         }
-        audioSource.Play();
+        bgmSource.Play();
+    }
+
+    public void PlaySE(AudioClip clip, float vol = 1.0f)
+    {
+        if (clip != null)
+            seSource.PlayOneShot(clip, vol);
     }
 }

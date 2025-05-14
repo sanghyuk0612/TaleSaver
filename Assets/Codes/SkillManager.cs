@@ -60,6 +60,7 @@ public class SkillManager : MonoBehaviour
                     Debug.LogError("Player(Clone) object not found!");
                     return;
                 }
+                
 
                 baseAttackPosition = playerObject.transform.position; // 공격 위치 저장
 
@@ -129,6 +130,14 @@ public class SkillManager : MonoBehaviour
                         GameObject hitEffect = Instantiate(baseGFX, closestEnemy.transform.position, Quaternion.identity);
                         Destroy(hitEffect, 0.5f); // 0.5초 후 이펙트 제거
                     }
+                    int i = Random.Range(0,2);
+                    if(i==0){
+                        BGMManager.instance.PlaySE(BGMManager.instance.slashSE,1f);
+                    }
+                    else{
+                        BGMManager.instance.PlaySE(BGMManager.instance.slash2SE,1f);
+                    }
+                    
 
                     // 화면 흔들림 효과
                     //StartCoroutine(ShakeCamera(0.02f, 0.02f));
@@ -165,6 +174,7 @@ public class SkillManager : MonoBehaviour
                     Debug.LogError("Player(Clone) object not found!");
                     return;
                 }
+                BGMManager.instance.PlaySE(BGMManager.instance.blackBirdSE,1f);
 
                 // 플레이어의 위치를 기준으로 Fireball 위치 설정
                 fireballPosition = playerObject_fireball.transform.position + new Vector3(0f, 0.5f, 0f);
@@ -368,12 +378,14 @@ public class SkillManager : MonoBehaviour
                 
             case "Ultimo":
                 // Player(Clone) 오브젝트 찾기
+                
                 GameObject playerObject_ultimo = GameObject.Find("Player(Clone)");
                 if (playerObject_ultimo == null)
                 {
                     Debug.LogError("Player(Clone) object not found!");
                     return;
                 }
+                BGMManager.instance.PlaySE(BGMManager.instance.CowSE,1.5f);
 
                 // 플레이어의 위치를 기준으로 Ultimo 위치 설정
                 ultimoPosition = playerObject_ultimo.transform.position;
@@ -592,6 +604,7 @@ public class SkillManager : MonoBehaviour
                     // PlayerController 직접 찾아서 체력 동기화
                     if (playerCtrl != null)
                     {
+                        BGMManager.instance.PlaySE(BGMManager.instance.HealSE,1f);
                         playerCtrl.UpdateHealth(newHealth);
                         Debug.Log($"[디버깅] PlayerController.UpdateHealth({newHealth}) 호출 완료");
                         

@@ -575,7 +575,15 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         // 이전 체력 저장
         int previousHealth = currentHealth;
-        
+        int i = Random.Range(0, 2);
+        if (i == 0)
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE, 0.5f);
+        }
+        else
+        {
+            BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
+        }
         // 체력 감소
         currentHealth = Mathf.Max(0, currentHealth - damage);
         Debug.Log($"플레이어가 {damage} 데미지를 받음. 남은 체력: {currentHealth}");
