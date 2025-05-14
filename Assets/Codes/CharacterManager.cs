@@ -706,6 +706,23 @@ public class CharacterManager : MonoBehaviour
         if (!task.Result.Exists)
         {
             Debug.LogWarning("🔐 Firebase에 해금 캐릭터 정보 없음.");
+
+            for (int i = 0; i < characters.Length; i++)
+            {
+                characters[i].isUnlocked = (i == 1); // 견우(index==1)만 해금
+                PlayerPrefs.SetInt("CharacterUnlocked_" + i, characters[i].isUnlocked ? 1 : 0);
+
+                if (i < characterButtons.Count)
+                {
+                    Image img = characterButtons[i].GetComponent<Image>();
+                    if (img != null)
+                    {
+                        img.color = characters[i].isUnlocked ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
+                    }
+                }
+            }
+            PlayerPrefs.Save();
+
             onComplete?.Invoke();
             yield break;
         }
