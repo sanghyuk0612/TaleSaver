@@ -307,6 +307,9 @@ public class MapManager : MonoBehaviour
                         Debug.Log("스폰포인트");
                         GetSpawnPoint(SpawnPoint, bounds, offset);
                     }
+                    if(child.tag == "SpawnNPC"){
+                        
+                    }
 
                 }
             }
