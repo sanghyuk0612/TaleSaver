@@ -128,7 +128,7 @@ public class SpawnManager : MonoBehaviour
         int currentStage = GameManager.Instance.Stage;
 
         // Event NPC 생성 
-        if (currentStage == 6)
+        if (currentStage == 10)
         {
             npcPrefab = EventNPCPrefab;
             Debug.Log($"{currentStage} EventNPCPrefab is assigned!");
@@ -136,13 +136,20 @@ public class SpawnManager : MonoBehaviour
         // NPC 생성 ( 조건 필요시 else if로 조건 설정 필요 )
         else
         {
+            if(MapManager.Instance.NPCspawnPoints.Count==0){
+            return;
+            }
             npcPrefab = NPCPrefab;
             Debug.Log($"{currentStage} NPCPrefab is assigned!");
         }
 
         // 스폰 위치 설정
-        int ran = Random.Range(0, MapManager.Instance.spawnPoints.Count);
-        Vector3 npcSpawnPos = MapManager.Instance.spawnPoints[ran];
+
+        int ran = Random.Range(0, MapManager.Instance.NPCspawnPoints.Count);
+        Vector3 npcSpawnPos = MapManager.Instance.NPCspawnPoints[ran];
+        npcSpawnPos+=new Vector3(0,0.75f,0);
+
+
 
         GameObject npc = Instantiate(npcPrefab, npcSpawnPos, Quaternion.identity);
         

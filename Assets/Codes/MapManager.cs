@@ -14,6 +14,7 @@ public class MapManager : MonoBehaviour
     public float responTime = 10;
     public bool isBoss = false;
     public List<Vector3> spawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
+    public List<Vector3> NPCspawnPoints = new List<Vector3>(); // 원을 그릴 위치 목록
     [SerializeField] private GameObject stagePortalPrefab;
     [SerializeField] private GameObject storePortalPrefab;
     [SerializeField] private GameObject BossPortalPrefab;
@@ -307,9 +308,12 @@ public class MapManager : MonoBehaviour
                         Debug.Log("스폰포인트");
                         GetSpawnPoint(SpawnPoint, bounds, offset);
                     }
-                    if(child.tag == "SpawnNPC"){
-                        
-                    }
+                    if(child.tag == "SpawnNpc"){
+                            Tilemap SpawnPoint = child.GetComponent<Tilemap>();
+                            Debug.Log("NPC스폰포인트");
+                            GetNPCSpawnPoint(SpawnPoint, bounds, offset);
+                        }
+
 
                 }
             }
@@ -341,12 +345,14 @@ public class MapManager : MonoBehaviour
         HalfTilemap.ClearAllTiles();
         //기존 스폰포인트 초기화
         spawnPoints.Clear();
+        NPCspawnPoints.Clear();
         // 기존 맵 섹션들 제거
         foreach (var section in currentMapSections)
         {
             if (section != null) Destroy(section);
         }
         currentMapSections.Clear();
+        
 
 
         // 기존 포탈 제거
@@ -424,6 +430,11 @@ public class MapManager : MonoBehaviour
                             Debug.Log("스폰포인트");
                             GetSpawnPoint(SpawnPoint, bounds, offset);
                         }
+                        if(child.tag == "SpawnNpc"){
+                            Tilemap SpawnPoint = child.GetComponent<Tilemap>();
+                            Debug.Log("NPC스폰포인트");
+                            GetNPCSpawnPoint(SpawnPoint, bounds, offset);
+                        }
 
                     }
                 }
@@ -455,24 +466,40 @@ public class MapManager : MonoBehaviour
             Destroy(mapSection);
         }
         SpawnPortal();
+        SpawnManager.Instance.SpawnNPC();
         
-        // Event NPC 소환
-        if (GameManager.Instance.Stage == 1)
-        {
-            SpawnManager.Instance.SpawnNPC();
-        }
+        // // Event NPC 소환
+        // if (GameManager.Instance.Stage == 1)
+        // {
+        //     SpawnManager.Instance.SpawnNPC();
+        // }
         
-        // NPC 소환
-        if (GameManager.Instance.Stage == 2 || GameManager.Instance.Stage == 6)
-        {
-            SpawnManager.Instance.SpawnNPC();
-        }
+        // // NPC 소환
+        // if (GameManager.Instance.Stage == 2 || GameManager.Instance.Stage == 6)
+        // {
+        //     SpawnManager.Instance.SpawnNPC();
+        // }
 
         // // 스테이지가 새로 생성될 때마다 적 소환 (첫 스테이지 제외)
         // if (Time.timeSinceLevelLoad > 1f)  // 게임 시작 직후가 아닐 때만
         // {
         //     SpawnManager.Instance.SpawnEntities();
         // }
+    }
+    void GetNPCSpawnPoint(Tilemap source, BoundsInt bounds, Vector3Int offset)
+    {
+        //Debug.Log(source.name + "의 태그: " + source.tag);
+        
+        foreach (Vector3Int pos in bounds.allPositionsWithin)
+        {
+            if (!source.HasTile(pos))
+            {
+                continue;
+            }
+            Vector3 spawnPos = pos + offset - bounds.min;
+            NPCspawnPoints.Add(spawnPos); // 위치 저장
+            Debug.Log("NPC 스폰 포인트 추가됨: " + spawnPos);
+        }
     }
 
     void GetSpawnPoint(Tilemap source, BoundsInt bounds, Vector3Int offset)
