@@ -383,6 +383,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         rb.AddForce(new Vector2(dashDirection * dashForce, 0f), ForceMode2D.Impulse);
         isDashing = true;
         playerAnimator.SetTrigger("Dash");
+        BGMManager.instance.PlaySE(BGMManager.instance.blackBirdSE);
 
         // 대시 코루틴 시작
         StartCoroutine(DashCoroutine());
