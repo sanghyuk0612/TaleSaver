@@ -567,7 +567,7 @@ public class MapManager : MonoBehaviour
 
             portalPosition = new Vector3(
                 right - 2.5f,  // 오른쪽 끝에서 2칸 왼쪽
-                groundY + 3.5f,    // Ground 위로 2.5칸
+                groundY + 3f,    // Ground 위로 2.5칸
                 0
             );
 
