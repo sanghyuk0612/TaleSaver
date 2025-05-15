@@ -3897,19 +3897,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventory:
-    stone: 10
+    stone: 0
     stonePrice: 3
-    tree: 10
+    tree: 0
     treePrice: 17
-    skin: 10
+    skin: 0
     skinPrice: 50
-    steel: 10
+    steel: 0
     steelPrice: 95
-    gold: 10
+    gold: 0
     goldPrice: 165
     battery: 0
-    machineparts: 1
-    storybookpages: 1
+    machineparts: 0
+    storybookpages: 0
     items: 
 --- !u!4 &1175802828
 Transform:
