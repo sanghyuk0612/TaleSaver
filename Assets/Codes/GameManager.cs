@@ -59,6 +59,18 @@ public class GameManager : MonoBehaviour
     public float playerDashForce = 15f;
     public float playerDashCooldown = 5f;
     public int playerMaxHealth = 100; // 기본값으로만 사용됨
+    
+    [Header("캐릭터 스탯 디버그")]
+    [SerializeField] private string currentCharacterName;
+    [SerializeField] private int currentVitLevel;
+    [SerializeField] private int currentStrLevel;
+    [SerializeField] private int currentAgiLevel;
+    [SerializeField] private int currentLukLevel;
+    [SerializeField] private float strDamageMultiplier;
+    [SerializeField] private int calculatedMaxHealth;
+    [SerializeField] private float agilitySpeedMultiplier; // AGI 레벨에 따른 이동속도 배율
+    [SerializeField] private float calculatedMoveSpeed; // AGI 레벨 적용된 실제 이동속도
+    [SerializeField] private float agilityCooldownMultiplier; // AGI 레벨에 따른 쿨타임 감소 배율
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
@@ -320,6 +332,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // 캐릭터 디버그 정보 업데이트
+        UpdateCharacterDebugInfo();
+        
         // 스킬 쿨타임 타이머 업데이트
         for (int i = 0; i < skillCooldownTimers.Length; i++)
         {
@@ -568,9 +583,21 @@ public class GameManager : MonoBehaviour
             return; // 쿨타임이 남아있으면 사용하지 않음
         }
 
+        // STR 레벨에 따른 데미지 로그 추가
+        Debug.Log($"GameManager - 캐릭터 '{CurrentCharacter.characterName}'의 스킬 '{skill.skillName}' 사용 - 기본 데미지: {skill.skillDamage}, STR 레벨: {CurrentCharacter.power}");
+        
         skillManager.UseSkill(skill, transform, CurrentCharacter); // 스킬 사용
-        //UseSkill(skill, transform);
-        skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
+        
+        // AGI 레벨에 따른 쿨타임 감소 적용
+        int agilityLevel = CurrentCharacter.agility;
+        float cooldownMultiplier = 1f - (agilityLevel * 0.1f);
+        // 쿨타임이 음수가 되지 않도록 보정 (AGI 레벨이 10 이상인 경우)
+        cooldownMultiplier = Mathf.Max(cooldownMultiplier, 0.1f); // 최소 10%의 쿨타임은 유지
+        
+        float adjustedCooldown = skill.skillCooldown * cooldownMultiplier;
+        skillCooldownTimers[skillIndex] = adjustedCooldown; // 조정된 쿨타임 설정
+        
+        Debug.Log($"스킬 '{skill.skillName}' 쿨타임 조정: 기본({skill.skillCooldown}초) * 배율({cooldownMultiplier:F2}) = {adjustedCooldown:F2}초 (AGI 레벨: {agilityLevel})");
     }
 
     public void ModifyHealth(int amount)
@@ -776,8 +803,11 @@ public class GameManager : MonoBehaviour
             RankingManager.QueueSaveRequest(playerId, characterName, clearTime); // ✅ 이 static 메서드도 RankingManager.cs에 추가해야 함
         }
 
-        // BossStage면 UI는 띄우지 않고 종료
-        if (isBossStage)
+        // BossStage라도 플레이어가 죽은 경우 Game Over UI를 띄움
+        // 실제 사망 여부를 PlayerController.IsDead로 확인
+        bool isPlayerDead = PlayerController.IsDead;
+
+        if (isBossStage && !isPlayerDead)
         {
             Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
             return;
@@ -861,6 +891,48 @@ public class GameManager : MonoBehaviour
         else
         {
             Application.Quit();
+        }
+    }
+
+    // 캐릭터 디버그 정보 업데이트 (Inspector 확인용)
+    private void UpdateCharacterDebugInfo()
+    {
+        if (CurrentCharacter != null)
+        {
+            currentCharacterName = CurrentCharacter.characterName;
+            currentVitLevel = CurrentCharacter.vitality;
+            currentStrLevel = CurrentCharacter.power;
+            currentAgiLevel = CurrentCharacter.agility;
+            currentLukLevel = CurrentCharacter.luck;
+            
+            // 데미지 배율 계산
+            strDamageMultiplier = 1 + (currentStrLevel * 0.1f);
+            
+            // 최대 체력 계산
+            int baseMaxHealth = CurrentCharacter.maxHealth;
+            calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + (currentVitLevel * 0.1f)));
+            
+            // AGI 레벨에 따른 이동속도 배율 계산
+            agilitySpeedMultiplier = 1 + (currentAgiLevel * 0.04f);
+            calculatedMoveSpeed = Mathf.RoundToInt(playerMoveSpeed * agilitySpeedMultiplier);
+            
+            // AGI 레벨에 따른 쿨타임 감소 배율 계산
+            agilityCooldownMultiplier = 1f - (currentAgiLevel * 0.1f);
+            // 쿨타임이 음수가 되지 않도록 보정
+            agilityCooldownMultiplier = Mathf.Max(agilityCooldownMultiplier, 0.1f);
+        }
+        else
+        {
+            currentCharacterName = "None";
+            currentVitLevel = 0;
+            currentStrLevel = 0;
+            currentAgiLevel = 0;
+            currentLukLevel = 0;
+            strDamageMultiplier = 1.0f;
+            calculatedMaxHealth = playerMaxHealth;
+            agilitySpeedMultiplier = 1.0f;
+            calculatedMoveSpeed = Mathf.RoundToInt(playerMoveSpeed);
+            agilityCooldownMultiplier = 1.0f;
         }
     }
 

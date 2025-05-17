@@ -19,4 +19,15 @@ public class CharacterSkill : ScriptableObject
         Buff,
         Debuff
     }
+    
+    // STR(power) 레벨에 따른 실제 데미지 계산
+    public int CalculateActualDamage(int powerLevel)
+    {
+        // 공식: 기본 데미지 * (1 + (STR 레벨 * 0.1))
+        float damageMultiplier = 1 + (powerLevel * 0.1f);
+        int actualDamage = Mathf.RoundToInt(skillDamage * damageMultiplier);
+        
+        Debug.Log($"스킬 '{skillName}' 데미지 계산: 기본({skillDamage}) * 배율({damageMultiplier}) = {actualDamage}");
+        return actualDamage;
+    }
 }

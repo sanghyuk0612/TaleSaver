@@ -26,20 +26,19 @@ public class PlayerItemData
     // 생성자: 모든 값을 초기화
     public PlayerItemData()
     {
-        
-        stone = 10;
+        stone = 0;
         stonePrice = 3;
-        tree = 10;
+        tree = 0;
         treePrice = 17;
-        skin = 10;
+        skin = 0;
         skinPrice = 50;
-        steel = 10;
+        steel = 0;
         steelPrice = 95;
-        gold = 10;
+        gold = 0;
         goldPrice = 165;
         battery = 0;
-        machineparts = 1;
-        storybookpages = 1;
+        machineparts = 0;
+        storybookpages = 0;
         items = new List<int>(); // 빈 리스트로 초기화
         itemPriceRange[0,0] = 1; //돌 최저가
         itemPriceRange[0,1] = 5; //돌 최고가

@@ -61,7 +61,7 @@ public class StageUIController : MonoBehaviour
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
-        if (sceneName == "GameScene" && GameManager.Instance.Stage != 0)
+        if ((sceneName == "GameScene" || sceneName == "BossStage") && GameManager.Instance.Stage != 0)
         {
             GameManager.Instance.PlayTime += Time.deltaTime;
             playTime = GameManager.Instance.PlayTime;

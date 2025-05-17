@@ -241,7 +241,7 @@ MonoBehaviour:
   dashCooltime: 3
   dashDemage: 15
   jumpHorizontalForce: 3
-  FrontAttack: {fileID: 5605060386581786699, guid: eb86ecefeba280f4a909d39f08518a05, type: 3}
+  FrontAttack: {fileID: 2695551863267772683, guid: be051cca87618d64db37b066952184e7, type: 3}
   jumpForce: 5
   skillInterval: 4
   custumSkillnum: 7

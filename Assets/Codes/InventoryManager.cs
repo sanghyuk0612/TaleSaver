@@ -44,7 +44,6 @@ public class InventoryManager : MonoBehaviour
     }
 
     // 아이템 추가
-    // 아이템 추가
     public void AddItem(int id, int quantity)
     {
         switch (id)
@@ -55,9 +54,11 @@ public class InventoryManager : MonoBehaviour
             case 3: inventory.steel += quantity; break;
             case 4: inventory.gold += quantity; break;
             case 5: // ✅ 로비 재화
+                inventory.machineparts += quantity;
                 GameDataManager.Instance.machineParts += quantity;
                 break;
             case 6: // ✅ 로비 재화
+                inventory.storybookpages += quantity;
                 GameDataManager.Instance.storybookPage += quantity;
                 break;
             case 7: inventory.battery += quantity; break;
@@ -71,7 +72,15 @@ public class InventoryManager : MonoBehaviour
         {
             GameDataManager.Instance.SaveGoodsToFirestore();
         }
-
+        // ✅ 인게임 재화일 때만 인벤토리 UI 저장
+        if (id != 5 && id != 6)
+        {
+            if (InventoryUIManager.Instance != null)
+                InventoryUIManager.Instance.UpdateAllSlots();
+            else
+                Debug.Log("InventoryUIManager is null");
+        }
+        
         Debug.Log($"Added {quantity} {GetItemNameById(id)} to inventory.");
     }
 
@@ -108,6 +117,15 @@ public class InventoryManager : MonoBehaviour
                 inventory.battery -= quantity;
                 break;
         }
+        // ✅ 인게임 재화일 때만 인벤토리 UI 저장
+        if (id != 5 && id != 6)
+        {
+            if (InventoryUIManager.Instance != null)
+                InventoryUIManager.Instance.UpdateAllSlots();
+            else
+                Debug.Log("InventoryUIManager is null");
+        }
+
         GameDataManager.Instance.SaveGoodsToFirestore(); // ✅ 즉시 Firebase 저장
     }
 

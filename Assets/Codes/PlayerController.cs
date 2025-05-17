@@ -108,6 +108,12 @@ public class PlayerController : MonoBehaviour, IDamageable
             maxHealth = GameManager.Instance.MaxHealth;
             spriteRenderer.sprite = characterData.characterSprite;
             
+            // AGI 레벨에 따른 이동속도 계산
+            int agilityLevel = characterData.agility;
+            float speedMultiplier = 1 + (agilityLevel * 0.04f);
+            moveSpeed = GameManager.Instance.playerMoveSpeed * speedMultiplier;
+            Debug.Log($"AGI 레벨({agilityLevel})에 따른 이동속도 조정: 기본({GameManager.Instance.playerMoveSpeed}) * 배율({speedMultiplier}) = {moveSpeed}");
+            
             // 애니메이터 적용
             if (characterData.animatorController != null)
             {
@@ -222,7 +228,8 @@ public class PlayerController : MonoBehaviour, IDamageable
                 float targetVelocityX = moveInput * moveSpeed;
                 rb.velocity = new Vector2(targetVelocityX, rb.velocity.y);
                 playerAnimator.SetTrigger("Run");
-            }
+                playerAnimator.SetBool("IsRunning", true);
+;            }
             else
             {
                 float currentVelocityX = rb.velocity.x;
@@ -240,23 +247,28 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
 
         float moveInput = Input.GetAxisRaw("Horizontal");
+        playerAnimator.SetTrigger("Stay");
         if (moveInput != 0)
         {
             spriteRenderer.flipX = moveInput < 0;
             playerAnimator.SetTrigger("Run");
+            playerAnimator.SetBool("IsRunning", true);
 
             // 점프 입력 받기
             if (Input.GetButtonDown("Jump"))
             {
                 // 애니메이션 트리거 실행
                 playerAnimator.SetTrigger("Jump");
+                playerAnimator.SetBool("IsRunning", false);
             }
         }
+
 
         // 점프 입력 처리
         if (!GameManager.Instance.IsPlayerInRange && Input.GetButtonDown("Jump"))
         {
             playerAnimator.SetTrigger("Jump");
+            playerAnimator.SetBool("IsRunning", false);
 
             // 땅에 있을 때 점프
             if (IsGrounded)
