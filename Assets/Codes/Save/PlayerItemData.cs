@@ -26,6 +26,7 @@ public class PlayerItemData
     // 생성자: 모든 값을 초기화
     public PlayerItemData()
     {
+        
         stone = 10;
         stonePrice = 3;
         tree = 10;
