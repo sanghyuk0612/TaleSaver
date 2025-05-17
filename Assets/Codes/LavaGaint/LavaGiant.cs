@@ -37,6 +37,8 @@ public class LavaGiant : MonoBehaviour
     public float baseHealth = 2000f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
+    public float maxHP;
+    
     private Color originalColor;
     private SpriteRenderer sr;
 
@@ -71,6 +73,8 @@ public class LavaGiant : MonoBehaviour
         // 체력과 공격력 초기화
         float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
         calculatedHealth = baseHealth * healthMultiplierValue;
+        maxHP = calculatedHealth;
+        BossHPUI.Instance.ShowBossUI("lavaGaint", (int)maxHP);
 
         attackDamage = Mathf.RoundToInt(baseDamage * damageMultiplier.GetDamageMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter));
 
@@ -135,15 +139,16 @@ public class LavaGiant : MonoBehaviour
         void Update()
     {
         if(!isDead){
+            
 
         // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
-        if (PlayerController.IsDead || playerTransform == null)
-        {
-            // 정지
-            anim.SetInteger("animNum",0);
-            rb.velocity = new Vector2(0, rb.velocity.y);
-            return;
-        }
+            if (PlayerController.IsDead || playerTransform == null)
+            {
+                // 정지
+                anim.SetInteger("animNum", 0);
+                rb.velocity = new Vector2(0, rb.velocity.y);
+                return;
+            }
         direction = (playerTransform.position - Pivot.position).normalized;
         if(direction.x>0){
         direc = 1;
@@ -193,8 +198,9 @@ public class LavaGiant : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("Debug: Monster health set to 0 manually.");
-            calculatedHealth = 0;
-            Death();
+            TakeDamage(100);
+            //calculatedHealth = 0;
+            //Death();
         }
         }
     }
@@ -370,7 +376,10 @@ private IEnumerator StopMovement(float stopDuration)
     }
     public void TakeDamage(float damage)
     {
+        calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
+        BossHPUI.Instance.UpdateHP((int)calculatedHealth);
         int i = Random.Range(0, 2);
+
         if (i == 0)
         {
             BGMManager.instance.PlaySE(BGMManager.instance.demagedSE, 0.5f);
@@ -379,7 +388,7 @@ private IEnumerator StopMovement(float stopDuration)
         {
             BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
         }
-        calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
+
         Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
         StartCoroutine(FlashDamageEffect());
     }
