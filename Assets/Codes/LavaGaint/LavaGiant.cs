@@ -58,6 +58,7 @@ public class LavaGiant : MonoBehaviour
 
     void Start()
     {
+        GameManager.Instance.npcShow = 1;
         // GameManager에서 값 가져오기
         moveSpeed = GameManager.Instance.meleeEnemyMoveSpeed;
         detectionRange = GameManager.Instance.meleeEnemyDetectionRange;
