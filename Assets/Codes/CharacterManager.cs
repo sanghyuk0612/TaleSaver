@@ -60,7 +60,7 @@ public class CharacterManager : MonoBehaviour
         public string skillName;
         public int baseDamage;
         public int calculatedDamage;
-        
+
         public SkillDebugInfo(string name, int baseDmg, int calcDmg)
         {
             skillName = name;
@@ -98,6 +98,18 @@ public class CharacterManager : MonoBehaviour
     public bool isDataLoaded = false; // 데이터 로드 완료 여부
     private void Start()
     {
+        for (int i = 0; i < characters.Length; i++)
+        {
+            characters[i] = Instantiate(characters[i]); // 기존 복사
+
+            characters[i].level = 1;
+            characters[i].vitality = 0;
+            characters[i].power = 0;
+            characters[i].agility = 0;
+            characters[i].luck = 0;
+            characters[i].isUnlocked = false;
+        }
+
         characterInfoPanel.SetActive(false);
         upgradePanel.SetActive(false);
 
@@ -112,7 +124,6 @@ public class CharacterManager : MonoBehaviour
             StartCoroutine(LoadUnlockedCharactersFromFirebase(() =>
             {
                 StartCoroutine(LoadCharacterStatsFromFirebase());//캐릭터 스텟 firebase에서 불러오기
-                LoadCharacter(0);
             }));
         }));
 
@@ -126,7 +137,7 @@ public class CharacterManager : MonoBehaviour
             character.power = PlayerPrefs.GetInt("CharacterPower_" + index, 0);
             character.agility = PlayerPrefs.GetInt("CharacterAgility_" + index, 0);
             character.luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
-            
+
             // 캐릭터 잠금 상태 로드
             //character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + index, index == 1 ? 1 : 0) == 1;
         }
@@ -229,9 +240,9 @@ public class CharacterManager : MonoBehaviour
     {
         // 디버그 정보 업데이트
         UpdateDebugInfo();
-        
-        // 키보드의 `키`를 눌렀을 때 현재 선택된 캐릭터의 레벨을 증가
-        if (Input.GetKeyDown(KeyCode.BackQuote)) IncreaseCharacterLevel(); // `키는 BackQuote로 표현
+
+        // 키보드의 키를 눌렀을 때 현재 선택된 캐릭터의 레벨을 증가
+        if (Input.GetKeyDown(KeyCode.BackQuote)) IncreaseCharacterLevel(); // 키는 BackQuote로 표현
         // 스킬 쿨타임 타이머 업데이트
         for (int i = 0; i < skillCooldownTimers.Length; i++)
         {
@@ -272,7 +283,7 @@ public class CharacterManager : MonoBehaviour
             {
                 // STR 레벨에 따른 데미지 로그 추가
                 Debug.Log($"캐릭터 '{character.characterName}'의 스킬 '{skill.skillName}' 사용 - 기본 데미지: {skill.skillDamage}, STR 레벨: {character.power}");
-                
+
                 skillManager.UseSkill(skill, transform, character); // character는 현재 선택된 캐릭터
 
                 // 쿨타임 설정
@@ -386,7 +397,7 @@ public class CharacterManager : MonoBehaviour
     public void TryUnlockCharacterFirebase(int index)
     {
         StartCoroutine(HandleFirebaseUnlock(index));
-        
+
     }
 
     private IEnumerator HandleFirebaseUnlock(int index)
@@ -827,10 +838,10 @@ public class CharacterManager : MonoBehaviour
             selectedCharacterName = character.characterName;
             selectedPowerLevel = character.power;
             damageMultiplier = 1 + (selectedPowerLevel * 0.1f);
-            
+
             // 스킬 데미지 정보 업데이트
             skillDebugInfos.Clear();
-            
+
             if (character.skills != null)
             {
                 foreach (CharacterSkill skill in character.skills)
@@ -920,15 +931,44 @@ public class CharacterManager : MonoBehaviour
             string charKey = $"char_{characters[i].characterName}";
             if (data.TryGetValue(charKey, out object value) && value is Dictionary<string, object> stats)
             {
-                characters[i].level = Convert.ToInt32(stats["level"]);
-                characters[i].vitality = Convert.ToInt32(stats["vitality"]);
-                characters[i].power = Convert.ToInt32(stats["power"]);
-                characters[i].agility = Convert.ToInt32(stats["agility"]);
-                characters[i].luck = Convert.ToInt32(stats["luck"]);
+                int level = Convert.ToInt32(stats["level"]);
+                int vit = Convert.ToInt32(stats["vitality"]);
+                int pow = Convert.ToInt32(stats["power"]);
+                int agi = Convert.ToInt32(stats["agility"]);
+                int luk = Convert.ToInt32(stats["luck"]);
+
+                characters[i].level = level;
+                characters[i].vitality = vit;
+                characters[i].power = pow;
+                characters[i].agility = agi;
+                characters[i].luck = luk;
+
+                // ✅ PlayerPrefs에도 저장해서 캐시 동기화
+                PlayerPrefs.SetInt("CharacterLevel_" + i, level);
+                PlayerPrefs.SetInt("CharacterVitality_" + i, vit);
+                PlayerPrefs.SetInt("CharacterPower_" + i, pow);
+                PlayerPrefs.SetInt("CharacterAgility_" + i, agi);
+                PlayerPrefs.SetInt("CharacterLuck_" + i, luk);
             }
         }
 
-        Debug.Log("✅ Firebase에서 캐릭터 스탯 불러오기 완료");
+        PlayerPrefs.Save(); // 최종 저장
+        Debug.Log("✅ Firebase에서 캐릭터 스탯 불러오기 + PlayerPrefs 동기화 완료");
+    }
+    private IEnumerator LoadCharacterStatsFromFirebaseThenInit()
+    {
+        yield return StartCoroutine(LoadCharacterStatsFromFirebase());
+
+        for (int index = 0; index < characters.Length; index++)
+        {
+            characters[index].level = PlayerPrefs.GetInt("CharacterLevel_" + index, 1);
+            characters[index].vitality = PlayerPrefs.GetInt("CharacterVitality_" + index, 0);
+            characters[index].power = PlayerPrefs.GetInt("CharacterPower_" + index, 0);
+            characters[index].agility = PlayerPrefs.GetInt("CharacterAgility_" + index, 0);
+            characters[index].luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
+        }
+
+        LoadCharacter(0); // 최종 UI 반영
     }
 
 }
