@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Tilemaps;  // Tilemap 사용을 위해 추가
+using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement;  // Tilemap 사용을 위해 추가
 
 public class SpawnManager : MonoBehaviour
 {
@@ -123,14 +124,16 @@ public class SpawnManager : MonoBehaviour
             Debug.LogError("MapManager instance is missing!");
             return;
         }
+        Vector3 tmp = new Vector3(0, 0.75f, 0);
 
         GameObject npcPrefab;
         int currentStage = GameManager.Instance.Stage;
 
         // Event NPC 생성 
-        if (currentStage == 10)
+        if (SceneManager.GetActiveScene().name == "BossStage")
         {
             npcPrefab = EventNPCPrefab;
+            tmp = new Vector3(0, 0, 0);
             Debug.Log($"{currentStage} EventNPCPrefab is assigned!");
         }
         // NPC 생성 ( 조건 필요시 else if로 조건 설정 필요 )
@@ -139,7 +142,12 @@ public class SpawnManager : MonoBehaviour
             if(MapManager.Instance.NPCspawnPoints.Count==0){
             return;
             }
+            if (GameManager.Instance.npcShow == 0)
+            {
+                return;
+            }
             npcPrefab = NPCPrefab;
+            GameManager.Instance.npcShow = 0;
             Debug.Log($"{currentStage} NPCPrefab is assigned!");
         }
 
@@ -147,7 +155,7 @@ public class SpawnManager : MonoBehaviour
 
         int ran = Random.Range(0, MapManager.Instance.NPCspawnPoints.Count);
         Vector3 npcSpawnPos = MapManager.Instance.NPCspawnPoints[ran];
-        npcSpawnPos+=new Vector3(0,0.75f,0);
+        npcSpawnPos += tmp;
 
 
 
