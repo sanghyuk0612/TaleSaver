@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using Firebase.Auth;
 using Firebase.Firestore;
 using System.Threading.Tasks;
+using Firebase.Extensions;
 
 public static class FirebaseTaskExtensions
 {
@@ -110,6 +111,7 @@ public class CharacterManager : MonoBehaviour
         {
             StartCoroutine(LoadUnlockedCharactersFromFirebase(() =>
             {
+                StartCoroutine(LoadCharacterStatsFromFirebase());//캐릭터 스텟 firebase에서 불러오기
                 LoadCharacter(0);
             }));
         }));
@@ -698,6 +700,7 @@ public class CharacterManager : MonoBehaviour
         PlayerPrefs.SetInt("CharacterAgility_" + currentCharacterIndex, character.agility);
         PlayerPrefs.SetInt("CharacterLuck_" + currentCharacterIndex, character.luck);
         PlayerPrefs.Save(); // 변경 사항 저장
+        SaveCharacterStatsToFirebase();//캐릭터 스텟 firebase에 저장 
     }
 
     public IEnumerator LoadUnlockedCharactersFromFirebase(Action onComplete)
@@ -842,4 +845,90 @@ public class CharacterManager : MonoBehaviour
             }
         }
     }
+    //캐릭터 스텟 firebase에 저장하기 
+    private void SaveCharacterStatsToFirebase()
+    {
+        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("❌ Firebase 로그인 정보 없음");
+            return;
+        }
+
+        string uid = user.UserId;
+        CharacterData character = characters[currentCharacterIndex];
+        string charKey = $"char_{character.characterName}";
+
+        Dictionary<string, object> statData = new()
+    {
+        { "level", character.level },
+        { "vitality", character.vitality },
+        { "power", character.power },
+        { "agility", character.agility },
+        { "luck", character.luck }
+    };
+
+        var docRef = FirebaseFirestore.DefaultInstance
+            .Collection("characterStats")
+            .Document(uid);
+
+        Dictionary<string, object> update = new()
+    {
+        { charKey, statData }
+    };
+
+        docRef.SetAsync(update, SetOptions.MergeAll).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompletedSuccessfully)
+            {
+                Debug.Log($"✅ Firebase에 캐릭터 {charKey} 스탯 저장 완료");
+            }
+            else
+            {
+                Debug.LogError($"❌ Firebase 저장 실패: {task.Exception?.Message}");
+            }
+        });
+    }
+    // 캐릭터 스텟 firebase에서 불러오기
+    private IEnumerator LoadCharacterStatsFromFirebase()
+    {
+        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("❌ 로그인 안됨");
+            yield break;
+        }
+
+        string uid = user.UserId;
+        var docRef = FirebaseFirestore.DefaultInstance
+            .Collection("characterStats")
+            .Document(uid);
+
+        var task = docRef.GetSnapshotAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+
+        if (!task.Result.Exists)
+        {
+            Debug.Log("🔸 Firebase에 캐릭터 스탯 문서 없음");
+            yield break;
+        }
+
+        var data = task.Result.ToDictionary();
+
+        for (int i = 0; i < characters.Length; i++)
+        {
+            string charKey = $"char_{characters[i].characterName}";
+            if (data.TryGetValue(charKey, out object value) && value is Dictionary<string, object> stats)
+            {
+                characters[i].level = Convert.ToInt32(stats["level"]);
+                characters[i].vitality = Convert.ToInt32(stats["vitality"]);
+                characters[i].power = Convert.ToInt32(stats["power"]);
+                characters[i].agility = Convert.ToInt32(stats["agility"]);
+                characters[i].luck = Convert.ToInt32(stats["luck"]);
+            }
+        }
+
+        Debug.Log("✅ Firebase에서 캐릭터 스탯 불러오기 완료");
+    }
+
 }

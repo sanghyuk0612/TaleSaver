@@ -62,9 +62,9 @@ public class InventoryManager : MonoBehaviour
                 GameDataManager.Instance.storybookPage += quantity;
                 break;
             case 7: inventory.battery += quantity; break;
-            case 8 :
+            /*case 8 :
                 inventory.items.add(id);
-                break;
+                break;*/
         }
 
         // ✅ 로비 재화일 때만 Firebase에 저장
