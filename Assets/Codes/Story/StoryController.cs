@@ -18,6 +18,7 @@ public class StoryController : MonoBehaviour
     public TextMeshProUGUI storyText;
     public Button skipButton;
     public StorySlide[] slides;
+    public SoundManager soundManager; // StoryManager에서 할당
 
     public float typingSpeed = 0.05f;
 
@@ -38,10 +39,27 @@ public class StoryController : MonoBehaviour
         ShowCurrentLine();
     }
 
+    IEnumerator TypeText(string line)
+    {
+        isTyping = true;
+        isFullTextShown = false;
+
+        foreach (char c in line)
+        {
+            storyText.text += c;
+            soundManager.PlayTypeSound();
+            yield return new WaitForSeconds(typingSpeed);
+        }
+
+        isTyping = false;
+        isFullTextShown = true;
+    }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
+            soundManager.PlayClickSound(); //페이지 넘기는 소리
             if (isTyping)
             {
                 StopAllCoroutines();
@@ -78,21 +96,6 @@ public class StoryController : MonoBehaviour
         storyImage.sprite = slides[slideIndex].image;
         storyText.text = "";
         StartCoroutine(TypeText(slides[slideIndex].lines[lineIndex]));
-    }
-
-    IEnumerator TypeText(string line)
-    {
-        isTyping = true;
-        isFullTextShown = false;
-
-        foreach (char c in line)
-        {
-            storyText.text += c;
-            yield return new WaitForSeconds(typingSpeed);
-        }
-
-        isTyping = false;
-        isFullTextShown = true;
     }
 
     void SkipStory()

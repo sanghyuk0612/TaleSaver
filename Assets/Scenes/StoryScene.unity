@@ -371,10 +371,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 741663671}
+  - {fileID: 1592436868}
   - {fileID: 1429289163}
   - {fileID: 1796200124}
   - {fileID: 1916689635}
-  - {fileID: 1592436868}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -392,6 +392,7 @@ GameObject:
   m_Component:
   - component: {fileID: 891089464}
   - component: {fileID: 891089465}
+  - component: {fileID: 891089466}
   m_Layer: 0
   m_Name: StoryManager
   m_TagString: Untagged
@@ -426,7 +427,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a271a095b0cc3d14da8d7b7dc739534c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  alramText: {fileID: 1592436869}
   storyImage: {fileID: 741663672}
   storyText: {fileID: 1796200125}
   skipButton: {fileID: 1916689636}
@@ -485,7 +485,24 @@ MonoBehaviour:
     - "\uADF8 \uC5F0\uAD6C\uC2E4\uC5D0\uC11C \uB098\uC624\uB294 \uC678\uACC4 \uC624\uC5FC
       \uBB3C\uC9C8\uC744 \uC81C\uAC70\uD574,"
     - "\uD478\uB974\uB358 \uC9C0\uAD6C\uB97C \uAF2D \uB418\uCC3E\uC73C\uB9AC\uB77C."
+  soundManager: {fileID: 0}
   typingSpeed: 0.05
+--- !u!114 &891089466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891089463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acd6485f584ec10478f322b2bbf14480, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 0}
+  bgm: {fileID: 8300000, guid: 70f784d01776fc740af4cd63033f4a4b, type: 3}
+  typeSound: {fileID: 8300000, guid: 7d426a54154b4f54787d5a8dbfa2633b, type: 3}
+  clickSound: {fileID: 8300000, guid: 82ba0440cd465ff418379fee60e41039, type: 3}
 --- !u!1 &972909728
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,6 +748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1592436868}
   - component: {fileID: 1592436870}
+  - component: {fileID: 1592436871}
   - component: {fileID: 1592436869}
   m_Layer: 5
   m_Name: alarm
@@ -805,8 +823,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 55
-  m_fontSizeBase: 55
+  m_fontSize: 70
+  m_fontSizeBase: 70
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -855,6 +873,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1592436867}
   m_CullTransparentMesh: 1
+--- !u!114 &1592436871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592436867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b23f25d100886b241b3301a0aaa849e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1796200123
 GameObject:
   m_ObjectHideFlags: 0
