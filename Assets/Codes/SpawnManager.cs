@@ -142,7 +142,12 @@ public class SpawnManager : MonoBehaviour
             if(MapManager.Instance.NPCspawnPoints.Count==0){
             return;
             }
+            if (GameManager.Instance.npcShow == 0)
+            {
+                return;
+            }
             npcPrefab = NPCPrefab;
+            GameManager.Instance.npcShow = 0;
             Debug.Log($"{currentStage} NPCPrefab is assigned!");
         }
 
