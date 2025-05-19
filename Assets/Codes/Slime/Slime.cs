@@ -37,6 +37,7 @@ public class Slime : MonoBehaviour
     public float baseHealth = 3000f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
+    public float maxHP;
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
@@ -76,7 +77,9 @@ public class Slime : MonoBehaviour
         // 체력과 공격력 초기화
         float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
         calculatedHealth = baseHealth * healthMultiplierValue;
-
+        
+        maxHP = calculatedHealth;
+        BossHPUI.Instance.ShowBossUI("Slime", (int)maxHP);
         attackDamage = Mathf.RoundToInt(baseDamage * damageMultiplier.GetDamageMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter));
 
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -472,6 +475,7 @@ private IEnumerator StopMovement(float stopDuration)
             BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
         }
         calculatedHealth -= damage; // 데미지를 받아 현재 체력 감소
+        BossHPUI.Instance.UpdateHP((int)calculatedHealth);
         Debug.Log($"Boss took damage: {damage}. Current health: {calculatedHealth}");
 
         // 피격 시 반짝임
