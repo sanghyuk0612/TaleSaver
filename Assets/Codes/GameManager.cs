@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
     [SerializeField] public int location = 5;
+    [SerializeField] public int npcShow = 1;
 
     private int lastStageBeforeStore = -1;
 
@@ -59,7 +60,7 @@ public class GameManager : MonoBehaviour
     public float playerDashForce = 15f;
     public float playerDashCooldown = 5f;
     public int playerMaxHealth = 100; // 기본값으로만 사용됨
-    
+
     [Header("캐릭터 스탯 디버그")]
     [SerializeField] private string currentCharacterName;
     [SerializeField] private int currentVitLevel;
@@ -68,6 +69,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int currentLukLevel;
     [SerializeField] private float strDamageMultiplier;
     [SerializeField] private int calculatedMaxHealth;
+    [SerializeField] private float agilitySpeedMultiplier; // AGI 레벨에 따른 이동속도 배율
+    [SerializeField] private float calculatedMoveSpeed; // AGI 레벨 적용된 실제 이동속도
+    [SerializeField] private float agilityCooldownMultiplier; // AGI 레벨에 따른 쿨타임 감소 배율
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
@@ -120,19 +124,19 @@ public class GameManager : MonoBehaviour
 
     // 플레이어 체력 상태 저장용 변수 (단순화)
     private int savedPlayerHealth = -1;
-    
+
     // 체력 관련 메서드
     public bool HasSavedPlayerHealth() => savedPlayerHealth > 0;
-    
+
     public int GetSavedPlayerHealth() => savedPlayerHealth;
-    
+
     public void SavePlayerHealth(int currentHealth, int maxHealth)
     {
         savedPlayerHealth = currentHealth;
         currentPlayerHealth = currentHealth; // currentPlayerHealth도 함께 업데이트
         Debug.Log($"GameManager에 플레이어 체력 저장: {savedPlayerHealth}, GameManager.currentPlayerHealth: {currentPlayerHealth}");
     }
-    
+
     // PlayerController에서 직접 호출하도록 개선
     public void RestorePlayerState(PlayerController player)
     {
@@ -142,7 +146,7 @@ public class GameManager : MonoBehaviour
             player.RestoreHealth(savedPlayerHealth);
         }
     }
-    
+
     // ModifyHealth 대신 PlayerController에서 처리하도록 변경
     public void HealPlayer(int amount)
     {
@@ -180,15 +184,15 @@ public class GameManager : MonoBehaviour
     {
         // 1프레임 대기하여 모든 오브젝트가 활성화될 시간 제공
         yield return null;
-        
+
         PlayerController player = FindObjectOfType<PlayerController>();
         PlayerUI playerUI = FindObjectOfType<PlayerUI>();
-        
+
         if (player != null && playerUI != null)
         {
             // 플레이어 체력 비율 계산
             float healthPercent = (float)player.CurrentHealth / player.MaxHealth;
-            
+
             // UI 업데이트
             playerUI.UpdateHealthSlider(healthPercent);
             Debug.Log($"GameScene 진입 - 체력 UI 업데이트: {player.CurrentHealth}/{player.MaxHealth} ({healthPercent:P0})");
@@ -201,13 +205,13 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            
+
             // SkillManager 컴포넌트 추가
             skillManager = gameObject.AddComponent<SkillManager>();
-            
+
             // 캐릭터 데이터 불러오기 시도
             LoadSelectedCharacter();
-            
+
             // 초기화는 캐릭터 로드 후에 수행
             InitializeGameState();
         }
@@ -284,26 +288,26 @@ public class GameManager : MonoBehaviour
         {
             maxHealth = playerMaxHealth;
         }
-        
+
         // 실시간 디버깅을 위해 체력 초기값 로깅
         Debug.Log($"GameManager Start - 설정된 최대 체력: {maxHealth}, 현재 체력: {currentPlayerHealth}");
-        
+
         // 현재 체력이 초기화되지 않았거나 최대 체력보다 크면 최대 체력으로 설정 
         if (currentPlayerHealth <= 0 || currentPlayerHealth > maxHealth)
         {
             currentPlayerHealth = maxHealth;
             Debug.Log($"체력 초기화 - currentPlayerHealth: {currentPlayerHealth}");
         }
-        
+
         // 플레이어 컨트롤러와 체력 동기화
         SyncPlayerHealth();
         skillCooldownTimers = new float[5];
         Debug.Log("스킬쿨 초기화");
         Debug.Log(skillCooldownTimers);
-        
+
         // 게임 시작 시간 기록
         //gameStartTime = Time.time;
-        
+
         // 게임오버 UI 초기화
         if (gameOverPanel != null)
         {
@@ -319,9 +323,9 @@ public class GameManager : MonoBehaviour
         {
             // 현재 플레이어의 체력 확인
             int playerHealth = playerController.CurrentHealth;
-            
+
             Debug.Log($"체력 동기화 - GameManager: {currentPlayerHealth}, PlayerController: {playerHealth}");
-            
+
             // 플레이어 컨트롤러의 체력 업데이트
             playerController.UpdateHealth(currentPlayerHealth);
         }
@@ -379,14 +383,14 @@ public class GameManager : MonoBehaviour
         score = 0;
         isPlayerInRange = false;
     }
-    
+
 
     // 스테이지 진행 관련 메서드
     public void AdvanceStage()
     {
         SavePlayerState();  // 씬 전환 전에 플레이어 상태 저장
         stage++;
-        
+
         if (stage > MAX_STAGE)
         {
             chapter++;
@@ -429,20 +433,20 @@ public class GameManager : MonoBehaviour
         {
             // 디버그 로그 추가 - 이 메서드가 호출되었을 때 상태 확인
             //Debug.Log($"RestorePlayerState called with currentPlayerHealth: {currentPlayerHealth}, MaxHealth: {MaxHealth}");
-            
+
             // 항상 최신 체력 값을 사용하도록 단순화
             if (CurrentCharacter != null)
             {
                 // 계산된 최대 체력 가져오기 (vitality 반영)
                 int calculatedMaxHealth = MaxHealth;
-                
+
                 // 체력이 최대 체력을 초과하지 않도록 확인
                 if (currentPlayerHealth > calculatedMaxHealth)
                 {
                     currentPlayerHealth = calculatedMaxHealth;
                     Debug.Log($"Health exceeds max health, limiting to: {currentPlayerHealth}");
                 }
-                
+
                 // 체력이 0 이하인 경우 최대 체력으로 설정
                 if (currentPlayerHealth <= 0)
                 {
@@ -459,7 +463,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log($"CurrentCharacter is null, using default max health: {currentPlayerHealth}");
                 }
             }
-            
+
             player.RestoreHealth(currentPlayerHealth); // 현재 체력을 복원
             Debug.Log($"Restored player health: {currentPlayerHealth}");  // 디버그용
         }
@@ -478,10 +482,11 @@ public class GameManager : MonoBehaviour
             Instance = go.AddComponent<GameManager>();
         }
     }
-    public void LoadNextCapter(){
+    public void LoadNextCapter()
+    {
         stage = 0;
         chapter++;
-        LoadNextStage();  
+        LoadNextStage();
     }
 
     public void LoadNextStage()
@@ -499,10 +504,11 @@ public class GameManager : MonoBehaviour
         PortalManager.Instance.ResetEnemyCount();
 
         // 새로운 적 스폰
-        for (int i=0;i<10;i++){
+        for (int i = 0; i < 10; i++)
+        {
             SpawnManager.Instance.SpawnEntities();
         }
-        
+
     }
 
     private void DestroyAllEnemies()
@@ -584,37 +590,45 @@ public class GameManager : MonoBehaviour
 
         // STR 레벨에 따른 데미지 로그 추가
         Debug.Log($"GameManager - 캐릭터 '{CurrentCharacter.characterName}'의 스킬 '{skill.skillName}' 사용 - 기본 데미지: {skill.skillDamage}, STR 레벨: {CurrentCharacter.power}");
-        
+
         skillManager.UseSkill(skill, transform, CurrentCharacter); // 스킬 사용
-        //UseSkill(skill, transform);
-        skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
+
+        // AGI 레벨에 따른 쿨타임 감소 적용
+        int agilityLevel = CurrentCharacter.agility;
+        float cooldownMultiplier = 1f - (agilityLevel * 0.1f);
+        // 쿨타임이 음수가 되지 않도록 보정 (AGI 레벨이 10 이상인 경우)
+        cooldownMultiplier = Mathf.Max(cooldownMultiplier, 0.1f); // 최소 10%의 쿨타임은 유지
+
+        float adjustedCooldown = skill.skillCooldown * cooldownMultiplier;
+        skillCooldownTimers[skillIndex] = adjustedCooldown; // 조정된 쿨타임 설정
         SkillUIManager.Instance.TriggerSkillCooldown(skill);
+        Debug.Log($"스킬 '{skill.skillName}' 쿨타임 조정: 기본({skill.skillCooldown}초) * 배율({cooldownMultiplier:F2}) = {adjustedCooldown:F2}초 (AGI 레벨: {agilityLevel})");
     }
 
     public void ModifyHealth(int amount)
     {
         Debug.Log($"[디버깅] ModifyHealth({amount}) 시작 - 현재 GameManager.currentPlayerHealth={currentPlayerHealth}, MaxHealth={MaxHealth}");
-        
+
         // 플레이어 컨트롤러 찾기
         PlayerController playerController = FindObjectOfType<PlayerController>();
         int playerHealth = playerController != null ? playerController.CurrentHealth : -1;
-        
+
         Debug.Log($"[디버깅] 체력 비교 - GameManager: {currentPlayerHealth}, PlayerController: {playerHealth}");
-        
+
         // PlayerController가 있고, 값이 다르면 PlayerController의 값을 사용
         if (playerController != null && playerHealth != currentPlayerHealth)
         {
             Debug.LogWarning($"[디버깅] 체력 불일치 감지! GameManager 체력을 PlayerController 체력으로 설정: {currentPlayerHealth} -> {playerHealth}");
             currentPlayerHealth = playerHealth;
         }
-        
+
         // 현재 체력을 업데이트 (최대 체력 초과 방지)
         int previousHealth = currentPlayerHealth;
         currentPlayerHealth = Mathf.Clamp(currentPlayerHealth + amount, 0, MaxHealth);
-        
+
         // 실제 변경된 체력량
         int actualChange = currentPlayerHealth - previousHealth;
-        
+
         Debug.Log($"체력 변경 - 이전: {previousHealth}, 이후: {currentPlayerHealth}, 실제 변경량: {actualChange}");
 
         // PlayerController의 체력 동기화 처리 개선
@@ -622,12 +636,12 @@ public class GameManager : MonoBehaviour
         {
             // 이전 값 기억
             int prevPlayerHealth = playerController.CurrentHealth;
-            
+
             // RestoreHealth 대신 UpdateHealth를 사용하여 값을 정확히 설정
             playerController.UpdateHealth(currentPlayerHealth);
-            
+
             Debug.Log($"[디버깅] PlayerController 체력 업데이트: {prevPlayerHealth} -> {playerController.CurrentHealth}");
-            
+
             // PlayerUI에 직접 체력 비율 업데이트
             PlayerUI playerUI = FindObjectOfType<PlayerUI>();
             if (playerUI != null)
@@ -636,20 +650,20 @@ public class GameManager : MonoBehaviour
                 playerUI.UpdateHealthSlider(healthPercent);
                 Debug.Log($"[디버깅] PlayerUI 체력 슬라이더 업데이트: {healthPercent}");
             }
-            
+
             Debug.Log($"PlayerController와 체력 동기화 완료: {currentPlayerHealth}");
         }
         else
         {
             Debug.LogWarning("PlayerController를 찾을 수 없습니다.");
         }
-        
+
         Debug.Log($"[디버깅] ModifyHealth 완료 - 결과 GameManager.currentPlayerHealth={currentPlayerHealth}");
     }
 
-    public int MaxHealth 
-    { 
-        get 
+    public int MaxHealth
+    {
+        get
         {
             // 현재 캐릭터가 있으면 그 캐릭터의 maxHealth를 vitality 스탯에 따라 계산, 없으면 기본값 반환
             if (CurrentCharacter != null)
@@ -712,6 +726,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
+
             // 캐릭터의 maxHealth를 vitality 스탯에 따라 계산
             int baseMaxHealth = CurrentCharacter.maxHealth;
             int vitalityLevel = CurrentCharacter.vitality;
@@ -897,13 +912,22 @@ public class GameManager : MonoBehaviour
             currentStrLevel = CurrentCharacter.power;
             currentAgiLevel = CurrentCharacter.agility;
             currentLukLevel = CurrentCharacter.luck;
-            
+
             // 데미지 배율 계산
             strDamageMultiplier = 1 + (currentStrLevel * 0.1f);
-            
+
             // 최대 체력 계산
             int baseMaxHealth = CurrentCharacter.maxHealth;
             calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + (currentVitLevel * 0.1f)));
+
+            // AGI 레벨에 따른 이동속도 배율 계산
+            agilitySpeedMultiplier = 1 + (currentAgiLevel * 0.04f);
+            calculatedMoveSpeed = Mathf.RoundToInt(playerMoveSpeed * agilitySpeedMultiplier);
+
+            // AGI 레벨에 따른 쿨타임 감소 배율 계산
+            agilityCooldownMultiplier = 1f - (currentAgiLevel * 0.1f);
+            // 쿨타임이 음수가 되지 않도록 보정
+            agilityCooldownMultiplier = Mathf.Max(agilityCooldownMultiplier, 0.1f);
         }
         else
         {
@@ -914,6 +938,9 @@ public class GameManager : MonoBehaviour
             currentLukLevel = 0;
             strDamageMultiplier = 1.0f;
             calculatedMaxHealth = playerMaxHealth;
+            agilitySpeedMultiplier = 1.0f;
+            calculatedMoveSpeed = Mathf.RoundToInt(playerMoveSpeed);
+            agilityCooldownMultiplier = 1.0f;
         }
     }
 

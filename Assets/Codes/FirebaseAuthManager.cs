@@ -223,6 +223,10 @@ public class FirebaseAuthManager : MonoBehaviour
             if (task.IsCompletedSuccessfully)
             {
                 currentUser = task.Result.User;
+
+                PlayerPrefs.DeleteAll();
+                PlayerPrefs.Save(); // Ä³¸¯ÅÍ ½ºÅÝÀ» À§ÇØ ³Ö¾îµÒ
+
                 Debug.Log("? currentUser ¼¼ÆÃµÊ: " + currentUser?.Email);
                 Debug.Log("? IsLoggedIn(): " + IsLoggedIn());
                 Debug.Log("? Auth.CurrentUser: " + auth?.CurrentUser?.Email);

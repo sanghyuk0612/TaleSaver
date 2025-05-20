@@ -55,6 +55,7 @@ public class Store : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        GameManager.Instance.npcShow = 1;
 
         selectedItem = new List<int>();
         prePrice = new int[5];

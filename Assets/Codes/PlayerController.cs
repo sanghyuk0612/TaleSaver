@@ -108,6 +108,12 @@ public class PlayerController : MonoBehaviour, IDamageable
             maxHealth = GameManager.Instance.MaxHealth;
             spriteRenderer.sprite = characterData.characterSprite;
             
+            // AGI 레벨에 따른 이동속도 계산
+            int agilityLevel = characterData.agility;
+            float speedMultiplier = 1 + (agilityLevel * 0.04f);
+            moveSpeed = GameManager.Instance.playerMoveSpeed * speedMultiplier;
+            Debug.Log($"AGI 레벨({agilityLevel})에 따른 이동속도 조정: 기본({GameManager.Instance.playerMoveSpeed}) * 배율({speedMultiplier}) = {moveSpeed}");
+            
             // 애니메이터 적용
             if (characterData.animatorController != null)
             {
