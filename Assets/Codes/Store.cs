@@ -45,8 +45,11 @@ public class Store : MonoBehaviour
     public List<Text> prePriceData; // 돌, 나무, 가죽, 철, 금 순서
     public List<Text> nowPriceData;
     public List<Text> changeRate;
-
-    private void Awake() {
+    private void Start() {
+        GameManager.Instance.npcShow = 1;
+    }
+    private void Awake()
+    {
         if (Instance == null)
         {
             Instance = this;
@@ -55,41 +58,42 @@ public class Store : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        GameManager.Instance.npcShow = 1;
+        
 
         selectedItem = new List<int>();
         prePrice = new int[5];
         nowPrice = new int[5];
-        nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.battery.ToString();
-        
+        nowMoney.text = "보유머니 : " + InventoryManager.Instance.inventory.battery.ToString();
+
         int randomIndex;
         for (int i = 0; i < 3; i++)
         {
             randomIndex = UnityEngine.Random.Range(0, ItemListData.items.Count);
-            if(!InventoryManager.Instance.inventory.items.Exists(x => x == randomIndex)&&!selectedItem.Exists(x => x == randomIndex)){
+            if (!InventoryManager.Instance.inventory.items.Exists(x => x == randomIndex) && !selectedItem.Exists(x => x == randomIndex))
+            {
                 selectedItem.Add(randomIndex);
                 continue;
             }
             i--;
         }
         item1Name.text = ItemListData.items[selectedItem[0]].name;
-        item1Cost.text = ItemListData.items[selectedItem[0]].price.ToString()+ " Gold";
+        item1Cost.text = ItemListData.items[selectedItem[0]].price.ToString() + " Gold";
         item2Name.text = ItemListData.items[selectedItem[1]].name;
-        item2Cost.text = ItemListData.items[selectedItem[1]].price.ToString()+ " Gold";
+        item2Cost.text = ItemListData.items[selectedItem[1]].price.ToString() + " Gold";
         item3Name.text = ItemListData.items[selectedItem[2]].name;
-        item3Cost.text = ItemListData.items[selectedItem[2]].price.ToString()+ " Gold";
+        item3Cost.text = ItemListData.items[selectedItem[2]].price.ToString() + " Gold";
         //stockUpdate();
         if (isFirstStoreVisit)
         {
             stockUpdate();
             isFirstStoreVisit = false;
         }
-        Stone.text = InventoryManager.Instance.inventory.stone+"개 소유";
-        Tree.text = InventoryManager.Instance.inventory.tree+"개 소유";
-        Skin.text = InventoryManager.Instance.inventory.skin+"개 소유";
-        Steel.text = InventoryManager.Instance.inventory.steel+"개 소유";
-        Gold.text = InventoryManager.Instance.inventory.gold+"개 소유";
-        Debug.Log("첫번째: "+selectedItem[0]+"두번째 : "+selectedItem[1]+"세번째 : " + selectedItem[2]);
+        Stone.text = InventoryManager.Instance.inventory.stone + "개 소유";
+        Tree.text = InventoryManager.Instance.inventory.tree + "개 소유";
+        Skin.text = InventoryManager.Instance.inventory.skin + "개 소유";
+        Steel.text = InventoryManager.Instance.inventory.steel + "개 소유";
+        Gold.text = InventoryManager.Instance.inventory.gold + "개 소유";
+        Debug.Log("첫번째: " + selectedItem[0] + "두번째 : " + selectedItem[1] + "세번째 : " + selectedItem[2]);
     }
     public void stockUpdate(){
         prePrice[0] = InventoryManager.Instance.inventory.stonePrice;
