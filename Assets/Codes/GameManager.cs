@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour
     private SkillManager skillManager;
     private int currentHealth;
     private int maxHealth;
-    private float[] skillCooldownTimers;
+    public float[] skillCooldownTimers;
 
     // 게임오버 UI 관련 변수 추가
     [Header("Game Over UI")]
@@ -272,7 +272,7 @@ public class GameManager : MonoBehaviour
         //FindAndConnectGameOverUI();
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);  // 시작 시 숨기기
-        
+
         // 현재 캐릭터의 최대 체력 설정 (vitality 반영)
         if (CurrentCharacter != null)
         {
@@ -331,6 +331,7 @@ public class GameManager : MonoBehaviour
     {
         // 캐릭터 디버그 정보 업데이트
         UpdateCharacterDebugInfo();
+
         
         // 스킬 쿨타임 타이머 업데이트
         for (int i = 0; i < skillCooldownTimers.Length; i++)
@@ -338,6 +339,7 @@ public class GameManager : MonoBehaviour
             if (skillCooldownTimers[i] > 0)
             {
                 skillCooldownTimers[i] -= Time.deltaTime;
+                SkillUIManager.Instance.UpdateCooldown(i);
             }
         }
 
@@ -586,6 +588,7 @@ public class GameManager : MonoBehaviour
         skillManager.UseSkill(skill, transform, CurrentCharacter); // 스킬 사용
         //UseSkill(skill, transform);
         skillCooldownTimers[skillIndex] = skill.skillCooldown; // 쿨타임 설정
+        SkillUIManager.Instance.TriggerSkillCooldown(skill);
     }
 
     public void ModifyHealth(int amount)
@@ -709,12 +712,12 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Loading selected character data...");
             CurrentCharacter = CharacterSelectionData.Instance.selectedCharacterData; // 선택된 캐릭터 데이터 로드
-            
             // 캐릭터의 maxHealth를 vitality 스탯에 따라 계산
             int baseMaxHealth = CurrentCharacter.maxHealth;
             int vitalityLevel = CurrentCharacter.vitality;
             maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
-            
+
+            SkillUIManager.Instance.SetCharacterSkills(CurrentCharacter);
             Debug.Log($"Character {CurrentCharacter.characterName} loaded with baseMaxHealth: {baseMaxHealth}, vitality: {vitalityLevel}, calculated maxHealth: {maxHealth}");
         }
         else

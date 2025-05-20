@@ -18,3 +18,4 @@ MonoBehaviour:
   effectRadius: 25
   effectType: 3
   effectValue: 10
+  skillImage: {fileID: 21300000, guid: d03e7dc7c0476e1419e7cb5f51930967, type: 3}
