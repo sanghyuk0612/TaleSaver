@@ -717,7 +717,9 @@ public class GameManager : MonoBehaviour
             int vitalityLevel = CurrentCharacter.vitality;
             maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
 
-            SkillUIManager.Instance.SetCharacterSkills(CurrentCharacter);
+            if(SkillUIManager.Instance.currentCharacter == null)
+                SkillUIManager.Instance.SetCharacterSkills(CurrentCharacter);
+
             Debug.Log($"Character {CurrentCharacter.characterName} loaded with baseMaxHealth: {baseMaxHealth}, vitality: {vitalityLevel}, calculated maxHealth: {maxHealth}");
         }
         else

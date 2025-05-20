@@ -41,14 +41,6 @@ public class SkillUIManager : MonoBehaviour
             Debug.Log("current character is null");
     }
     
-    void Update()
-    {
-        for (int i = 0; i < skillSlots.Length; i++)
-        {
-            UpdateCooldown(i);
-        }
-    }
-    
     public void SetCharacterSkills(CharacterData character)
     {
         currentCharacter = character;
