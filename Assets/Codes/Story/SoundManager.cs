@@ -6,12 +6,18 @@ public class SoundManager : MonoBehaviour
 
     public AudioClip bgm;
     public AudioClip typeSound;
-    public AudioClip clickSound;
+    //public AudioClip clickSound;
+
+    [Range(0f, 1f)] public float typeSoundVolume = 0.3f;
+    [Range(0f, 1f)] public float clickSoundVolume = 0.5f;
 
     void Start()
     {
+        audioSource.volume = 1.0f; // 전체 기준 유지
         PlayBGM();
     }
+
+
 
     public void PlayBGM()
     {
@@ -26,12 +32,13 @@ public class SoundManager : MonoBehaviour
     public void PlayTypeSound()
     {
         if (typeSound != null)
-            audioSource.PlayOneShot(typeSound);
+            audioSource.PlayOneShot(typeSound, typeSoundVolume); // 0~1 사이 값 적용됨
+
     }
 
-    public void PlayClickSound()
+    /*public void PlayClickSound()
     {
         if (clickSound != null)
             audioSource.PlayOneShot(clickSound);
-    }
+    }*/
 }

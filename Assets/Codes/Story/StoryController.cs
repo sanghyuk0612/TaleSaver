@@ -44,10 +44,13 @@ public class StoryController : MonoBehaviour
         isTyping = true;
         isFullTextShown = false;
 
-        foreach (char c in line)
+        for (int i = 0; i < line.Length; i++)
         {
-            storyText.text += c;
-            soundManager.PlayTypeSound();
+            storyText.text += line[i];
+
+            if (i == 0)  // 첫 글자 출력할 때만 사운드 재생
+                soundManager.PlayTypeSound();
+
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -59,7 +62,7 @@ public class StoryController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            soundManager.PlayClickSound(); //페이지 넘기는 소리
+            //soundManager.PlayClickSound(); //페이지 넘기는 소리
             if (isTyping)
             {
                 StopAllCoroutines();
