@@ -5,6 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
+
 public class Store : MonoBehaviour
 {
     public static Store Instance { get; private set; }
@@ -15,18 +17,30 @@ public class Store : MonoBehaviour
     private int[] nowPrice;
     public static int[] changePrice = new int[5];
 
+    [Header("First Visit 안내")]
+    public TextMeshProUGUI firstStoreText;       // "스페이스바를 눌러 상점에 진입하세요."
+    //public TextMeshProUGUI firstStoreWindowText; // "아이템을 눌러 설명을 확인하세요."
+
     [Header("Store Object")]
     public GameObject StoreWindow;
     ItemListData itemList;
     PlayerItemData inventory;
     private bool isFirstStoreVisit = true;
 
+    [Header("아이템 이미지 목록")]
+    public Sprite[] itemSprites;  // Inspector에 0~N번 아이템 이미지 순으로 넣기
+
+    public Image item1image;
+    public Image item2image;
+    public Image item3image;
+
+
     [Header("Item Object")]
     public List<Button> buttonList;
     //public Image item1image;
     public Text item1Name;
     public Text item1Cost;
-    //public Image item2image;
+   // public Image item2image;
     public Text item2Name;
     public Text item2Cost;
     //public Image item3image;
@@ -45,6 +59,13 @@ public class Store : MonoBehaviour
     public List<Text> prePriceData; // 돌, 나무, 가죽, 철, 금 순서
     public List<Text> nowPriceData;
     public List<Text> changeRate;
+
+    private void Start()
+    {
+        ItemListData data = new ItemListData();
+        data.InitializeSprites();
+    }
+
 
     private void Awake() {
         if (Instance == null)
@@ -72,6 +93,12 @@ public class Store : MonoBehaviour
             }
             i--;
         }
+
+        //이미지 설정 코드
+        item1image.sprite = itemSprites[ItemListData.items[selectedItem[0]].id];
+        item2image.sprite = itemSprites[ItemListData.items[selectedItem[1]].id];
+        item3image.sprite = itemSprites[ItemListData.items[selectedItem[2]].id];
+
         item1Name.text = ItemListData.items[selectedItem[0]].name;
         item1Cost.text = ItemListData.items[selectedItem[0]].price.ToString()+ " Gold";
         item2Name.text = ItemListData.items[selectedItem[1]].name;
@@ -90,6 +117,27 @@ public class Store : MonoBehaviour
         Steel.text = InventoryManager.Instance.inventory.steel+"개 소유";
         Gold.text = InventoryManager.Instance.inventory.gold+"개 소유";
         Debug.Log("첫번째: "+selectedItem[0]+"두번째 : "+selectedItem[1]+"세번째 : " + selectedItem[2]);
+
+        // 최초 실행 여부 확인
+        if (!PlayerPrefs.HasKey("FirstStoreShown"))
+        {
+            if (firstStoreText != null)
+            {
+                firstStoreText.gameObject.SetActive(true);
+                blinkCoroutine = StartCoroutine(BlinkText(firstStoreText));
+            }
+
+            PlayerPrefs.SetInt("FirstStoreShown", 1); // 다음부터는 비활성
+            PlayerPrefs.Save();
+        }
+        else
+        {
+            // 이미 본 경우는 무조건 꺼버림
+            if (firstStoreText != null)
+            {
+                firstStoreText.gameObject.SetActive(false);
+            }
+        }
     }
     public void stockUpdate(){
         prePrice[0] = InventoryManager.Instance.inventory.stonePrice;
@@ -159,7 +207,15 @@ public class Store : MonoBehaviour
         Time.timeScale = 0;
         StoreWindow.SetActive(true);
         // 버튼에 효과음 주입
-        itemEx.text = "";
+        itemEx.text = "각 아이템의 이미지를 눌러 설명을 확인하세요!";
+
+        // ▶ 최초 안내 텍스트 중단 및 비활성화
+        if (firstStoreText != null)
+        {
+            StopCoroutine(blinkCoroutine);
+            firstStoreText.gameObject.SetActive(false);
+        }
+
     }
 
     public void sellItem(int buttonId){
@@ -212,4 +268,30 @@ public class Store : MonoBehaviour
             nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.battery.ToString();
         }
     }
+
+    private Coroutine blinkCoroutine;
+
+    private IEnumerator BlinkText(TextMeshProUGUI text)
+    {
+        Color originalColor = text.color;
+        float alphaMin = 0.2f;
+        float alphaMax = 1f;
+        float blinkSpeed = 1f;
+
+        while (true)
+        {
+            float alpha = Mathf.Lerp(alphaMin, alphaMax, Mathf.PingPong(Time.time * blinkSpeed, 1f));
+            text.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
+            yield return null;  // 매 프레임 갱신
+        }
+    }
+
+
+    private IEnumerator HideTextAfterSeconds(TextMeshProUGUI text, float seconds)
+    {
+        yield return new WaitForSecondsRealtime(seconds); // Time.timeScale = 0 상태이므로 Realtime 사용
+        text.gameObject.SetActive(false);
+    }
+
+
 }
