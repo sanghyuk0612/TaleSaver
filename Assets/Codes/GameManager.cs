@@ -866,7 +866,7 @@ public class GameManager : MonoBehaviour
     {
         // 시간 스케일 복원
         Time.timeScale = 1f;
-
+        location = 5;
         // 플레이타임 초기화 추가
         playTime = 0f;
         stage = 1;
