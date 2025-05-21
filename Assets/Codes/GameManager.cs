@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
     private SkillManager skillManager;
     private int currentHealth;
     private int maxHealth;
-    private float[] skillCooldownTimers;
+    public float[] skillCooldownTimers;
 
     // 게임오버 UI 관련 변수 추가
     [Header("Game Over UI")]
@@ -336,12 +336,14 @@ public class GameManager : MonoBehaviour
         // 캐릭터 디버그 정보 업데이트
         UpdateCharacterDebugInfo();
 
+        
         // 스킬 쿨타임 타이머 업데이트
         for (int i = 0; i < skillCooldownTimers.Length; i++)
         {
             if (skillCooldownTimers[i] > 0)
             {
                 skillCooldownTimers[i] -= Time.deltaTime;
+                SkillUIManager.Instance.UpdateCooldown(i);
             }
         }
 
@@ -599,7 +601,7 @@ public class GameManager : MonoBehaviour
 
         float adjustedCooldown = skill.skillCooldown * cooldownMultiplier;
         skillCooldownTimers[skillIndex] = adjustedCooldown; // 조정된 쿨타임 설정
-
+        SkillUIManager.Instance.TriggerSkillCooldown(skill);
         Debug.Log($"스킬 '{skill.skillName}' 쿨타임 조정: 기본({skill.skillCooldown}초) * 배율({cooldownMultiplier:F2}) = {adjustedCooldown:F2}초 (AGI 레벨: {agilityLevel})");
     }
 
@@ -729,6 +731,9 @@ public class GameManager : MonoBehaviour
             int baseMaxHealth = CurrentCharacter.maxHealth;
             int vitalityLevel = CurrentCharacter.vitality;
             maxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+
+            if(SkillUIManager.Instance.currentCharacter == null)
+                SkillUIManager.Instance.SetCharacterSkills(CurrentCharacter);
 
             Debug.Log($"Character {CurrentCharacter.characterName} loaded with baseMaxHealth: {baseMaxHealth}, vitality: {vitalityLevel}, calculated maxHealth: {maxHealth}");
         }

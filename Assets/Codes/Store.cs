@@ -208,8 +208,8 @@ public class Store : MonoBehaviour
         else{
             InventoryManager.Instance.RemoveItem(5,ItemListData.items[selectedItem[buyButtonId]].price);
             buttonList[buyButtonId].interactable =false;
-            InventoryManager.Instance.AddItem(8,ItemListData.items[selectedItem[buyButtonId]].id);
-            nowMoney.text = "보유머니 : "+InventoryManager.Instance.inventory.battery.ToString();
+            InventoryManager.Instance.AddItem(7,ItemListData.items[selectedItem[buyButtonId]].id);
+            nowMoney.text = "보유 머니 : "+InventoryManager.Instance.inventory.battery.ToString();
         }
     }
 }

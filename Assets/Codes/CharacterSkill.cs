@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "NewSkill", menuName = "Character/Skill")]
 public class CharacterSkill : ScriptableObject
@@ -11,6 +12,7 @@ public class CharacterSkill : ScriptableObject
     public float effectRadius;
     public EffectType effectType;
     public string effectValue;
+    public Sprite skillImage;
 
     public enum EffectType
     {
