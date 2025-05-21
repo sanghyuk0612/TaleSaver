@@ -10,7 +10,8 @@ public class SkillManager : MonoBehaviour
     [SerializeField] private float damageMultiplier = 1.0f;
     [SerializeField] private string selectedCharacterName = "";
     [SerializeField] private List<SkillDamageInfo> skillDamageInfos = new List<SkillDamageInfo>();
-    
+
+
     [System.Serializable]
     public class SkillDamageInfo
     {
@@ -25,7 +26,8 @@ public class SkillManager : MonoBehaviour
             calculatedDamage = calcDmg;
         }
     }
-    
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -83,6 +85,7 @@ public class SkillManager : MonoBehaviour
     private GameObject ultimoEffectPrefab; // Ultimo 이펙트 프리팹
     [SerializeField] private GameObject healEffectPrefab;
     public GameObject cowImpactFXPrefab;
+
     public void UseSkill(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
     {
         ApplySkillEffect(skill, characterTransform, casterData);
