@@ -346,6 +346,8 @@ public class LoginPanelManager : MonoBehaviour
                 alertText.text = " 로그인 성공했습니다.";
                 loginWarningText.gameObject.SetActive(false);
                 Invoke(nameof(HideLoginPanel), 1.0f);
+
+                StartCoroutine(WaitForGoodsDataThenLoadLobby());
             }
             else
             {
@@ -365,6 +367,7 @@ public class LoginPanelManager : MonoBehaviour
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(emailInput.gameObject);
             }
         });
+
     }
 
     public void OnClickSignup()
@@ -408,5 +411,20 @@ public class LoginPanelManager : MonoBehaviour
                 UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(emailInput.gameObject);
             }
         });
+    }
+    private IEnumerator WaitForGoodsDataThenLoadLobby()
+    {
+        float timeout = 5f;
+        float timer = 0f;
+
+        // 재화 데이터 로딩 기다리기 (0은 기본값일 수 있으니 최소 시간만 체크)
+        while ((GameDataManager.Instance.storybookPage == 0 && GameDataManager.Instance.machineParts == 0) && timer < timeout)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        Debug.Log("📦 재화 로딩 완료. LobbyScene으로 이동합니다.");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("LobbyScene");
     }
 }
