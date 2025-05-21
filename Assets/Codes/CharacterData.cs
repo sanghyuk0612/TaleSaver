@@ -9,6 +9,8 @@ public class CharacterData : ScriptableObject
     public Sprite characterSprite; // 캐릭터 이미지
     public RuntimeAnimatorController animatorController;
     public int level = 1;         // 레벨 (초기값을 1로 설정)
+    public int currentExp = 0;    // 현재 경험치
+    public int expToLevelUp = 100; // 다음 레벨까지 필요한 경험치
     public string description;    // 설명
     public int vitality;          // 생명력
     public int power;             // 파워
@@ -46,5 +48,30 @@ public class CharacterData : ScriptableObject
         {
             Debug.LogWarning("스킬 배열의 길이는 4여야 합니다.");
         }
+    }
+
+    public void GainExperience(int amount)
+    {
+        currentExp += amount;
+        Debug.Log($"{characterName} gained {amount} EXP. Current EXP: {currentExp}/{expToLevelUp}");
+
+        while (currentExp >= expToLevelUp)
+        {
+            currentExp -= expToLevelUp;
+            LevelUp();
+        }
+    }
+
+    private void LevelUp()
+    {
+        level++;
+        vitality += 2; // 예: 능력치 증가
+        power += 1;
+        agility += 1;
+        maxHealth += 5;
+
+        expToLevelUp = Mathf.RoundToInt(expToLevelUp * 1.2f); // 난이도 점진 증가
+
+        Debug.Log($"{characterName} leveled up to {level}!");
     }
 }

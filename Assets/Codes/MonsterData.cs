@@ -9,6 +9,7 @@ public class MonsterData : ScriptableObject
     public string monsterName; // 몬스터 이름
     public int health;
     public int damage;
+    public int expReward;
     public float moveSpeed;
     public bool isRanged;
 
