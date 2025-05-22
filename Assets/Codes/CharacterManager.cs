@@ -96,20 +96,15 @@ public class CharacterManager : MonoBehaviour
     // 각 캐릭터의 최대 체력을 저장하는 배열
     private int[] maxHealthArray = new int[7] { 100, 120, 110, 130, 140, 150, 160 };
     public bool isDataLoaded = false; // 데이터 로드 완료 여부
+    private bool firebaseDataLoaded = false;
+
     private void Start()
     {
         for (int i = 0; i < characters.Length; i++)
         {
-            characters[i] = Instantiate(characters[i]); // 기존 복사
-
-            characters[i].level = 1;
-            characters[i].vitality = 0;
-            characters[i].power = 0;
-            characters[i].agility = 0;
-            characters[i].luck = 0;
-            characters[i].isUnlocked = false;
+            characters[i] = Instantiate(characters[i]);
+            characters[i].characterManager = this; 
         }
-
         characterInfoPanel.SetActive(false);
         upgradePanel.SetActive(false);
 
@@ -702,17 +697,23 @@ public class CharacterManager : MonoBehaviour
 
 
     // 캐릭터 속성을 PlayerPrefs에 저장하는 메서드
-    private void SaveCharacterStats()
+    public void SaveCharacterStats(bool saveToFirebase = true)
     {
+
         CharacterData character = characters[currentCharacterIndex];
         PlayerPrefs.SetInt("CharacterLevel_" + currentCharacterIndex, character.level);
         PlayerPrefs.SetInt("CharacterVitality_" + currentCharacterIndex, character.vitality);
         PlayerPrefs.SetInt("CharacterPower_" + currentCharacterIndex, character.power);
         PlayerPrefs.SetInt("CharacterAgility_" + currentCharacterIndex, character.agility);
         PlayerPrefs.SetInt("CharacterLuck_" + currentCharacterIndex, character.luck);
-        PlayerPrefs.Save(); // 변경 사항 저장
-        SaveCharacterStatsToFirebase();//캐릭터 스텟 firebase에 저장 
+        PlayerPrefs.Save();
+
+        if (saveToFirebase)
+        {
+            SaveCharacterStatsToFirebase();
+        }
     }
+
 
     public IEnumerator LoadUnlockedCharactersFromFirebase(Action onComplete)
     {
@@ -876,7 +877,9 @@ public class CharacterManager : MonoBehaviour
         { "vitality", character.vitality },
         { "power", character.power },
         { "agility", character.agility },
-        { "luck", character.luck }
+        { "luck", character.luck },
+        { "currentExp", character.currentExp },              
+        { "expToLevelUp", character.expToLevelUp }       
     };
 
         var docRef = FirebaseFirestore.DefaultInstance
@@ -908,6 +911,7 @@ public class CharacterManager : MonoBehaviour
         {
             Debug.LogError("❌ 로그인 안됨");
             yield break;
+
         }
 
         string uid = user.UserId;
@@ -931,28 +935,28 @@ public class CharacterManager : MonoBehaviour
             string charKey = $"char_{characters[i].characterName}";
             if (data.TryGetValue(charKey, out object value) && value is Dictionary<string, object> stats)
             {
-                int level = Convert.ToInt32(stats["level"]);
-                int vit = Convert.ToInt32(stats["vitality"]);
-                int pow = Convert.ToInt32(stats["power"]);
-                int agi = Convert.ToInt32(stats["agility"]);
-                int luk = Convert.ToInt32(stats["luck"]);
+                characters[i].level = Convert.ToInt32(stats["level"]);
+                characters[i].vitality = Convert.ToInt32(stats["vitality"]);
+                characters[i].power = Convert.ToInt32(stats["power"]);
+                characters[i].agility = Convert.ToInt32(stats["agility"]);
+                characters[i].luck = Convert.ToInt32(stats["luck"]);
 
-                characters[i].level = level;
-                characters[i].vitality = vit;
-                characters[i].power = pow;
-                characters[i].agility = agi;
-                characters[i].luck = luk;
+                // ✅ 추가
+                characters[i].currentExp = stats.ContainsKey("currentExp") ? Convert.ToInt32(stats["currentExp"]) : 0;
+                characters[i].expToLevelUp = stats.ContainsKey("expToLevelUp") ? Convert.ToInt32(stats["expToLevelUp"]) : 100;
 
-                // ✅ PlayerPrefs에도 저장해서 캐시 동기화
-                PlayerPrefs.SetInt("CharacterLevel_" + i, level);
-                PlayerPrefs.SetInt("CharacterVitality_" + i, vit);
-                PlayerPrefs.SetInt("CharacterPower_" + i, pow);
-                PlayerPrefs.SetInt("CharacterAgility_" + i, agi);
-                PlayerPrefs.SetInt("CharacterLuck_" + i, luk);
+                // PlayerPrefs 동기화
+                PlayerPrefs.SetInt("CharacterLevel_" + i, characters[i].level);
+                PlayerPrefs.SetInt("CharacterVitality_" + i, characters[i].vitality);
+                PlayerPrefs.SetInt("CharacterPower_" + i, characters[i].power);
+                PlayerPrefs.SetInt("CharacterAgility_" + i, characters[i].agility);
+                    PlayerPrefs.SetInt("CharacterLuck_" + i, characters[i].luck);
+                }
             }
-        }
 
-        PlayerPrefs.Save(); // 최종 저장
+        PlayerPrefs.Save();
+        firebaseDataLoaded = true;
+
         Debug.Log("✅ Firebase에서 캐릭터 스탯 불러오기 + PlayerPrefs 동기화 완료");
     }
     private IEnumerator LoadCharacterStatsFromFirebaseThenInit()

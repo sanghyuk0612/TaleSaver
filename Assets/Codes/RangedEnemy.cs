@@ -22,6 +22,7 @@ public class RangedEnemy : MonoBehaviour
     private float attackCooldown;
     protected string projectileKey = "EnemyProjectile";
     protected Transform firePoint;
+    public int expReward = 10;
 
     [Header("Health")]
     public float baseHealth = 80f; // 기본 체력
@@ -195,6 +196,7 @@ public class RangedEnemy : MonoBehaviour
         baseHealth = data.health;
         baseDamage = data.damage;
         moveSpeed = data.moveSpeed;
+        expReward = data.expReward;
 
         // 스프라이트 및 애니메이션 적용
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -361,6 +363,7 @@ public class RangedEnemy : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject); // 완전히 삭제
+        GiveExpToPlayer();
 
         // 아이템 드롭
         if (itemPrefab != null)
@@ -369,5 +372,10 @@ public class RangedEnemy : MonoBehaviour
             droppedItem.DropItem();
         }
 
+    }
+
+    private void GiveExpToPlayer()
+    {
+        GameManager.Instance.CurrentCharacter.GainExperience(expReward);
     }
 }
