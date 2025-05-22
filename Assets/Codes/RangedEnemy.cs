@@ -363,7 +363,6 @@ public class RangedEnemy : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject); // 완전히 삭제
-        GiveExpToPlayer();
 
         // 아이템 드롭
         if (itemPrefab != null)
@@ -372,10 +371,5 @@ public class RangedEnemy : MonoBehaviour
             droppedItem.DropItem();
         }
 
-    }
-
-    private void GiveExpToPlayer()
-    {
-        GameManager.Instance.CurrentCharacter.GainExperience(expReward);
     }
 }
