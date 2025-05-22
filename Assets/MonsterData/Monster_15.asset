@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Forest_Monster_15
   health: 100
   damage: 10
+  expReward: 20
   moveSpeed: 7
   isRanged: 1
   MonsterPrefab: {fileID: 7417235287509454946, guid: 73b6b88acbbfa8d4685c31ee509be853, type: 3}

@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Lava_Monster_08
   health: 100
   damage: 10
+  expReward: 5
   moveSpeed: 7
   isRanged: 0
   MonsterPrefab: {fileID: 8012064784144346932, guid: 897db0e24134ce84a8ebd60da8bb5b98, type: 3}

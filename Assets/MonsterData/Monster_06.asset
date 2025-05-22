@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Desert_Monster_06
   health: 100
   damage: 10
+  expReward: 20
   moveSpeed: 7
   isRanged: 0
   MonsterPrefab: {fileID: 7311178507973031928, guid: 1723488327eb8034281b0c82dd234600, type: 3}
