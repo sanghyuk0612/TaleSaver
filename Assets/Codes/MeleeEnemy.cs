@@ -267,16 +267,6 @@ public class MeleeEnemy : MonoBehaviour
             BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
         }
 
-        // 데미지 인디케이터 표시
-        if (DamageIndicatorManager.Instance != null)
-        {
-            DamageIndicatorManager.Instance.ShowDamageIndicator(
-                transform.position + Vector3.up * 0.5f, // 약간 위에 표시
-                Mathf.RoundToInt(damage), // float를 int로 변환
-                false // 적이므로 false
-            );
-        }
-
         if (currentHealth <= 0 && !isDead)
         {
             Die(); // 체력이 0 이하가 되면 사망 처리
