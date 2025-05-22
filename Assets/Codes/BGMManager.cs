@@ -39,12 +39,12 @@ public class BGMManager : MonoBehaviour
 
     void Awake()
     {
-        TryReconnectUI();
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
+            TryReconnectUI();
         }
         else
         {
@@ -153,14 +153,17 @@ public class BGMManager : MonoBehaviour
         Debug.Log("🔊 BGM 버튼 눌림");
         isBGMOn = !isBGMOn;
         bgmSource.mute = !isBGMOn;
-        bgmButtonText.text = isBGMOn ? "BGM 끄기" : "BGM 키기";
+        if (bgmButtonText != null)
+            bgmButtonText.text = isBGMOn ? "BGM 끄기" : "BGM 키기";
     }
 
     public void ToggleSFX()
     {
+        Debug.Log("🔊 SFX 버튼 눌림");
         isSFXOn = !isSFXOn;
         seSource.mute = !isSFXOn;
-        sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 키기";
+        if (sfxButtonText != null)
+            sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 키기";
 
         if (sfxCheckMark != null)
             sfxCheckMark.SetActive(isSFXOn);
