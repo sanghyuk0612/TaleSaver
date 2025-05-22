@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Progress")]
     [SerializeField] private int score;
-    [SerializeField] private int stage;
-    [SerializeField] private int chapter;
+    [SerializeField] public int stage;
+    [SerializeField] public int chapter;
     [SerializeField] private bool isPlayerInRange;
     [SerializeField] private float playTime;
     [SerializeField] public int location = 5;

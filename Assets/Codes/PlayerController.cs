@@ -96,7 +96,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (hasIceBoots)
         {
             baseMoveSpeed *= 1.15f; // 15% 증가
-            Debug.Log("얼음 장화 아이템 효과로 이동속도 15% 증가");
         }
         
         return baseMoveSpeed;
