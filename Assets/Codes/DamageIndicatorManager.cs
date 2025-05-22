@@ -24,19 +24,17 @@ public class DamageIndicatorManager : MonoBehaviour
     {
         if (damageIndicatorPrefab == null)
         {
-            Debug.LogWarning("Damage Indicator Prefab이 설정되지 않았습니다!");
+            Debug.LogError("DamageIndicator 프리팹이 설정되지 않았습니다!");
             return;
         }
 
-        // 데미지 인디케이터 생성
         GameObject indicator = Instantiate(damageIndicatorPrefab, position, Quaternion.identity);
-        
-        // 데미지 인디케이터 초기화
         DamageIndicator damageIndicator = indicator.GetComponent<DamageIndicator>();
         if (damageIndicator != null)
         {
             // 플레이어는 노란색, 적은 파란색으로 표시
             Color indicatorColor = isPlayer ? Color.yellow : Color.blue;
+            Debug.Log($"데미지 인디케이터 생성: damage={damage}, isPlayer={isPlayer}, color={indicatorColor}");
             damageIndicator.Initialize(damage, indicatorColor);
         }
     }
