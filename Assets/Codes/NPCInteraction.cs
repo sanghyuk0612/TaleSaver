@@ -149,7 +149,7 @@ public class NPCInteraction : MonoBehaviour
 
                         if (change > 0)
                         {
-                            Dialogues = new string[] { $"{itemName} 을 비싸게 매입한다는데?", "지금이 매입 찬스일지도 몰라!" };
+                            Dialogues = new string[] { $"{itemName} 을 비싸게 매입한다는데?", "지금이 판매할 찬스일지도 몰라!" };
                         }
                         else if (change < 0)
                         {
