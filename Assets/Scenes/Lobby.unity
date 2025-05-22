@@ -1420,12 +1420,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
+  m_fontSize: 57.55
   m_fontSizeBase: 60
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 70
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
@@ -1456,7 +1456,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -29.655518, y: 0, z: 81.70343, w: 0}
+  m_margin: {x: -44.79431, y: 0, z: 81.70343, w: -7.56929}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1486,8 +1486,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 447, y: -315}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 507, y: -323}
+  m_SizeDelta: {x: 250, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &455452505
 GameObject:
@@ -2192,13 +2192,13 @@ RectTransform:
   m_Children:
   - {fileID: 1540124515}
   - {fileID: 122143590}
+  - {fileID: 61767807}
+  - {fileID: 212379583}
   - {fileID: 1479675339}
   - {fileID: 1492005062}
   - {fileID: 1273437570}
   - {fileID: 1155107892}
   - {fileID: 1859774823}
-  - {fileID: 61767807}
-  - {fileID: 212379583}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2390,8 +2390,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 244, y: -290}
-  m_SizeDelta: {x: 306.2509, y: 50}
+  m_AnchoredPosition: {x: 191, y: -290}
+  m_SizeDelta: {x: 306, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &771047705
 CanvasRenderer:
@@ -2448,12 +2448,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
+  m_fontSize: 60.05
   m_fontSizeBase: 60
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 70
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
@@ -2484,7 +2484,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -72.02026, y: 0, z: 195.5047, w: 0}
+  m_margin: {x: -72.02026, y: 0, z: 170.27325, w: -10.092438}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
