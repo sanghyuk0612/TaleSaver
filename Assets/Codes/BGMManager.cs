@@ -26,6 +26,8 @@ public class BGMManager : MonoBehaviour
 
     private bool isBGMOn = true;
     private bool isSFXOn = true;
+    public Slider bgmSlider;
+    public Slider sfxSlider;
 
 
     void Awake()
@@ -79,5 +81,19 @@ public class BGMManager : MonoBehaviour
         isSFXOn = !isSFXOn;
         seSource.mute = !isSFXOn;
         sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 키기";
+    }
+
+    public void OnBGMVolumeChanged(float volume)
+    {
+        bgmSource.volume = volume;  // 0.0 ~ 1.0
+        //isBGMOn = volume > 0f;
+        //bgmButtonText.text = isBGMOn ? "BGM 끄기" : "BGM 켜기";
+    }
+
+    public void OnSFXVolumeChanged(float volume)
+    {
+        seSource.volume = volume;
+        //isSFXOn = volume > 0f;
+        //sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 켜기";
     }
 }
