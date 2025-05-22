@@ -395,6 +395,15 @@ private IEnumerator StopMovement(float stopDuration)
     public void OnDeathAnimationEnd()
     {
         Debug.Log("💀 보스 죽음 애니메이션 종료 - 게임엔딩 처리리");
+        
+        // 플레이어의 체력을 최대로 회복
+        if (GameManager.Instance != null && GameManager.Instance.CurrentCharacter != null)
+        {
+            int maxHealth = GameManager.Instance.CurrentCharacter.maxHealth;
+            GameManager.Instance.ModifyHealth(maxHealth);
+            Debug.Log($"플레이어 체력이 {maxHealth}로 회복되었습니다.");
+        }
+        
         //SpawnManager.Instance.SpawnNPC();
         //GameManager.Instance.ShowGameOver();
         StartCoroutine(DelayLoadScoreBoard());
@@ -449,7 +458,7 @@ private IEnumerator StopMovement(float stopDuration)
         if (itemPrefab == null)
         {
             Debug.LogError("Item prefab is not assigned.");
-            return; // itemPrefab이 null이면 �서드 종료
+            return; // itemPrefab이 null이면 메서드 종료
         }
 
         string itemName = inventoryManager.GetItemNameById(0);

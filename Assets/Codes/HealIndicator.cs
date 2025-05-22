@@ -23,7 +23,7 @@ public class HealIndicator : MonoBehaviour
         if (healText != null)
         {
             healText.text = heal.ToString();
-            healText.color = color;
+            healText.fontMaterial.SetColor("_FaceColor", color);
             Debug.Log($"힐 인디케이터 초기화: heal={heal}, color={color}");
             StartCoroutine(FadeOut());
         }

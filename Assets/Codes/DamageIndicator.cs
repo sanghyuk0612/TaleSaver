@@ -19,7 +19,7 @@ public class DamageIndicator : MonoBehaviour
         if (damageText != null)
         {
             damageText.text = damage.ToString();
-            damageText.color = color;
+            damageText.fontMaterial.SetColor("_FaceColor", color);
             Debug.Log($"데미지 인디케이터 초기화: damage={damage}, color={color}");
             StartCoroutine(FadeOut());
         }
