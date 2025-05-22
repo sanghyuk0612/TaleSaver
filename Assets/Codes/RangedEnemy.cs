@@ -244,7 +244,7 @@ public class RangedEnemy : MonoBehaviour
             Vector3 adjustedTarget = playerTransform.position + new Vector3(0f, 0.4f, 0f);
             Vector2 direction = (adjustedTarget - firePoint.position).normalized;
 
-            projectileComp.Initialize(direction, skillInfo.projectileSpeed, skillInfo.damage);
+            projectileComp.Initialize(direction, skillInfo.projectileSpeed, attackDamage);
 
             // 이펙트 프리팹을 Projectile에게 전달
             projectileComp.SetHitEffect(skillInfo.hitEffectPrefab);
