@@ -180,3 +180,25 @@ MonoBehaviour:
   - {fileID: -670996413, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
   - {fileID: 1462015692, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
   - {fileID: 253833904, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
+  itemDropChances:
+  - itemId: 0
+    itemName: stone
+    dropRate: 0.4
+  - itemId: 1
+    itemName: tree
+    dropRate: 0.4
+  - itemId: 2
+    itemName: skin
+    dropRate: 0.3
+  - itemId: 3
+    itemName: steel
+    dropRate: 0.2
+  - itemId: 4
+    itemName: gold
+    dropRate: 0.1
+  - itemId: 5
+    itemName: machineparts
+    dropRate: 0.08
+  - itemId: 6
+    itemName: storybookpages
+    dropRate: 0.05

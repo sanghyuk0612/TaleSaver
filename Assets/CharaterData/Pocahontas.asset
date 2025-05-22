@@ -16,18 +16,27 @@ MonoBehaviour:
   characterSprite: {fileID: 2537882373423050008, guid: a9f2dfb0cf27fe340af544a69a01d6b3, type: 3}
   animatorController: {fileID: 9100000, guid: 411e3e25e7ff85f4d8d5382d0a6736f8, type: 2}
   level: 1
-  description: "\uC124\uBA85"
+  currentExp: 0
+  expToLevelUp: 100
+  description: "\uD3EC\uCE74\uD63C\uD0C0\uC2A4 \uC790\uC5F0\uACFC \uAD50\uAC10\uD558\uB294
+    \uAC15\uC778\uD55C \uC601\uD63C. \uBC14\uB78C\uACFC \uC232\uC758 \uD798\uC73C\uB85C
+    \uC2F8\uC6B0\uB294 \uB300\uC9C0\uC758 \uC218\uD638\uC790."
   vitality: 0
   power: 0
   agility: 0
   luck: 0
   maxHealth: 100
   isUnlocked: 0
-  requiredmachineparts: 1
-  requiredstorybookpages: 1
+  requiredmachineparts: 40
+  requiredstorybookpages: 50
   skills:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  fireballEffectOverride: {fileID: 0}
+  baseGEffectOverride: {fileID: 0}
+  ultimoEffectOverride: {fileID: 0}
+  healEffectOverride: {fileID: 0}
+  characterManager: {fileID: 0}

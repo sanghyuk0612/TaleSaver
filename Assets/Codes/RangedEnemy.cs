@@ -354,6 +354,22 @@ public class RangedEnemy : MonoBehaviour
         isDead = true;
         Debug.Log("RangedEnemy died.");
 
+        // Rigidbody 비활성화
+        rb.velocity = Vector2.zero;
+        rb.isKinematic = true;
+        rb.simulated = false;
+
+        // Collider 비활성화 (공격/피격 충돌 차단)
+        Collider2D[] colliders = GetComponents<Collider2D>();
+        foreach (var col in colliders)
+        {
+            col.enabled = false;
+        }
+
+        // 스크립트에서 Update 등 동작 정지 (필요 시)
+        this.enabled = false; // 스크립트 자체를 비활성화
+
+
         // 게임 오브젝트 제거
         StartCoroutine(DestroyAfterDelay(1f));
     }

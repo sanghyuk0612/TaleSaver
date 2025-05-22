@@ -14,6 +14,17 @@ public class DroppedItem : MonoBehaviour
     //드랍 아이템 에셋
     [SerializeField] private Sprite[] itemSprites;
 
+    [System.Serializable]
+    public class ItemDropChance
+    {
+        public int itemId;
+        public string itemName;
+        [Range(0f, 1f)] public float dropRate; // 예: 0.1f = 10%
+    }
+    public List<ItemDropChance> itemDropChances;
+
+
+
     public void Initialize(int id, string name)
     {
         itemId = id;
@@ -41,6 +52,32 @@ public class DroppedItem : MonoBehaviour
         inventoryManager = InventoryManager.Instance; // inventoryManager 초기화
     }
 
+    private int GetWeightedRandomItemId()
+    {
+        float totalWeight = 0f;
+
+        foreach (var item in itemDropChances)
+        {
+            totalWeight += item.dropRate;
+        }
+
+        float randomValue = Random.Range(0, totalWeight);
+        float currentWeight = 0f;
+
+        foreach (var item in itemDropChances)
+        {
+            currentWeight += item.dropRate;
+            if (randomValue <= currentWeight)
+            {
+                return item.itemId;
+            }
+        }
+
+        // fallback (shouldn't happen if weights are set correctly)
+        return itemDropChances[0].itemId;
+    }
+
+
     public void DropItem()
     {
         if (inventoryManager == null)
@@ -49,14 +86,14 @@ public class DroppedItem : MonoBehaviour
             return;
         }
 
-        // 랜덤 아이템 ID 설정 (0~7 중 하나)
-        int randomId = Random.Range(0, 7);
-        string randomItemName = inventoryManager.GetItemNameById(randomId);
+        // 확률 기반으로 아이템 선택
+        int selectedId = GetWeightedRandomItemId();
+        string selectedName = inventoryManager.GetItemNameById(selectedId);
 
         // 현재 아이템 오브젝트를 초기화
-        Initialize(randomId, randomItemName);
+        Initialize(selectedId, selectedName);
 
-        Debug.Log($"✅ {randomItemName} 아이템 드랍됨! 위치: {transform.position}");
+        Debug.Log($"{selectedName} 아이템 드랍됨! 위치: {transform.position}");
     }
 
 
