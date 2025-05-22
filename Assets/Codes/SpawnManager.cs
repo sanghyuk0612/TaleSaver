@@ -41,7 +41,7 @@ public class SpawnManager : MonoBehaviour
 
         MonsterData monsterData = MapManager.Instance.GetRandomMonsterForCurrentMap();
 
-       if (monsterData == null)
+        if (monsterData == null)
         {
             Debug.LogWarning("No monster data found for this map!");
             return;
@@ -49,7 +49,7 @@ public class SpawnManager : MonoBehaviour
 
         // 스폰 위치 설정
         int ran = Random.Range(0, MapManager.Instance.spawnPoints.Count);
-        Vector3 spawnPos = MapManager.Instance.spawnPoints[ran];
+        Vector3 spawnPos = MapManager.Instance.spawnPoints[ran]+new Vector3(0,1,0);
 
         // 몬스터 유형에 따라 적절한 프리팹 선택
         GameObject enemyPrefab = (monsterData.isRanged) ? rangedEnemyPrefab : meleeEnemyPrefab;

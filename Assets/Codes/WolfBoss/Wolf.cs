@@ -412,7 +412,22 @@ private IEnumerator StopMovement(float stopDuration)
     // 체력 0이 되면 아이템 드롭 및 몬스터 파괴 처리
     private void CheckDeath()
     {
-        isDead=true;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+            rb.useGravity = false;
+        // 4. Rigidbody2D 제거 (2D 중력 포함)
+        foreach (var rb2D in GetComponentsInChildren<Rigidbody2D>())
+        {
+            Destroy(rb2D);
+        }
+        
+
+        Collider2D[] colliders2D = GetComponentsInChildren<Collider2D>();
+        foreach (var col in colliders2D)
+        {
+            Destroy(col);
+        }
+        isDead =true;
         anim.SetTrigger("death");
     }
     public void death(){
