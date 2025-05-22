@@ -20,8 +20,6 @@ public class BGMManager : MonoBehaviour
     public AudioClip demagedSE2;
 
     public GameObject sfxCheckMark; // ✅ 효과음 체크 표시 오브젝트
-    public Sprite sfxOnSprite;  // 효과음 켜짐 이미지
-    public Sprite sfxOffSprite; // 효과음 꺼짐 이미지
     public Image sfxButtonImage;  // 버튼 안의 아이콘 이미지 (Image 컴포넌트)
 
     public AudioSource bgmSource;  // 🎵 BGM 전용
@@ -34,9 +32,14 @@ public class BGMManager : MonoBehaviour
     public Slider bgmSlider;
     public Slider sfxSlider;
 
+    // 연결할 오브젝트
+    public Toggle bgmButton;
+    public Toggle sfxButton;
+
 
     void Awake()
     {
+        TryReconnectUI();
         if (instance == null)
         {
             instance = this;
@@ -51,19 +54,16 @@ public class BGMManager : MonoBehaviour
 
     void Start()
     {
+        TryReconnectUI(); // 첫 씬에서도 연결
         bgmSource.clip = lobbyBGM;
         bgmSource.loop = true;
         bgmSource.Play();
-
-        if (sfxCheckMark != null)
-            sfxCheckMark.SetActive(isSFXOn); // 시작 시 체크 상태 적용
-
-        if (sfxButtonImage != null)
-            sfxButtonImage.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        TryReconnectUI();
+
         if (scene.name == "GameScene" || scene.name == "BossStage")
         {
             bgmSource.clip = GameBGM;
@@ -75,6 +75,74 @@ public class BGMManager : MonoBehaviour
         bgmSource.Play();
     }
 
+    public void TryReconnectUI()
+    {
+        GameObject settingsPanel = GameObject.Find("SettingsPanel");
+
+        if (settingsPanel == null)
+        {
+            Debug.LogWarning("[BGMManager] SettingPanel not found.");
+            return;
+        }
+
+        // 비활성화된 오브젝트 하위까지 탐색
+        Transform bgmButtonTf = settingsPanel.transform.Find("BGMSoundSetting");
+        Transform sfxButtonTf = settingsPanel.transform.Find("SeSoundSetting");
+        Transform bgmSliderTf = settingsPanel.transform.Find("BGMSlider");
+        Transform sfxSliderTf = settingsPanel.transform.Find("SESlider");
+
+        bgmButton = bgmButtonTf?.GetComponent<Toggle>();
+        sfxButton = sfxButtonTf?.GetComponent<Toggle>();
+        bgmSlider = bgmSliderTf?.GetComponent<Slider>();
+        sfxSlider = sfxSliderTf?.GetComponent<Slider>();
+
+        Debug.Log($"[BGMManager] bgmButton found? {bgmButton != null}");
+        Debug.Log($"[BGMManager] sfxButton found? {sfxButton != null}");
+
+        // 슬라이더 이벤트 연결
+        if (bgmSlider != null)
+        {
+            bgmSlider.onValueChanged.RemoveAllListeners();
+            bgmSlider.onValueChanged.AddListener(OnBGMVolumeChanged);
+            bgmSlider.value = bgmSource.volume;
+        }
+
+        if (sfxSlider != null)
+        {
+            sfxSlider.onValueChanged.RemoveAllListeners();
+            sfxSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+            sfxSlider.value = seSource.volume;
+        }
+
+        // 버튼 이벤트 연결
+        if (bgmButton != null)
+        {
+            Debug.Log("[BGMManager] BGMSoundSetting 연결됨"); // 디버깅용
+            bgmButton.onValueChanged.RemoveAllListeners();
+            bgmButton.onValueChanged.AddListener((_) => ToggleBGM());
+        }
+
+        if (sfxButton != null)
+        {
+            Debug.Log("✅ sfxSoundSetting 버튼 연결 성공");
+            sfxButton.onValueChanged.RemoveAllListeners();
+            sfxButton.onValueChanged.AddListener((_) => ToggleSFX());
+        }
+        // 상태 초기화 UI 반영
+        if (bgmButtonText != null)
+            bgmButtonText.text = isBGMOn ? "BGM 끄기" : "BGM 키기";
+
+        if (sfxButtonText != null)
+            sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 키기";
+
+        if (sfxCheckMark != null)
+            sfxCheckMark.SetActive(isSFXOn);
+
+        //if (sfxButtonImage != null)
+            //sfxButtonImage.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
+
+    }
+
     public void PlaySE(AudioClip clip, float vol = 1.0f)
     {
         if (clip != null)
@@ -82,6 +150,7 @@ public class BGMManager : MonoBehaviour
     }
     public void ToggleBGM()
     {
+        Debug.Log("🔊 BGM 버튼 눌림");
         isBGMOn = !isBGMOn;
         bgmSource.mute = !isBGMOn;
         bgmButtonText.text = isBGMOn ? "BGM 끄기" : "BGM 키기";
@@ -96,8 +165,8 @@ public class BGMManager : MonoBehaviour
         if (sfxCheckMark != null)
             sfxCheckMark.SetActive(isSFXOn);
 
-        if (sfxButtonImage != null)
-            sfxButtonImage.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
+        //if (sfxButtonImage != null)
+            //sfxButtonImage.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
     }
 
     public void OnBGMVolumeChanged(float volume)
