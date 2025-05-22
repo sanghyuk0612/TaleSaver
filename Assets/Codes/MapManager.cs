@@ -465,7 +465,7 @@ public class MapManager : MonoBehaviour
             }
             Destroy(mapSection);
         }
-        SpawnPortal();
+        //SpawnPortal();
         SpawnManager.Instance.SpawnNPC();
         
         // // Event NPC 소환

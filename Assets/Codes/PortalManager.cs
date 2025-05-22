@@ -91,7 +91,7 @@ public class PortalManager : MonoBehaviour
         killNumber += i;
         enemyNumber -= i;
 
-        if (enemyNumber == 0)
+        if (killNumber >= 10)
         {
             MapManager.Instance.SpawnPortal();
         }
