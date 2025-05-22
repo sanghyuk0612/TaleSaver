@@ -26,7 +26,6 @@ public class MeleeEnemy : MonoBehaviour
     public int baseDamage = 10; // 기본 공격력
     public DamageMultiplier damageMultiplier; // 공격력 비율을 위한 ScriptableObject
     public int attackDamage;
-    public int expReward = 10;
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -175,7 +174,6 @@ public class MeleeEnemy : MonoBehaviour
         baseHealth = data.health;
         baseDamage = data.damage;
         moveSpeed = data.moveSpeed;
-        expReward = data.expReward;
 
         // healthMultiplier에 따라 체력 재계산
         float healthMultiplierValue = healthMultiplier.GetHealthMultiplier(GameManager.Instance.Stage, GameManager.Instance.Chapter);
@@ -335,7 +333,6 @@ public class MeleeEnemy : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject); // 완전히 삭제
-        GiveExpToPlayer();
 
         // 아이템 드롭
         if (itemPrefab != null)
@@ -345,8 +342,5 @@ public class MeleeEnemy : MonoBehaviour
         }
     }
 
-    private void GiveExpToPlayer()
-    {
-        GameManager.Instance.CurrentCharacter.GainExperience(expReward);
-    }
+
 }
