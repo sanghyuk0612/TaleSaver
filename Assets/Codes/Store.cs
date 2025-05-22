@@ -266,8 +266,22 @@ public class Store : MonoBehaviour
         }
         else{
             InventoryManager.Instance.RemoveItem(7,ItemListData.items[selectedItem[buyButtonId]].price);
-            buttonList[buyButtonId].interactable =false;
-            InventoryManager.Instance.AddItem(8,ItemListData.items[selectedItem[buyButtonId]].id);
+            buttonList[buyButtonId].interactable = false;
+            
+            // 고급 기름 아이템(ID: 8) 구매 시 체력 회복 효과
+            if (ItemListData.items[selectedItem[buyButtonId]].id == 8)
+            {
+                // 최대 체력의 25% 회복
+                int healAmount = Mathf.RoundToInt(GameManager.Instance.MaxHealth * 0.25f);
+                GameManager.Instance.HealPlayer(healAmount);
+                Debug.Log($"고급 기름 사용: 최대 체력의 25%({healAmount}) 회복");
+            }
+            else
+            {
+                // 다른 아이템은 일반적인 방식으로 추가
+                InventoryManager.Instance.AddItem(8, ItemListData.items[selectedItem[buyButtonId]].id);
+            }
+            
             nowMoney.text = "보유 머니 : "+InventoryManager.Instance.inventory.battery.ToString();
         }
     }

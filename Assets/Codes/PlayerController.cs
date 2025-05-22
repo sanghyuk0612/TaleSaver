@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     private bool canDash = true;
     private float dashCooldownTimer = 0f;
     private bool isDashing = false;
+    private bool isInvincible = false; // 무적 상태 변수 추가
+    private float invincibilityTimer = 0f; // 무적 시간 타이머 추가
 
     [Header("Platform Drop")]
     private Coroutine currentDashCoroutine;
@@ -72,10 +74,38 @@ public class PlayerController : MonoBehaviour, IDamageable
     [Header("Animator Settings")]
     private Animator playerAnimator;
 
+    // 이동속도 계산 메서드 추가
+    private float CalculateMoveSpeed()
+    {
+        float baseMoveSpeed = GameManager.Instance.playerMoveSpeed;
+        
+        // AGI 레벨에 따른 이동속도 계산
+        if (CharacterSelectionData.Instance != null && CharacterSelectionData.Instance.selectedCharacterData != null)
+        {
+            int agilityLevel = CharacterSelectionData.Instance.selectedCharacterData.agility;
+            float speedMultiplier = 1 + (agilityLevel * 0.04f);
+            baseMoveSpeed *= speedMultiplier;
+        }
+        
+        // 얼음 장화 아이템 효과 적용 (ID: 7)
+        bool hasIceBoots = InventoryManager.Instance != null && 
+                         InventoryManager.Instance.inventory != null && 
+                         InventoryManager.Instance.inventory.items != null && 
+                         InventoryManager.Instance.inventory.items.Contains(7);
+        
+        if (hasIceBoots)
+        {
+            baseMoveSpeed *= 1.15f; // 15% 증가
+            Debug.Log("얼음 장화 아이템 효과로 이동속도 15% 증가");
+        }
+        
+        return baseMoveSpeed;
+    }
+
     void Start()
     {
         // GameManager에서 설정값 가져오기
-        moveSpeed = GameManager.Instance.playerMoveSpeed;
+        moveSpeed = CalculateMoveSpeed(); // 이동속도 계산 메서드 사용
         jumpForce = GameManager.Instance.playerJumpForce;
         maxJumpCount = GameManager.Instance.playerMaxJumpCount;
         dashForce = GameManager.Instance.playerDashForce;
@@ -107,12 +137,6 @@ public class PlayerController : MonoBehaviour, IDamageable
             // GameManager에서 계산된 체력 값 사용 (vitality 레벨 반영)
             maxHealth = GameManager.Instance.MaxHealth;
             spriteRenderer.sprite = characterData.characterSprite;
-            
-            // AGI 레벨에 따른 이동속도 계산
-            int agilityLevel = characterData.agility;
-            float speedMultiplier = 1 + (agilityLevel * 0.04f);
-            moveSpeed = GameManager.Instance.playerMoveSpeed * speedMultiplier;
-            Debug.Log($"AGI 레벨({agilityLevel})에 따른 이동속도 조정: 기본({GameManager.Instance.playerMoveSpeed}) * 배율({speedMultiplier}) = {moveSpeed}");
             
             // 애니메이터 적용
             if (characterData.animatorController != null)
@@ -266,6 +290,20 @@ public class PlayerController : MonoBehaviour, IDamageable
             return;
         }
 
+        // 이동속도 업데이트 (아이템 효과가 변경될 수 있으므로)
+        moveSpeed = CalculateMoveSpeed();
+
+        // 무적 상태 타이머 업데이트
+        if (isInvincible)
+        {
+            invincibilityTimer -= Time.deltaTime;
+            if (invincibilityTimer <= 0)
+            {
+                isInvincible = false;
+                Debug.Log("무적 상태 종료");
+            }
+        }
+
         float moveInput = Input.GetAxisRaw("Horizontal");
         playerAnimator.SetTrigger("Stay");
         if (moveInput != 0)
@@ -410,6 +448,19 @@ public class PlayerController : MonoBehaviour, IDamageable
         isDashing = true;
         playerAnimator.SetTrigger("Dash");
         BGMManager.instance.PlaySE(BGMManager.instance.blackBirdSE);
+
+        // 강철 망토 아이템 효과 적용 (ID: 0)
+        bool hasSteelCloak = InventoryManager.Instance != null && 
+                           InventoryManager.Instance.inventory != null && 
+                           InventoryManager.Instance.inventory.items != null && 
+                           InventoryManager.Instance.inventory.items.Contains(0);
+        
+        if (hasSteelCloak)
+        {
+            isInvincible = true;
+            invincibilityTimer = 0.6f; // 0.6초 동안 무적
+            Debug.Log("강철 망토 효과로 0.6초 동안 무적 상태 적용");
+        }
 
         // 대시 코루틴 시작
         StartCoroutine(DashCoroutine());
@@ -606,8 +657,36 @@ public class PlayerController : MonoBehaviour, IDamageable
     // IDamageable 인터페이스 구현
     public void TakeDamage(int damage, Vector2 knockbackDirection, float knockbackForce)
     {
+        // 무적 상태일 때 데미지 무시
+        if (isInvincible)
+        {
+            Debug.Log("무적 상태로 인해 데미지 무시");
+            return;
+        }
+
         // 이전 체력 저장
         int previousHealth = currentHealth;
+        
+        // 플레이트 갑옷 아이템 효과 적용 (ID: 4)
+        bool hasPlateArmor = InventoryManager.Instance != null && 
+                           InventoryManager.Instance.inventory != null && 
+                           InventoryManager.Instance.inventory.items != null && 
+                           InventoryManager.Instance.inventory.items.Contains(4);
+        
+        // 데미지 계산
+        float finalDamage = damage;
+        if (hasPlateArmor)
+        {
+            finalDamage *= 0.85f; // 15% 데미지 감소
+            Debug.Log($"플레이트 갑옷 효과로 데미지 감소: {damage} -> {finalDamage:F1}");
+        }
+        
+        // 데미지 인디케이터 표시
+        if (DamageIndicatorManager.Instance != null)
+        {
+            DamageIndicatorManager.Instance.ShowDamageIndicator(transform.position, Mathf.RoundToInt(finalDamage), true);
+        }
+        
         int i = Random.Range(0, 2);
         if (i == 0)
         {
@@ -617,9 +696,10 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
         }
-        // 체력 감소
-        currentHealth = Mathf.Max(0, currentHealth - damage);
-        Debug.Log($"플레이어가 {damage} 데미지를 받음. 남은 체력: {currentHealth}");
+        
+        // 체력 감소 (소수점 반올림)
+        currentHealth = Mathf.Max(0, currentHealth - Mathf.RoundToInt(finalDamage));
+        Debug.Log($"플레이어가 {finalDamage:F1} 데미지를 받음. 남은 체력: {currentHealth}");
         
         // 넉백 적용
         if (knockbackDirection != default)
