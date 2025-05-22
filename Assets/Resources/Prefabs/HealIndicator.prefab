@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1014088906137073165
+--- !u!1 &6402878051241672252
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,24 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4454757722058786711}
-  - component: {fileID: 2852754629938825561}
-  - component: {fileID: 176476475170473229}
-  - component: {fileID: 5917368476669062236}
+  - component: {fileID: 4543400774435758966}
+  - component: {fileID: 3753974655843242734}
+  - component: {fileID: 3834025896796718654}
   m_Layer: 0
-  m_Name: DamageIndicator
+  m_Name: HealIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &4454757722058786711
+--- !u!224 &4543400774435758966
 RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014088906137073165}
+  m_GameObject: {fileID: 6402878051241672252}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.12834492}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -38,13 +37,13 @@ RectTransform:
   m_AnchoredPosition: {x: 23.43317, y: 8.386746}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!23 &2852754629938825561
+--- !u!23 &3753974655843242734
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014088906137073165}
+  m_GameObject: {fileID: 6402878051241672252}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -58,7 +57,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 28b4536797d0f4ebb9b1e7c4cfc6e753, type: 2}
+  - {fileID: -414041837752963204, guid: 37d0201c3cd4b3349969176405f87538, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -80,13 +79,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &176476475170473229
+--- !u!114 &3834025896796718654
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014088906137073165}
+  m_GameObject: {fileID: 6402878051241672252}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
@@ -103,7 +102,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 37d0201c3cd4b3349969176405f87538, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 28b4536797d0f4ebb9b1e7c4cfc6e753, type: 2}
+  m_sharedMaterial: {fileID: -414041837752963204, guid: 37d0201c3cd4b3349969176405f87538, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -133,7 +132,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -169,18 +168,6 @@ MonoBehaviour:
   _SortingLayer: 0
   _SortingLayerID: 0
   _SortingOrder: 0
-  m_hasFontAssetChanged: 1
-  m_renderer: {fileID: 2852754629938825561}
+  m_hasFontAssetChanged: 0
+  m_renderer: {fileID: 3753974655843242734}
   m_maskType: 0
---- !u!114 &5917368476669062236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014088906137073165}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01ed5d865a062474fb7f7ebbb659ff20, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

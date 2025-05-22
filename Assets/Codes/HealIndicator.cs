@@ -2,22 +2,22 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-public class DamageIndicator : MonoBehaviour
+public class HealIndicator : MonoBehaviour
 {
-    private TextMeshPro damageText;
+    private TextMeshPro healText;
     private float moveSpeed = 1f;
     private float fadeSpeed = 1f;
     private float lifeTime = 1f;
 
     private void Awake()
     {
-        damageText = GetComponent<TextMeshPro>();
+        healText = GetComponent<TextMeshPro>();
     }
 
-    public void Initialize(int damage, Color color)
+    public void Initialize(int heal, Color color)
     {
-        damageText.text = damage.ToString();
-        damageText.color = color;
+        healText.text = heal.ToString();
+        healText.color = color;
         StartCoroutine(FadeOut());
     }
 
@@ -26,7 +26,7 @@ public class DamageIndicator : MonoBehaviour
         float elapsedTime = 0f;
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = startPosition + Vector3.up * 2f; // 위로 2유닛 이동
-        Color startColor = damageText.color;
+        Color startColor = healText.color;
 
         while (elapsedTime < lifeTime)
         {
@@ -37,7 +37,7 @@ public class DamageIndicator : MonoBehaviour
             transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / lifeTime);
             
             // 색상 페이드 아웃
-            damageText.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            healText.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
             
             yield return null;
         }

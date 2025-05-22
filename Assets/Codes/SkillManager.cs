@@ -675,6 +675,12 @@ public class SkillManager : MonoBehaviour
                         Destroy(healFX, 1.0f);
                     }
 
+                    // 회복 인디케이터 표시
+                    if (HealIndicatorManager.Instance != null)
+                    {
+                        HealIndicatorManager.Instance.ShowHealIndicator(playerCtrl.transform.position, actualHealAmount);
+                    }
+
                     // PlayerController 직접 찾아서 체력 동기화
                     if (playerCtrl != null)
                     {

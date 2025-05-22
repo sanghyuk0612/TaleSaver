@@ -826,6 +826,12 @@ public class PlayerController : MonoBehaviour, IDamageable
         {
             Debug.Log($"플레이어 체력 회복: +{actualHeal}, 현재 체력: {currentHealth}/{maxHealth}");
             
+            // 회복 인디케이터 표시
+            if (HealIndicatorManager.Instance != null)
+            {
+                HealIndicatorManager.Instance.ShowHealIndicator(transform.position, actualHeal);
+            }
+            
             // GameManager에 상태 저장 (currentPlayerHealth도 업데이트됨)
             GameManager.Instance.SavePlayerHealth(currentHealth, maxHealth);
             
