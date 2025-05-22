@@ -340,6 +340,16 @@ public class RangedEnemy : MonoBehaviour
             BGMManager.instance.PlaySE(BGMManager.instance.demagedSE2, 0.5f);
         }
 
+        // 데미지 인디케이터 표시
+        if (DamageIndicatorManager.Instance != null)
+        {
+            DamageIndicatorManager.Instance.ShowDamageIndicator(
+                transform.position + Vector3.up * 0.5f,
+                Mathf.RoundToInt(damage), // float를 int로 변환
+                false
+            );
+        }
+
         if (currentHealth <= 0 && !isDead)
         {
             Die(); // 체력이 0 이하가 되면 사망 처리
