@@ -13,7 +13,6 @@ public class SkillUIManager : MonoBehaviour
         public float cooldownTime;      // 쿨타임 설정
         [HideInInspector] public float currentCooldown;
         [HideInInspector] public bool isCoolingDown;
-
         [HideInInspector] public CharacterSkill assignedSkill; // ★ 스킬 참조 저장
     }
 
