@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class BGMManager : MonoBehaviour
 {
@@ -20,6 +21,12 @@ public class BGMManager : MonoBehaviour
 
     public AudioSource bgmSource;  // 🎵 BGM 전용
     public AudioSource seSource;   // 🔊 SE 전용
+    public Text bgmButtonText;
+    public Text sfxButtonText;
+
+    private bool isBGMOn = true;
+    private bool isSFXOn = true;
+
 
     void Awake()
     {
@@ -59,5 +66,18 @@ public class BGMManager : MonoBehaviour
     {
         if (clip != null)
             seSource.PlayOneShot(clip, vol);
+    }
+    public void ToggleBGM()
+    {
+        isBGMOn = !isBGMOn;
+        bgmSource.mute = !isBGMOn;
+        bgmButtonText.text = isBGMOn ? "BGM 끄기" : "BGM 키기";
+    }
+
+    public void ToggleSFX()
+    {
+        isSFXOn = !isSFXOn;
+        seSource.mute = !isSFXOn;
+        sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 키기";
     }
 }
