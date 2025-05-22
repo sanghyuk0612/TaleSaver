@@ -26,15 +26,15 @@ public class ItemListData
 {
     public static List<ItemList> items = new List<ItemList>
     {
-        new ItemList(0, "강철 망토", 1500, "대시 중 무적 효과 추가"),          // Steel Cloak 구현 완
-        new ItemList(1, "구름 장화", 1200, "점프 후 1초정도 부유효과"),        // Cloud Boots '구현 취소'
+        new ItemList(0, "강철 망토", 1500, "대시 중 무적 효과 추가"),          // Steel Cloak
+        new ItemList(1, "구름 장화", 1200, "점프 후 1초정도 부유효과"),        // Cloud Boots
         new ItemList(2, "롱소드", 2100, "공격 데미지 15% 추가"),              // Long Sword  구현 완
         new ItemList(3, "너클", 1800, "치명타 확률 5% 증가"),                 // Knuckle    
-        new ItemList(4, "플레이트 갑옷", 2400, "받는 데미지 15% 감소"),        // Plate Armor 구현 완 
+        new ItemList(4, "플레이트 갑옷", 2400, "받는 데미지 15% 감소"),        // Plate Armor  
         new ItemList(5, "덤벨", 1650, "최대 체력 현재 체력의 15% 증가"),        // Dumbbell   구현 완
         new ItemList(6, "주사위", 900, "처치 시 재료 드랍 확률 5% 증가"),      // Dice
         new ItemList(7, "얼음 장화", 1350, "이동 속도 15% 증가"),             // Ice Boots   구현 완
-        new ItemList(8, "고급 기름", 600, "체력 25% 회복 (소모품)"),         // Premium Oil  구현 완
+        new ItemList(8, "고급 기름", 600, "체력 25% 회복 (소모품)"),         // Premium Oil
         new ItemList(9, "윤활유", 1050, "공속 10% 증가"),                     // Lubricant  구현 완
         new ItemList(10, "쉴드", 2250, "공격 1회 무효"),                      // Shield      
         new ItemList(11, "피닉스(고오급)", 100, "죽을 시 25% 체력으로 자동 부활 (1회)"), // Phoenix HighGrade   1 (부활 확인하기 위해 가격 인하) 구현 완
