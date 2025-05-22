@@ -397,12 +397,13 @@ private IEnumerator StopMovement(float stopDuration)
         Debug.Log("💀 보스 죽음 애니메이션 종료 - 게임엔딩 처리리");
         //SpawnManager.Instance.SpawnNPC();
         //GameManager.Instance.ShowGameOver();
+        Destroy(gameObject);
         StartCoroutine(DelayLoadScoreBoard());
     }
 
     private IEnumerator DelayLoadScoreBoard()
     {
-        yield return new WaitForSeconds(1.0f); // 🔥 저장할 시간 확보
+        yield return new WaitForSeconds(4.0f); // 🔥 저장할 시간 확보
         SceneManager.LoadScene("ScoreBoard");
     }
 
