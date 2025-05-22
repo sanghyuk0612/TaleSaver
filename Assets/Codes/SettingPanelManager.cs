@@ -10,9 +10,20 @@ public class SettingPanelManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // 패널이 비활성화되어 있으면 활성화하고, 이미 켜져있으면 끄기 (토글 방식)
             if (settingPanel != null)
-                settingPanel.SetActive(!settingPanel.activeSelf);
+            {
+                bool isOpening = !settingPanel.activeSelf;
+                settingPanel.SetActive(isOpening);
+
+                // 패널을 켤 때 UI 재연결 시도
+                if (isOpening && BGMManager.instance != null)
+                {
+                    BGMManager.instance.TryReconnectUI();
+                }
+
+                // 게임 일시정지/재개도 같이 적용
+                Time.timeScale = isOpening ? 0f : 1f;
+            }
         }
     }
 }
