@@ -4663,7 +4663,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1748825439, guid: 0c83974d93165d348b328214ca2657f5, type: 3}
+  m_Sprite: {fileID: 1763468891, guid: 60dd477a21b05c9439c7d65ebd00f7fb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5622,6 +5622,7 @@ MonoBehaviour:
   playerUIPrefab: {fileID: 8962749516033509532, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   playerSpriteRenderer: {fileID: 4653082698377534761, guid: 4409161bf95071a41bb0364faa83899f, type: 3}
   monsterNumber: {fileID: 576923598}
+  skillCooldownTimers: []
   gameOverPanel: {fileID: 1343091816}
   restartButton: {fileID: 970196010}
   ExitButton: {fileID: 1220931519}

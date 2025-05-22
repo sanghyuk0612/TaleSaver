@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -72,6 +73,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float agilitySpeedMultiplier; // AGI 레벨에 따른 이동속도 배율
     [SerializeField] private float calculatedMoveSpeed; // AGI 레벨 적용된 실제 이동속도
     [SerializeField] private float agilityCooldownMultiplier; // AGI 레벨에 따른 쿨타임 감소 배율
+
+    [Header("인벤토리 디버그")]
+    [SerializeField] private List<int> currentInventoryItems = new List<int>();
+    [SerializeField] private List<string> currentInventoryItemNames = new List<string>();
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
@@ -629,6 +634,16 @@ public class GameManager : MonoBehaviour
         // 실제 변경된 체력량
         int actualChange = currentPlayerHealth - previousHealth;
 
+        // 체력이 0 이하가 되었을 때 피닉스 아이템 체크
+        if (currentPlayerHealth <= 0)
+        {
+            if (CheckAndUsePhoenix())
+            {
+                // 부활 성공 시 추가 처리 없음 (CheckAndUsePhoenix에서 모두 처리)
+                return;
+            }
+        }
+
         Debug.Log($"체력 변경 - 이전: {previousHealth}, 이후: {currentPlayerHealth}, 실제 변경량: {actualChange}");
 
         // PlayerController의 체력 동기화 처리 개선
@@ -670,7 +685,20 @@ public class GameManager : MonoBehaviour
             {
                 int baseMaxHealth = CurrentCharacter.maxHealth;
                 int vitalityLevel = CurrentCharacter.vitality;
-                return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+                float healthMultiplier = 1 + (vitalityLevel * 0.1f);
+                
+                // 덤벨 아이템 효과 적용 (ID: 5)
+                bool hasDumbbell = InventoryManager.Instance != null && 
+                                 InventoryManager.Instance.inventory != null && 
+                                 InventoryManager.Instance.inventory.items != null && 
+                                 InventoryManager.Instance.inventory.items.Contains(5);
+                
+                if (hasDumbbell)
+                {
+                    healthMultiplier *= 1.15f;
+                }
+                
+                return Mathf.RoundToInt(baseMaxHealth * healthMultiplier);
             }
             return playerMaxHealth;
         }
@@ -682,7 +710,20 @@ public class GameManager : MonoBehaviour
         {
             int baseMaxHealth = CurrentCharacter.maxHealth;
             int vitalityLevel = CurrentCharacter.vitality;
-            return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+            float healthMultiplier = 1 + (vitalityLevel * 0.1f);
+            
+            // 덤벨 아이템 효과 적용 (ID: 5)
+            bool hasDumbbell = InventoryManager.Instance != null && 
+                             InventoryManager.Instance.inventory != null && 
+                             InventoryManager.Instance.inventory.items != null && 
+                             InventoryManager.Instance.inventory.items.Contains(5);
+            
+            if (hasDumbbell)
+            {
+                healthMultiplier *= 1.15f;
+            }
+            
+            return Mathf.RoundToInt(baseMaxHealth * healthMultiplier);
         }
         return playerMaxHealth;
     }
@@ -765,6 +806,45 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Boss ClearTime 저장됨: {clearTime}초");
     }
 
+    // 피닉스 아이템 체크 및 부활 처리 메서드
+    public bool CheckAndUsePhoenix()
+    {
+        // 피닉스 아이템 보유 여부 확인 (ID: 11)
+        bool hasPhoenix = InventoryManager.Instance != null && 
+                         InventoryManager.Instance.inventory != null && 
+                         InventoryManager.Instance.inventory.items != null && 
+                         InventoryManager.Instance.inventory.items.Contains(11);
+
+        if (hasPhoenix)
+        {
+            // 최대 체력의 25%로 부활
+            currentPlayerHealth = Mathf.RoundToInt(MaxHealth * 0.25f);
+            Debug.Log($"피닉스 아이템으로 부활! 체력이 {currentPlayerHealth}로 회복되었습니다.");
+
+            // 피닉스 아이템 제거
+            InventoryManager.Instance.inventory.items.Remove(11);
+            Debug.Log("피닉스 아이템이 소모되었습니다.");
+
+            // PlayerController 체력 업데이트
+            PlayerController playerController = FindObjectOfType<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.UpdateHealth(currentPlayerHealth);
+                
+                // PlayerUI 업데이트
+                PlayerUI playerUI = FindObjectOfType<PlayerUI>();
+                if (playerUI != null)
+                {
+                    float healthPercent = (float)currentPlayerHealth / MaxHealth;
+                    playerUI.UpdateHealthSlider(healthPercent);
+                }
+            }
+
+            return true; // 부활 성공
+        }
+
+        return false; // 부활 실패
+    }
 
     // 게임오버 UI 표시 메서드
     public void ShowGameOver()
@@ -808,13 +888,20 @@ public class GameManager : MonoBehaviour
             string playerId = FirebaseAuthManager.Instance.GetUserId();
             string characterName = GameManager.Instance.CurrentCharacter?.characterName ?? "Unknown";
 
-            RankingManager.QueueSaveRequest(playerId, characterName, clearTime); // ✅ 이 static 메서드도 RankingManager.cs에 추가해야 함
+            RankingManager.QueueSaveRequest(playerId, characterName, clearTime);
         }
 
-        // BossStage라도 플레이어가 죽은 경우 Game Over UI를 띄움
         // 실제 사망 여부를 PlayerController.IsDead로 확인
         bool isPlayerDead = PlayerController.IsDead;
 
+        // 피닉스 아이템 체크 및 부활 시도
+        if (isPlayerDead && CheckAndUsePhoenix())
+        {
+            Debug.Log("✅ 피닉스 아이템으로 부활 - Game Over UI는 표시하지 않음");
+            return;
+        }
+
+        // BossStage라도 플레이어가 죽은 경우 Game Over UI를 띄움
         if (isBossStage && !isPlayerDead)
         {
             Debug.Log("✅ 보스 클리어 - Game Over UI는 표시하지 않음");
@@ -915,10 +1002,34 @@ public class GameManager : MonoBehaviour
 
             // 데미지 배율 계산
             strDamageMultiplier = 1 + (currentStrLevel * 0.1f);
-
+            
+            // 롱소드 아이템 효과 적용 (ID: 2)
+            bool hasLongSword = InventoryManager.Instance != null && 
+                              InventoryManager.Instance.inventory != null && 
+                              InventoryManager.Instance.inventory.items != null && 
+                              InventoryManager.Instance.inventory.items.Contains(2);
+            
+            if (hasLongSword)
+            {
+                strDamageMultiplier *= 1.15f;
+            }
+            
             // 최대 체력 계산
             int baseMaxHealth = CurrentCharacter.maxHealth;
-            calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + (currentVitLevel * 0.1f)));
+            float healthMultiplier = 1 + (currentVitLevel * 0.1f);
+            
+            // 덤벨 아이템 효과 적용 (ID: 5)
+            bool hasDumbbell = InventoryManager.Instance != null && 
+                             InventoryManager.Instance.inventory != null && 
+                             InventoryManager.Instance.inventory.items != null && 
+                             InventoryManager.Instance.inventory.items.Contains(5);
+            
+            if (hasDumbbell)
+            {
+                healthMultiplier *= 1.15f;
+            }
+            
+            calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * healthMultiplier);
 
             // AGI 레벨에 따른 이동속도 배율 계산
             agilitySpeedMultiplier = 1 + (currentAgiLevel * 0.04f);
@@ -928,6 +1039,9 @@ public class GameManager : MonoBehaviour
             agilityCooldownMultiplier = 1f - (currentAgiLevel * 0.1f);
             // 쿨타임이 음수가 되지 않도록 보정
             agilityCooldownMultiplier = Mathf.Max(agilityCooldownMultiplier, 0.1f);
+
+            // 인벤토리 아이템 정보 업데이트
+            UpdateInventoryDebugInfo();
         }
         else
         {
@@ -941,7 +1055,41 @@ public class GameManager : MonoBehaviour
             agilitySpeedMultiplier = 1.0f;
             calculatedMoveSpeed = Mathf.RoundToInt(playerMoveSpeed);
             agilityCooldownMultiplier = 1.0f;
+            currentInventoryItems.Clear();
+            currentInventoryItemNames.Clear();
         }
+    }
+
+    // 인벤토리 디버그 정보 업데이트
+    private void UpdateInventoryDebugInfo()
+    {
+        if (InventoryManager.Instance != null && InventoryManager.Instance.inventory != null)
+        {
+            currentInventoryItems = new List<int>(InventoryManager.Instance.inventory.items);
+            currentInventoryItemNames.Clear();
+            
+            // 아이템 ID를 이름으로 변환
+            foreach (int itemId in currentInventoryItems)
+            {
+                string itemName = GetItemNameById(itemId);
+                currentInventoryItemNames.Add(itemName);
+            }
+        }
+        else
+        {
+            currentInventoryItems.Clear();
+            currentInventoryItemNames.Clear();
+        }
+    }
+
+    // 아이템 ID로 이름 가져오기
+    private string GetItemNameById(int itemId)
+    {
+        if (itemId >= 0 && itemId < ItemListData.items.Count)
+        {
+            return ItemListData.items[itemId].name;
+        }
+        return $"Unknown Item (ID: {itemId})";
     }
 
 }

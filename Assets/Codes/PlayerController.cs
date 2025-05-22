@@ -616,6 +616,16 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 체력이 0 이하면 사망 처리
         if (currentHealth <= 0 && !IsDead)
         {
+            // 피닉스 아이템 체크 및 부활 시도
+            if (GameManager.Instance.CheckAndUsePhoenix())
+            {
+                // 부활 성공 시 현재 체력 업데이트
+                currentHealth = GameManager.Instance.CurrentPlayerHealth;
+                UpdateHealthUI();
+                return;
+            }
+            
+            // 피닉스 아이템이 없거나 부활 실패 시 사망 처리
             Die();
         }
     }
@@ -762,6 +772,16 @@ public class PlayerController : MonoBehaviour, IDamageable
         // 체력이 0이 되면 사망 처리
         if (currentHealth <= 0 && !IsDead)
         {
+            // 피닉스 아이템 체크 및 부활 시도
+            if (GameManager.Instance.CheckAndUsePhoenix())
+            {
+                // 부활 성공 시 현재 체력 업데이트
+                currentHealth = GameManager.Instance.CurrentPlayerHealth;
+                UpdateHealthUI();
+                return;
+            }
+            
+            // 피닉스 아이템이 없거나 부활 실패 시 사망 처리
             Die();
         }
         
