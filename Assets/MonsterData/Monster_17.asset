@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Cave_Monster_17
   health: 100
   damage: 10
+  expReward: 20
   moveSpeed: 7
   isRanged: 1
   MonsterPrefab: {fileID: 8035280686031390321, guid: 786cb9d3d379f3f42a0250e2b7a1ce4b, type: 3}

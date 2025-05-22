@@ -10,7 +10,7 @@ public class MonsterData : ScriptableObject
     public int health;
     public int damage;
     public int expReward;
-    public float moveSpeed; 
+    public float moveSpeed;
     public bool isRanged;
 
     [Header("Visuals")]

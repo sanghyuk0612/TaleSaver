@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Lab_Monster_05
   health: 100
   damage: 10
+  expReward: 40
   moveSpeed: 7
   isRanged: 0
   MonsterPrefab: {fileID: 61605681505913532, guid: 6a74a787d51f7d24c95c5b64b18e3db5, type: 3}

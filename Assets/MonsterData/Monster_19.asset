@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Ice_Monster_19
   health: 100
   damage: 10
+  expReward: 20
   moveSpeed: 7
   isRanged: 0
   MonsterPrefab: {fileID: 4942595661954804564, guid: 1113057115e49aa49b17c3e1827ab5a2, type: 3}

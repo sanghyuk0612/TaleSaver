@@ -15,6 +15,7 @@ MonoBehaviour:
   monsterName: Cave/Lab_Monster_04
   health: 100
   damage: 10
+  expReward: 30
   moveSpeed: 7
   isRanged: 0
   MonsterPrefab: {fileID: 1606262430309391314, guid: a1be7e2a87bf08c419991ec3d24d40e9, type: 3}
