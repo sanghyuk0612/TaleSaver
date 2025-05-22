@@ -30,6 +30,7 @@ public class CharacterData : ScriptableObject
     public GameObject ultimoEffectOverride;
     public GameObject healEffectOverride;
 
+    public CharacterManager characterManager;
 
     // 스킬 초기화 메서드
     public void InitializeSkills()
@@ -49,4 +50,33 @@ public class CharacterData : ScriptableObject
             Debug.LogWarning("스킬 배열의 길이는 4여야 합니다.");
         }
     }
+
+
+    public void GainExperience(int amount)
+    {
+        currentExp += amount;
+        Debug.Log($"{characterName} gained {amount} EXP. Current EXP: {currentExp}/{expToLevelUp}");
+
+        while (currentExp >= expToLevelUp)
+        {
+            currentExp -= expToLevelUp;
+            LevelUp();
+        }
+
+        // ✅ 경험치 변화 시 저장 트리거
+        if (characterManager != null)
+        {
+            characterManager.SaveCharacterStats(); // 저장 실행
+        }
+    }
+
+    private void LevelUp()
+    {
+        level++;
+
+        expToLevelUp = Mathf.RoundToInt(expToLevelUp * 1.2f); // 난이도 점진 증가
+
+        Debug.Log($"{characterName} leveled up to {level}!");
+    }
+
 }

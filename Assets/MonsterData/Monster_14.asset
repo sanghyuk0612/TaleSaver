@@ -15,7 +15,7 @@ MonoBehaviour:
   monsterName: Lava/Ice_Monster_14
   health: 100
   damage: 10
-  expReward: 20
+  expReward: 5
   moveSpeed: 7
   isRanged: 1
   MonsterPrefab: {fileID: 3492214744101402302, guid: d3e7e94ef6275914eb27012eb64ff433, type: 3}

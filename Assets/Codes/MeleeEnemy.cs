@@ -166,7 +166,7 @@ public class MeleeEnemy : MonoBehaviour
             Debug.Log("Debug: Monster health set to 0 manually.");
             Die();
         }
-        
+
     }
 
     public void ApplyMonsterData(MonsterData data)
@@ -309,7 +309,7 @@ public class MeleeEnemy : MonoBehaviour
         }
 
         Debug.Log("MeleeEnemy died.");
-        
+
         // 5초 후 게임 오브젝트 제거
         StartCoroutine(DestroyAfterDelay(1f));
     }
@@ -319,6 +319,7 @@ public class MeleeEnemy : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Destroy(gameObject); // 완전히 삭제
+        GiveExpToPlayer();
 
         // 아이템 드롭
         if (itemPrefab != null)
@@ -326,5 +327,10 @@ public class MeleeEnemy : MonoBehaviour
             DroppedItem droppedItem = Instantiate(itemPrefab, transform.position, Quaternion.identity).GetComponent<DroppedItem>();
             droppedItem.DropItem();
         }
+    }
+
+    private void GiveExpToPlayer()
+    {
+        GameManager.Instance.CurrentCharacter.GainExperience(expReward);
     }
 }
