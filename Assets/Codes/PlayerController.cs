@@ -199,6 +199,26 @@ public class PlayerController : MonoBehaviour, IDamageable
         Debug.Log($"체력 초기화: 현재={currentHealth}, 최대={maxHealth}");
     }
 
+    // 점프력 계산 메서드 추가
+    private float CalculateJumpForce()
+    {
+        float baseJumpForce = jumpForce;
+        
+        // 작은 날개 아이템 효과 적용 (ID: 18)
+        bool hasSmallWings = InventoryManager.Instance != null && 
+                           InventoryManager.Instance.inventory != null && 
+                           InventoryManager.Instance.inventory.items != null && 
+                           InventoryManager.Instance.inventory.items.Contains(18);
+        
+        if (hasSmallWings)
+        {
+            baseJumpForce *= 1.15f; // 15% 증가
+            Debug.Log("작은 날개 아이템 효과로 점프력 15% 증가");
+        }
+        
+        return baseJumpForce;
+    }
+
     void FixedUpdate()
     {
         CheckGround();
@@ -274,7 +294,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             if (IsGrounded)
             {
                 rb.velocity = new Vector2(rb.velocity.x, 2f);
-                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(Vector2.up * CalculateJumpForce(), ForceMode2D.Impulse);
                 remainingJumps = maxJumpCount; // 점프 횟수 초기화
                 hasJumped = false; // 점프 상태 초기화
             }
@@ -282,7 +302,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             else if (remainingJumps > 0 && !hasJumped)
             {
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
-                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(Vector2.up * CalculateJumpForce(), ForceMode2D.Impulse);
                 remainingJumps = 0; // 점프 횟수를 0으로 고정
                 hasJumped = true; // 점프 상태 설정
             }
@@ -290,7 +310,7 @@ public class PlayerController : MonoBehaviour, IDamageable
             else if (remainingJumps > 0)
             {
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
-                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                rb.AddForce(Vector2.up * CalculateJumpForce(), ForceMode2D.Impulse);
                 remainingJumps--; // 점프 횟수 감소
                 hasJumped = true; // 점프 상태 설정
             }

@@ -601,13 +601,26 @@ public class GameManager : MonoBehaviour
         // AGI 레벨에 따른 쿨타임 감소 적용
         int agilityLevel = CurrentCharacter.agility;
         float cooldownMultiplier = 1f - (agilityLevel * 0.1f);
+        
+        // 윤활유 아이템 효과 적용 (ID: 9)
+        bool hasLubricant = InventoryManager.Instance != null && 
+                          InventoryManager.Instance.inventory != null && 
+                          InventoryManager.Instance.inventory.items != null && 
+                          InventoryManager.Instance.inventory.items.Contains(9);
+        
+        if (hasLubricant)
+        {
+            cooldownMultiplier *= 0.9f; // 10% 추가 감소
+            Debug.Log("윤활유 아이템 효과로 쿨타임 10% 추가 감소");
+        }
+        
         // 쿨타임이 음수가 되지 않도록 보정 (AGI 레벨이 10 이상인 경우)
         cooldownMultiplier = Mathf.Max(cooldownMultiplier, 0.1f); // 최소 10%의 쿨타임은 유지
 
         float adjustedCooldown = skill.skillCooldown * cooldownMultiplier;
         skillCooldownTimers[skillIndex] = adjustedCooldown; // 조정된 쿨타임 설정
         SkillUIManager.Instance.TriggerSkillCooldown(skill);
-        Debug.Log($"스킬 '{skill.skillName}' 쿨타임 조정: 기본({skill.skillCooldown}초) * 배율({cooldownMultiplier:F2}) = {adjustedCooldown:F2}초 (AGI 레벨: {agilityLevel})");
+        Debug.Log($"스킬 '{skill.skillName}' 쿨타임 조정: 기본({skill.skillCooldown}초) * 배율({cooldownMultiplier:F2}) = {adjustedCooldown:F2}초 (AGI 레벨: {agilityLevel}, 윤활유 보유: {hasLubricant})");
     }
 
     public void ModifyHealth(int amount)
