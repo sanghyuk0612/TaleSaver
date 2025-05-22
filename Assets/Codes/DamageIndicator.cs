@@ -16,16 +16,24 @@ public class DamageIndicator : MonoBehaviour
 
     public void Initialize(int damage, Color color)
     {
-        damageText.text = damage.ToString();
-        damageText.color = color;
-        StartCoroutine(FadeOut());
+        if (damageText != null)
+        {
+            damageText.text = damage.ToString();
+            damageText.color = color;
+            Debug.Log($"데미지 인디케이터 초기화: damage={damage}, color={color}");
+            StartCoroutine(FadeOut());
+        }
+        else
+        {
+            Debug.LogError("TextMeshPro 컴포넌트가 없습니다!");
+        }
     }
 
     private IEnumerator FadeOut()
     {
         float elapsedTime = 0f;
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = startPosition + Vector3.up * 2f; // 위로 2유닛 이동
+        Vector3 targetPosition = startPosition + Vector3.up * 2f; // 위로 1유닛 이동
         Color startColor = damageText.color;
 
         while (elapsedTime < lifeTime)
@@ -44,4 +52,4 @@ public class DamageIndicator : MonoBehaviour
 
         Destroy(gameObject);
     }
-} 
+}

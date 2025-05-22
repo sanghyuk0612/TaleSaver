@@ -678,6 +678,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (DamageIndicatorManager.Instance != null)
         {
             DamageIndicatorManager.Instance.ShowDamageIndicator(transform.position, Mathf.RoundToInt(finalDamage), true);
+            Debug.Log($"데미지 인디케이터 표시 {finalDamage}");
         }
 
         int i = Random.Range(0, 2);

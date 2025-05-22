@@ -30,6 +30,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _GradientScale: 10
+    - _ScaleRatioA: 0.9
+    - _ScaleRatioB: 0.73125
+    - _ScaleRatioC: 0.5298913
     - _TextureHeight: 1024
     - _TextureWidth: 1024
     m_Colors: []

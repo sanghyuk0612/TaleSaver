@@ -20,11 +20,11 @@ public class HealIndicatorManager : MonoBehaviour
         }
     }
 
-    public void ShowHealIndicator(Vector3 position, int heal)
+    public void ShowHealIndicator(Vector3 position, int healAmount)
     {
         if (healIndicatorPrefab == null)
         {
-            Debug.LogWarning("Heal Indicator Prefab이 설정되지 않았습니다!");
+            Debug.LogError("HealIndicator 프리팹이 설정되지 않았습니다!");
             return;
         }
 
@@ -35,8 +35,12 @@ public class HealIndicatorManager : MonoBehaviour
         HealIndicator healIndicator = indicator.GetComponent<HealIndicator>();
         if (healIndicator != null)
         {
-            Color indicatorColor = Color.green;
-            healIndicator.Initialize(heal, indicatorColor);
+            healIndicator.Initialize(healAmount, Color.green);
+            Debug.Log($"힐 인디케이터 생성: healAmount={healAmount}");
+        }
+        else
+        {
+            Debug.LogError("HealIndicator 컴포넌트를 찾을 수 없습니다!");
         }
     }
 } 

@@ -12,13 +12,25 @@ public class HealIndicator : MonoBehaviour
     private void Awake()
     {
         healText = GetComponent<TextMeshPro>();
+        if (healText == null)
+        {
+            Debug.LogError("TextMeshPro 컴포넌트를 찾을 수 없습니다!");
+        }
     }
 
     public void Initialize(int heal, Color color)
     {
-        healText.text = heal.ToString();
-        healText.color = color;
-        StartCoroutine(FadeOut());
+        if (healText != null)
+        {
+            healText.text = heal.ToString();
+            healText.color = color;
+            Debug.Log($"힐 인디케이터 초기화: heal={heal}, color={color}");
+            StartCoroutine(FadeOut());
+        }
+        else
+        {
+            Debug.LogError("TextMeshPro 컴포넌트가 없습니다!");
+        }
     }
 
     private IEnumerator FadeOut()

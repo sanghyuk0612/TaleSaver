@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4543400774435758966}
   - component: {fileID: 3753974655843242734}
   - component: {fileID: 3834025896796718654}
+  - component: {fileID: -3161206995833800811}
   m_Layer: 0
   m_Name: HealIndicator
   m_TagString: Untagged
@@ -77,7 +78,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &3834025896796718654
 MonoBehaviour:
@@ -171,3 +172,15 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3753974655843242734}
   m_maskType: 0
+--- !u!114 &-3161206995833800811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6402878051241672252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6272314d3d578d64987a5cc227a163d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
