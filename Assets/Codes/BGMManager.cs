@@ -19,6 +19,11 @@ public class BGMManager : MonoBehaviour
     public AudioClip demagedSE;
     public AudioClip demagedSE2;
 
+    public GameObject sfxCheckMark; // ✅ 효과음 체크 표시 오브젝트
+    public Sprite sfxOnSprite;  // 효과음 켜짐 이미지
+    public Sprite sfxOffSprite; // 효과음 꺼짐 이미지
+    public Image sfxButtonImage;  // 버튼 안의 아이콘 이미지 (Image 컴포넌트)
+
     public AudioSource bgmSource;  // 🎵 BGM 전용
     public AudioSource seSource;   // 🔊 SE 전용
     public Text bgmButtonText;
@@ -49,6 +54,12 @@ public class BGMManager : MonoBehaviour
         bgmSource.clip = lobbyBGM;
         bgmSource.loop = true;
         bgmSource.Play();
+
+        if (sfxCheckMark != null)
+            sfxCheckMark.SetActive(isSFXOn); // 시작 시 체크 상태 적용
+
+        if (sfxButtonImage != null)
+            sfxButtonImage.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -81,6 +92,12 @@ public class BGMManager : MonoBehaviour
         isSFXOn = !isSFXOn;
         seSource.mute = !isSFXOn;
         sfxButtonText.text = isSFXOn ? "효과음 끄기" : "효과음 키기";
+
+        if (sfxCheckMark != null)
+            sfxCheckMark.SetActive(isSFXOn);
+
+        if (sfxButtonImage != null)
+            sfxButtonImage.sprite = isSFXOn ? sfxOnSprite : sfxOffSprite;
     }
 
     public void OnBGMVolumeChanged(float volume)

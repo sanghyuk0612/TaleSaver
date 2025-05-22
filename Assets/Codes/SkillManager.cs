@@ -255,6 +255,7 @@ public class SkillManager : MonoBehaviour
                     Debug.LogError("Player object not found!");
                     return;
                 }
+                BGMManager.instance.PlaySE(BGMManager.instance.blackBirdSE,1.5f);
 
                 // 플레이어 위치에서 약간 앞쪽에 파이어볼 생성
                 fireballPosition = playerObject_fireball.transform.position;
@@ -401,7 +402,7 @@ public class SkillManager : MonoBehaviour
                             else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                             {
                                 Debug.Log($"Starting poison effect on RangedEnemy: {enemy.name}");
-                                //StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
+                                StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
                             }
                         }
                         // flipX가 안되어있으면 오른쪽 방향만 인식
@@ -417,7 +418,7 @@ public class SkillManager : MonoBehaviour
                             else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                             {
                                 Debug.Log($"Starting poison effect on RangedEnemy: {enemy.name}");
-                                //StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
+                                StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
                             }
                         }
                         else
@@ -674,6 +675,12 @@ public class SkillManager : MonoBehaviour
                         Destroy(healFX, 1.0f);
                     }
 
+                    // 회복 인디케이터 표시
+                    if (HealIndicatorManager.Instance != null)
+                    {
+                        HealIndicatorManager.Instance.ShowHealIndicator(playerCtrl.transform.position, actualHealAmount);
+                    }
+
                     // PlayerController 직접 찾아서 체력 동기화
                     if (playerCtrl != null)
                     {
@@ -791,7 +798,7 @@ public class SkillManager : MonoBehaviour
         Debug.Log($"Poison effect on MeleeEnemy: {enemy.name} has ended. Total damage: {initialHealth - meleeEnemy.currentHealth}");
     }
 
-    /*private IEnumerator ApplyPoisonEffectRanged(CharacterSkill skill, GameObject enemy, int effectTime)
+    private IEnumerator ApplyPoisonEffectRanged(CharacterSkill skill, GameObject enemy, int effectTime)
     {
         // effectValue를 float로 변환
         float damagePerSecond;
@@ -831,7 +838,7 @@ public class SkillManager : MonoBehaviour
         }
 
 
-        /*while (elapsedTime < effectTime && enemy != null && enemy.activeInHierarchy)
+        while (elapsedTime < effectTime && enemy != null && enemy.activeInHierarchy)
         {
             // 적에게 독 데미지 적용
             rangedEnemy.TakeDamage(damagePerSecond);
@@ -839,10 +846,10 @@ public class SkillManager : MonoBehaviour
 
             elapsedTime += 1f; // 1초 경과
             yield return new WaitForSeconds(1f); // 1초 대기
-        }*/
+        }
 
-       /* Debug.Log($"Poison effect on RangedEnemy: {enemy.name} has ended. Total damage: {initialHealth - rangedEnemy.currentHealth}");
-    }*/
+        Debug.Log($"Poison effect on RangedEnemy: {enemy.name} has ended. Total damage: {initialHealth - rangedEnemy.currentHealth}");
+    }
 
     private IEnumerator DelayedDamage(MeleeEnemy enemy, float damage, float delay)
     {
