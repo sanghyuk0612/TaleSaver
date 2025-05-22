@@ -5990,8 +5990,6 @@ MonoBehaviour:
   demagedSE: {fileID: 8300000, guid: d9fbfdba65ce248469ec104df6770b4f, type: 3}
   demagedSE2: {fileID: 8300000, guid: 4912fc0c5535a294b9a4c50439aaf125, type: 3}
   sfxCheckMark: {fileID: 0}
-  sfxOnSprite: {fileID: 21300000, guid: 79891b6e739a46547903ebc3adc49ffd, type: 3}
-  sfxOffSprite: {fileID: 21300000, guid: 2b50e36bf5dc1c643a8c814bd66ed007, type: 3}
   sfxButtonImage: {fileID: 0}
   bgmSource: {fileID: 1052128392}
   seSource: {fileID: 1052128390}
@@ -5999,6 +5997,8 @@ MonoBehaviour:
   sfxButtonText: {fileID: 0}
   bgmSlider: {fileID: 0}
   sfxSlider: {fileID: 0}
+  bgmButton: {fileID: 0}
+  sfxButton: {fileID: 0}
 --- !u!82 &1052128392
 AudioSource:
   m_ObjectHideFlags: 0
