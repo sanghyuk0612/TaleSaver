@@ -410,6 +410,20 @@ private IEnumerator StopMovement(float stopDuration)
     {
         isDead=true;
         attackDamage=0;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+            rb.useGravity = false;
+        // 4. Rigidbody2D 제거 (2D 중력 포함)
+        foreach (var rb2D in GetComponentsInChildren<Rigidbody2D>())
+        {
+            Destroy(rb2D);
+        }
+        
+        Collider2D[] colliders2D = GetComponentsInChildren<Collider2D>();
+        foreach (var col in colliders2D)
+        {
+            Destroy(col);
+        }
         if (calculatedHealth <= 0)
         {
             //DropItem();
