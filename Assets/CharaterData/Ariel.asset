@@ -16,7 +16,11 @@ MonoBehaviour:
   characterSprite: {fileID: 2537882373423050008, guid: 6f5febe56d7878640b005a9e9bfd5f2b, type: 3}
   animatorController: {fileID: 9100000, guid: 511da66ad9f62eb45aa0603487c32286, type: 2}
   level: 1
-  description: "\uC124\uBA85"
+  currentExp: 0
+  expToLevelUp: 100
+  description: "\uC5D0\uB9AC\uC5BC (\uC778\uC5B4\uACF5\uC8FC) \uC778\uAC04 \uC138\uACC4\uB97C
+    \uB3D9\uACBD\uD558\uB294 \uD638\uAE30\uC2EC \uB9CE\uC740 \uC778\uC5B4. \uBB3C\uC18D\uACFC
+    \uC721\uC9C0\uB97C \uB118\uB098\uB4DC\uB294 \uB9C8\uBC95\uC744 \uC9C0\uB2CC\uB2E4."
   vitality: 0
   power: 0
   agility: 0
@@ -31,3 +35,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  fireballEffectOverride: {fileID: 0}
+  baseGEffectOverride: {fileID: 0}
+  ultimoEffectOverride: {fileID: 0}
+  healEffectOverride: {fileID: 0}
+  characterManager: {fileID: 0}

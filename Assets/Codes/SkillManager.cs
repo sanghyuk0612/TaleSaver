@@ -255,6 +255,7 @@ public class SkillManager : MonoBehaviour
                     Debug.LogError("Player object not found!");
                     return;
                 }
+                BGMManager.instance.PlaySE(BGMManager.instance.blackBirdSE,1.5f);
 
                 // 플레이어 위치에서 약간 앞쪽에 파이어볼 생성
                 fireballPosition = playerObject_fireball.transform.position;
