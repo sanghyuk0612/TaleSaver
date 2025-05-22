@@ -63,7 +63,7 @@ public class InventoryManager : MonoBehaviour
                 break;
             case 7: inventory.battery += quantity; break;
             case 8 :
-                inventory.items.Add(id);
+                inventory.items.Add(quantity);
                 break;
         }
 
