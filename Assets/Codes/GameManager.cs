@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float playTime;
     [SerializeField] public int location = 5;
     [SerializeField] public int npcShow = 1;
+
+    // 인벤토리 디버그 정보를 위한 변수들
+    private List<int> currentInventoryItems = new List<int>();
+    private List<string> currentInventoryItemNames = new List<string>();
 
     private int lastStageBeforeStore = -1;
 
@@ -670,7 +675,20 @@ public class GameManager : MonoBehaviour
             {
                 int baseMaxHealth = CurrentCharacter.maxHealth;
                 int vitalityLevel = CurrentCharacter.vitality;
-                return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+                float healthMultiplier = 1 + (vitalityLevel * 0.1f);
+                
+                // 덤벨 아이템 효과 적용 (ID: 5)
+                bool hasDumbbell = InventoryManager.Instance != null && 
+                                 InventoryManager.Instance.inventory != null && 
+                                 InventoryManager.Instance.inventory.items != null && 
+                                 InventoryManager.Instance.inventory.items.Contains(5);
+                
+                if (hasDumbbell)
+                {
+                    healthMultiplier *= 1.15f;
+                }
+                
+                return Mathf.RoundToInt(baseMaxHealth * healthMultiplier);
             }
             return playerMaxHealth;
         }
@@ -682,7 +700,20 @@ public class GameManager : MonoBehaviour
         {
             int baseMaxHealth = CurrentCharacter.maxHealth;
             int vitalityLevel = CurrentCharacter.vitality;
-            return Mathf.RoundToInt(baseMaxHealth * (1 + vitalityLevel * 0.1f));
+            float healthMultiplier = 1 + (vitalityLevel * 0.1f);
+            
+            // 덤벨 아이템 효과 적용 (ID: 5)
+            bool hasDumbbell = InventoryManager.Instance != null && 
+                             InventoryManager.Instance.inventory != null && 
+                             InventoryManager.Instance.inventory.items != null && 
+                             InventoryManager.Instance.inventory.items.Contains(5);
+            
+            if (hasDumbbell)
+            {
+                healthMultiplier *= 1.15f;
+            }
+            
+            return Mathf.RoundToInt(baseMaxHealth * healthMultiplier);
         }
         return playerMaxHealth;
     }
@@ -915,10 +946,34 @@ public class GameManager : MonoBehaviour
 
             // 데미지 배율 계산
             strDamageMultiplier = 1 + (currentStrLevel * 0.1f);
-
+            
+            // 롱소드 아이템 효과 적용 (ID: 2)
+            bool hasLongSword = InventoryManager.Instance != null && 
+                              InventoryManager.Instance.inventory != null && 
+                              InventoryManager.Instance.inventory.items != null && 
+                              InventoryManager.Instance.inventory.items.Contains(2);
+            
+            if (hasLongSword)
+            {
+                strDamageMultiplier *= 1.15f;
+            }
+            
             // 최대 체력 계산
             int baseMaxHealth = CurrentCharacter.maxHealth;
-            calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * (1 + (currentVitLevel * 0.1f)));
+            float healthMultiplier = 1 + (currentVitLevel * 0.1f);
+            
+            // 덤벨 아이템 효과 적용 (ID: 5)
+            bool hasDumbbell = InventoryManager.Instance != null && 
+                             InventoryManager.Instance.inventory != null && 
+                             InventoryManager.Instance.inventory.items != null && 
+                             InventoryManager.Instance.inventory.items.Contains(5);
+            
+            if (hasDumbbell)
+            {
+                healthMultiplier *= 1.15f;
+            }
+            
+            calculatedMaxHealth = Mathf.RoundToInt(baseMaxHealth * healthMultiplier);
 
             // AGI 레벨에 따른 이동속도 배율 계산
             agilitySpeedMultiplier = 1 + (currentAgiLevel * 0.04f);
@@ -928,6 +983,9 @@ public class GameManager : MonoBehaviour
             agilityCooldownMultiplier = 1f - (currentAgiLevel * 0.1f);
             // 쿨타임이 음수가 되지 않도록 보정
             agilityCooldownMultiplier = Mathf.Max(agilityCooldownMultiplier, 0.1f);
+
+            // 인벤토리 아이템 정보 업데이트
+            UpdateInventoryDebugInfo();
         }
         else
         {
@@ -941,7 +999,41 @@ public class GameManager : MonoBehaviour
             agilitySpeedMultiplier = 1.0f;
             calculatedMoveSpeed = Mathf.RoundToInt(playerMoveSpeed);
             agilityCooldownMultiplier = 1.0f;
+            currentInventoryItems.Clear();
+            currentInventoryItemNames.Clear();
         }
+    }
+
+    // 인벤토리 디버그 정보 업데이트
+    private void UpdateInventoryDebugInfo()
+    {
+        if (InventoryManager.Instance != null && InventoryManager.Instance.inventory != null)
+        {
+            currentInventoryItems = new List<int>(InventoryManager.Instance.inventory.items);
+            currentInventoryItemNames.Clear();
+            
+            // 아이템 ID를 이름으로 변환
+            foreach (int itemId in currentInventoryItems)
+            {
+                string itemName = GetItemNameById(itemId);
+                currentInventoryItemNames.Add(itemName);
+            }
+        }
+        else
+        {
+            currentInventoryItems.Clear();
+            currentInventoryItemNames.Clear();
+        }
+    }
+
+    // 아이템 ID로 이름 가져오기
+    private string GetItemNameById(int itemId)
+    {
+        if (itemId >= 0 && itemId < ItemListData.items.Count)
+        {
+            return ItemListData.items[itemId].name;
+        }
+        return $"Unknown Item (ID: {itemId})";
     }
 
 }
