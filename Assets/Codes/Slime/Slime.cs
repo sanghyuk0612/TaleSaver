@@ -406,12 +406,13 @@ private IEnumerator StopMovement(float stopDuration)
         
         //SpawnManager.Instance.SpawnNPC();
         //GameManager.Instance.ShowGameOver();
+        Destroy(gameObject);
         StartCoroutine(DelayLoadScoreBoard());
     }
 
     private IEnumerator DelayLoadScoreBoard()
     {
-        yield return new WaitForSeconds(1.0f); // 🔥 저장할 시간 확보
+        yield return new WaitForSeconds(4.0f); // 🔥 저장할 시간 확보
         SceneManager.LoadScene("ScoreBoard");
     }
 
