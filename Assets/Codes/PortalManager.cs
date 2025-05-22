@@ -83,7 +83,7 @@ public class PortalManager : MonoBehaviour
         Debug.Log("updateEnemy: " + enemyNumber);
 
         if (enemyText != null)
-            enemyText.text = enemyNumber.ToString();
+            enemyText.text = killNumber.ToString();
     }
 
     public void killEnemy(int i)
@@ -91,13 +91,13 @@ public class PortalManager : MonoBehaviour
         killNumber += i;
         enemyNumber -= i;
 
-        if (killNumber >= 10)
+        if (killNumber == 10)
         {
             MapManager.Instance.SpawnPortal();
         }
 
         if (enemyText != null)
-            enemyText.text = enemyNumber.ToString();
+            enemyText.text = killNumber.ToString();
     }
 
     void Update()
