@@ -30,6 +30,9 @@ public class CharacterManager : MonoBehaviour
     public Text descriptionText;              // 캐릭터 설명 텍스트
     public Text levelText;                    // 캐릭터 레벨 텍스트
     public Text unlockConditionText;          // 캐릭터 해금조건 텍스트
+    public Text requireLevelupText;
+    public Text MachineText;
+    public Text ableupgrade;
 
     // 현재 선택된 캐릭터의 스프라이트를 저장할 변수
     private Sprite characterSprite;
@@ -83,6 +86,7 @@ public class CharacterManager : MonoBehaviour
     public Button upgradeButton;
     public Button unlockButton;
     public Button closeUpgradeButton;         // 업그레이드 창 닫기 버튼
+    public Button levelupButton;
 
     private int currentCharacterIndex = 0;
     private List<Button> characterButtons = new List<Button>(); // 동적 버튼 리스트
@@ -132,12 +136,12 @@ public class CharacterManager : MonoBehaviour
             character.power = PlayerPrefs.GetInt("CharacterPower_" + index, 0);
             character.agility = PlayerPrefs.GetInt("CharacterAgility_" + index, 0);
             character.luck = PlayerPrefs.GetInt("CharacterLuck_" + index, 0);
-
             // 캐릭터 잠금 상태 로드
             //character.isUnlocked = PlayerPrefs.GetInt("CharacterUnlocked_" + index, index == 1 ? 1 : 0) == 1;
         }
 
         unlockButton.onClick.AddListener(() => TryUnlockCharacterFirebase(currentCharacterIndex));
+        levelupButton.onClick.AddListener(() => TryLevelUpCharacterFirebase(currentCharacterIndex));
         backButton.onClick.AddListener(HideCharacterInfo);
         selectButton.onClick.AddListener(OnSelectButtonClick);
         upgradeButton.onClick.AddListener(ShowUpgradePanel);
@@ -392,7 +396,63 @@ public class CharacterManager : MonoBehaviour
     public void TryUnlockCharacterFirebase(int index)
     {
         StartCoroutine(HandleFirebaseUnlock(index));
+    }
+    public void TryLevelUpCharacterFirebase(int index)
+    {
+        StartCoroutine(HandleFirebaseLevelUp(index));
+    }
+    private IEnumerator HandleFirebaseLevelUp(int index)
+    {
+        var user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("❌ 로그인 정보 없음: CurrentUser is null");
+            yield break;
+        }
+        string uid = user.UserId;
+        var db = FirebaseFirestore.DefaultInstance;
+        var goodsRef = db.Collection("goods").Document(uid);
+        Debug.Log("레벨업 시도");
 
+        var task = goodsRef.GetSnapshotAsync();
+        yield return new WaitUntil(() => task.IsCompleted);
+        if (!task.Result.Exists)
+        {
+            Debug.LogError("❌ Firebase에 goods 데이터가 존재하지 않습니다.");
+            yield break;
+        }
+
+        var data = task.Result.ToDictionary();
+        int machineParts = Convert.ToInt32(data["machineparts"]);
+
+        CharacterData character = characters[index];
+        int intResult = Mathf.FloorToInt(Mathf.Sqrt(character.level));
+
+        if (machineParts < intResult)
+        {
+            Debug.Log("재화 부족으로 업그레이드 불가");
+            yield break;
+        }
+
+        // ✅ 재화 차감
+        machineParts -= intResult;
+
+        // ✅ Firestore에 재화 업데이트
+        Dictionary<string, object> updateData = new()
+    {
+        { "machineparts", machineParts }
+    };
+
+        yield return goodsRef.SetAsync(updateData).AsCoroutine();
+        SaveCharacterStats();
+        // ✅ Firebase에 해금 상태 저장 (별도 컬렉션)
+        // ✅ 로컬 상태 반영
+        Increaselevel();
+        requireLevelupText.text = "필요량 : " + intResult;
+        LobbyUI.Instance.machinePartsText.text = machineParts.ToString();
+        MachineText.text = "기계부품 보유량 : "+ LobbyUI.Instance.machinePartsText.text;
+        PlayerPrefs.Save();
+        Debug.Log("레벨업 성공");
     }
 
     private IEnumerator HandleFirebaseUnlock(int index)
@@ -512,6 +572,7 @@ public class CharacterManager : MonoBehaviour
         powerText.text = "POW: " + character.power;
         agilityText.text = "AGI: " + character.agility;
         luckText.text = "LUK: " + character.luck;
+        
         currentCharacterIndex = index;
 
         // 레벨 값의 -1과 비교
@@ -602,10 +663,13 @@ public class CharacterManager : MonoBehaviour
         powerText.text = "POW: " + character.power;
         agilityText.text = "AGI: " + character.agility;
         luckText.text = "LUK: " + character.luck;
+        requireLevelupText.text = "필요량 : " +Mathf.FloorToInt(Mathf.Sqrt(character.level));
+        MachineText.text = "기계부품 보유량 : "+ LobbyUI.Instance.machinePartsText.text;
+        
 
         // 레벨 값의 -1과 비교
         int totalIncrease = character.vitality + character.power + character.agility + character.luck;
-
+        ableupgrade.text = "업그레이드 가능치 : " + (character.level -1 -totalIncrease).ToString();
         if (totalIncrease == character.level - 1)
         {
             // 모든 버튼 비활성화
@@ -625,7 +689,19 @@ public class CharacterManager : MonoBehaviour
 
         Debug.Log($"Total Increase: {totalIncrease}, Level: {character.level}, Vitality: {character.vitality}, Power: {character.power}, Agility: {character.agility}, Luck: {character.luck}");
     }
+    public void Increaselevel()
+    {
+        CharacterData character = characters[currentCharacterIndex];
+        if (character.vitality < 999)
+        {
+            character.level++;
+            levelText.text = "LV. " + character.level;
+            SaveCharacterStats(); // 캐릭터 속성 저장
+        }
+        
 
+        LoadUpgradePanel();
+    }
 
     public void IncreaseVitality()
     {
@@ -639,6 +715,7 @@ public class CharacterManager : MonoBehaviour
 
         LoadUpgradePanel();
     }
+
 
     public void IncreasePower()
     {
@@ -877,9 +954,7 @@ public class CharacterManager : MonoBehaviour
         { "vitality", character.vitality },
         { "power", character.power },
         { "agility", character.agility },
-        { "luck", character.luck },
-        { "currentExp", character.currentExp },              
-        { "expToLevelUp", character.expToLevelUp }       
+        { "luck", character.luck }       
     };
 
         var docRef = FirebaseFirestore.DefaultInstance
@@ -942,15 +1017,13 @@ public class CharacterManager : MonoBehaviour
                 characters[i].luck = Convert.ToInt32(stats["luck"]);
 
                 // ✅ 추가
-                characters[i].currentExp = stats.ContainsKey("currentExp") ? Convert.ToInt32(stats["currentExp"]) : 0;
-                characters[i].expToLevelUp = stats.ContainsKey("expToLevelUp") ? Convert.ToInt32(stats["expToLevelUp"]) : 100;
 
                 // PlayerPrefs 동기화
                 PlayerPrefs.SetInt("CharacterLevel_" + i, characters[i].level);
                 PlayerPrefs.SetInt("CharacterVitality_" + i, characters[i].vitality);
                 PlayerPrefs.SetInt("CharacterPower_" + i, characters[i].power);
                 PlayerPrefs.SetInt("CharacterAgility_" + i, characters[i].agility);
-                    PlayerPrefs.SetInt("CharacterLuck_" + i, characters[i].luck);
+                PlayerPrefs.SetInt("CharacterLuck_" + i, characters[i].luck);
                 }
             }
 
