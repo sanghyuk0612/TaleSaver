@@ -16,8 +16,6 @@ MonoBehaviour:
   characterSprite: {fileID: 2537882373423050008, guid: dd2d53c25ba7a544bba5e38662cef2e7, type: 3}
   animatorController: {fileID: 9100000, guid: 4b7f29a8edd2b9d4e82a9fb8ae8374f6, type: 2}
   level: 1
-  currentExp: 0
-  expToLevelUp: 100
   description: "\uC624\uB204\uC774 (\uD574\uC640 \uB2EC\uB2D8 \uC624\uB204\uC774
     \u2013 \uC624\uBE60) \uB3D9\uC0DD\uC744 \uC9C0\uD0A4\uAE30 \uC704\uD574 \uBB34\uC5C7\uC774\uB4E0
     \uB6F0\uC5B4\uB4DC\uB294 \uB4EC\uC9C1\uD55C \uC624\uBE60. \uD574\uC758 \uD798\uC744
@@ -30,6 +28,7 @@ MonoBehaviour:
   isUnlocked: 0
   requiredmachineparts: 20
   requiredstorybookpages: 30
+  criticalChance: 0.1
   skills:
   - {fileID: 0}
   - {fileID: 0}
