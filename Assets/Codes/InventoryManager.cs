@@ -92,18 +92,28 @@ public class InventoryManager : MonoBehaviour
         {
             case 0: // 돌
                 inventory.stone -= quantity;
+                if (inventory.stone <= 0)
+                    inventory.stone = 0;
                 break;
             case 1: // 나무
                 inventory.tree -= quantity;
+                if (inventory.tree <= 0)
+                    inventory.tree = 0;
                 break;
             case 2: // 가죽
                 inventory.skin -= quantity;
+                if (inventory.skin <= 0)
+                    inventory.skin = 0;
                 break;
             case 3: // 철
                 inventory.steel -= quantity;
+                if (inventory.steel <= 0)
+                    inventory.steel = 0;
                 break;
             case 4: // 금
                 inventory.gold -= quantity;
+                if (inventory.gold <= 0)
+                    inventory.gold = 0;
                 break;
             case 5://기계 조각
                 inventory.machineparts -= quantity;

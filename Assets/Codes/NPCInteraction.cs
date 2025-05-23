@@ -118,12 +118,24 @@ public class NPCInteraction : MonoBehaviour
         // 랜덤 아이템 지급
         if (InventoryManager.Instance != null)
         {
-            int randomQuantity = Random.Range(0, 5);
+            int randomQuantity = Random.Range(-5, 5);
             int randomId = Random.Range(0, 5);
             string randomItemName = InventoryManager.Instance.GetItemNameById(randomId);
-            InventoryManager.Instance.AddItem(randomId, randomQuantity);
 
-            Debug.Log($"{randomItemName} 아이템을 {randomQuantity} 개 얻음!");
+            if (randomQuantity > 0)
+            {
+                InventoryManager.Instance.AddItem(randomId, randomQuantity);
+                Debug.Log($"{randomItemName} 아이템을 {randomQuantity}개 얻음!");
+            }
+            else if (randomQuantity < 0)
+            {
+                InventoryManager.Instance.RemoveItem(randomId, -randomQuantity);
+                Debug.Log($"{randomItemName} 아이템을 {-randomQuantity}개 잃음!");
+            }
+            else
+            {
+                Debug.Log($"{randomItemName} 아이템 변화 없음 (0개).");
+            }
         }
     }
 
