@@ -55,7 +55,7 @@ public class DamageIndicatorManager : MonoBehaviour
         if (damageIndicator != null)
         {
             // 크리티컬 데미지는 더 큰 크기와 다른 색상으로 표시
-            damageIndicator.Initialize(damage, Color.magenta);
+            damageIndicator.Initialize(damage, Color.red);
             damageIndicator.transform.localScale *= 1.5f; // 50% 더 크게
         }
     }

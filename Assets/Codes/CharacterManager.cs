@@ -98,7 +98,6 @@ public class CharacterManager : MonoBehaviour
     private int maxHealth;
 
     // 각 캐릭터의 최대 체력을 저장하는 배열
-    private int[] maxHealthArray = new int[7] { 100, 120, 110, 130, 140, 150, 160 };
     public bool isDataLoaded = false; // 데이터 로드 완료 여부
     private bool firebaseDataLoaded = false;
 

@@ -19,6 +19,7 @@ public class CharacterData : ScriptableObject
     public bool isUnlocked;       // 해금 여부
     public int requiredmachineparts = 1;// 해금 조건 - screw 개수
     public int requiredstorybookpages = 1; // 해금 조건 - page 개수
+    public float criticalChance;  // 치명타 확률 (0~1 사이의 값)
 
     // 스킬 배열 추가
     public CharacterSkill[] skills; // 스킬 배열

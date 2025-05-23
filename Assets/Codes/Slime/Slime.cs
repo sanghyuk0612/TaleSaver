@@ -406,7 +406,7 @@ private IEnumerator StopMovement(float stopDuration)
         
         //SpawnManager.Instance.SpawnNPC();
         //GameManager.Instance.ShowGameOver();
-        Destroy(gameObject);
+        //Destroy(gameObject);
         StartCoroutine(DelayLoadScoreBoard());
     }
 

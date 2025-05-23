@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class EnemySkillInfo : MonoBehaviour
 {
-    public GameObject projectilePrefab;     // ¹ß»çÃ¼ ÇÁ¸®ÆÕ
-    public float projectileSpeed = 6f;      // ¹ß»çÃ¼ ¼Óµµ
-    public int damage = 10;                 // µ¥¹ÌÁö
+    public GameObject projectilePrefab;     // íˆ¬ì‚¬ì²´ í”„ë¦¬í©
+    public float projectileSpeed = 6f;      // íˆ¬ì‚¬ì²´ ì†ë„
+    public int damage = 10;                 // ë°ë¯¸ì§€
 
-    public GameObject skillEffectPrefab;    // [Ãß°¡] ½ÃÀü ÀÌÆåÆ® (¿¹: ¹ß»ç ÁØºñ ¿¬±â)
-    public GameObject hitEffectPrefab;      // [Ãß°¡] ¸íÁß ÀÌÆåÆ® (¿¹: Æø¹ß ÀÌÆåÆ®)
+    public GameObject skillEffectPrefab;    // [ì¶”ê°€] ìŠ¤í‚¬ ì´í™íŠ¸ (ì˜ˆ: íˆ¬ì‚¬ì²´ ë°œì‚¬ ì‹œ ì´í™íŠ¸)
+    public GameObject hitEffectPrefab;      // [ì¶”ê°€] íˆíŠ¸ ì´í™íŠ¸ (ì˜ˆ: íˆ¬ì‚¬ì²´ íˆíŠ¸ ì‹œ ì´í™íŠ¸)
 }
 
