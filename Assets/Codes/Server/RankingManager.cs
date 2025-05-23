@@ -194,9 +194,24 @@ public class RankingManager : MonoBehaviour
                 }
             });
     }
+    public void TryReconnectRankingUI()
+    {
+        rankingUI = FindObjectOfType<RankingUI>();
+        if (rankingUI == null)
+        {
+            Debug.LogWarning("❌ ScoreBoard 씬에서도 RankingUI를 찾을 수 없습니다.");
+            return;
+        }
+
+        Debug.Log("✅ ScoreBoard 씬에서 RankingUI 재연결 성공");
+        LoadData();
+    }
+
 }
 
-    [Serializable]
+
+
+[Serializable]
 public class PlayerData
 {
     public string playerID;
