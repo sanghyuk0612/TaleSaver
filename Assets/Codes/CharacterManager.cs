@@ -43,6 +43,7 @@ public class CharacterManager : MonoBehaviour
     [Header("Panel Info")]
     public GameObject characterInfoPanel;     // 캐릭터 정보 패널
     public GameObject upgradePanel;           // 업그레이드 패널
+    public GameObject ExplainPanel;           //설명창 패널
 
     [Header("Upgrade Info")]
     public Image upgradeCharacterImage;
@@ -87,6 +88,8 @@ public class CharacterManager : MonoBehaviour
     public Button unlockButton;
     public Button closeUpgradeButton;         // 업그레이드 창 닫기 버튼
     public Button levelupButton;
+    public Button ExplainButton;
+    public Button ExitExplainButton;
 
     private int currentCharacterIndex = 0;
     private List<Button> characterButtons = new List<Button>(); // 동적 버튼 리스트
@@ -200,7 +203,14 @@ public class CharacterManager : MonoBehaviour
             GameManager.Instance.SetCurrentCharacter(characters[currentCharacterIndex]);
         }
     }
-
+    public void OnClickExplain()
+    {
+        ExplainPanel.SetActive(true);
+    }
+    public void ExitExplain()
+    {
+        ExplainPanel.SetActive(false);
+    }
 
 
     public void OnClickUnlockButton(int index)
