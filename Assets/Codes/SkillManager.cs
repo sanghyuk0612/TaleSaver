@@ -91,12 +91,20 @@ public class SkillManager : MonoBehaviour
         ApplySkillEffect(skill, characterTransform, casterData);
     }
 
-
-    /*public void UseSkill(CharacterSkill skill, Transform characterTransform)
+    private void ShowDamageIndicator(Vector3 position, int damage, bool isCritical)
     {
-        Debug.Log($"Using skill: {skill.skillName} with damage: {skill.skillDamage} or effect value: {skill.effectValue}");
-        ApplySkillEffect(skill, characterTransform);
-    }*/
+        if (DamageIndicatorManager.Instance != null)
+        {
+            if (isCritical)
+            {
+                DamageIndicatorManager.Instance.ShowCriticalDamageIndicator(position, damage);
+            }
+            else
+            {
+                DamageIndicatorManager.Instance.ShowDamageIndicator(position, damage, false);
+            }
+        }
+    }
 
     private void ApplySkillEffect(CharacterSkill skill, Transform characterTransform, CharacterData casterData)
     {
@@ -172,9 +180,6 @@ public class SkillManager : MonoBehaviour
                         isEnemyInDirection = true;
                     }
 
-                    // 디버그 로그 추가
-                    Debug.Log($"BaseG 체크 - Enemy: {enemy.name}, Distance: {distance}, Y차이: {yDifference}, 방향 일치: {isEnemyInDirection}");
-
                     // 조건에 맞는 적이고 현재까지 찾은 가장 가까운 적보다 더 가까우면 갱신
                     if (distance <= 7f && yDifference <= maxYDifference && isEnemyInDirection && distance < closestDistance)
                     {
@@ -207,33 +212,40 @@ public class SkillManager : MonoBehaviour
                         BGMManager.instance.PlaySE(BGMManager.instance.slash2SE,1f);
                     }
 
+                    // 각 적마다 개별적으로 치명타 계산
+                    bool isCritical = Random.value <= casterData.criticalChance;
+                    int finalDamage = isCritical ? Mathf.RoundToInt(actualDamage * 1.5f) : actualDamage;
+
+                    // 데미지 인디케이터 표시
+                    ShowDamageIndicator(closestEnemy.transform.position, finalDamage, isCritical);
+
                     // 데미지 적용
                     if (closestEnemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                     {
                         enemyCount_baseG++;
-                        meleeEnemy.TakeDamage(actualDamage);
+                        meleeEnemy.TakeDamage(finalDamage);
                     }
                     else if (closestEnemy.TryGetComponent(out RangedEnemy rangedEnemy))
                     {
                         enemyCount_baseG++;
-                        rangedEnemy.TakeDamage(actualDamage);
+                        rangedEnemy.TakeDamage(finalDamage);
                     }
                     else if (closestEnemy.TryGetComponent(out LavaGiant lavaGiant))
                     {
                         enemyCount_baseG++;
-                        lavaGiant.TakeDamage(actualDamage);
+                        lavaGiant.TakeDamage(finalDamage);
                     }
                     else if (closestEnemy.TryGetComponent(out Slime slime))
                     {
                         enemyCount_baseG++;
-                        slime.TakeDamage(actualDamage);
+                        slime.TakeDamage(finalDamage);
                     }
                     else if (closestEnemy.TryGetComponent(out Wolf wolf))
                     {
                         enemyCount_baseG++;
-                        wolf.TakeDamage(actualDamage);
+                        wolf.TakeDamage(finalDamage);
                     }
-                    Debug.Log($"BaseG - Attacking closest enemy: {closestEnemy.name} with damage: {actualDamage}");
+                    Debug.Log($"BaseG - Attacking closest enemy: {closestEnemy.name} with damage: {finalDamage}, Critical: {isCritical}");
                 }
                 else
                 {
@@ -273,77 +285,77 @@ public class SkillManager : MonoBehaviour
                 Debug.Log($"Player found - flipX: {isFlipped_fireball}, SpriteRenderer: {(spriteRenderer != null ? "Found" : "Not Found")}");
 
                 // Fireball 이펙트 생성
-                //if (fireballEffectPrefab != null)
                 GameObject fireballFX = casterData.fireballEffectOverride ?? fireballEffectPrefab;
                 if (fireballFX != null)
                 {
                     // 캐릭터의 방향에 따라 회전 설정
                     float rotationZ = isFlipped_fireball ? 180f : 0f;
                     GameObject fireballEffect = Instantiate(fireballFX, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
-                    //GameObject fireballEffect = Instantiate(fireballEffectPrefab, fireballPosition, Quaternion.Euler(0f, 0f, rotationZ));
                     FireballBehavior behavior = fireballEffect.GetComponent<FireballBehavior>();
                     if (behavior != null)
                     {
                         Vector3 moveDirection = isFlipped_fireball ? Vector3.left : Vector3.right;
                         behavior.Initialize(actualDamage, skill.effectRadius, moveDirection);
                     }
-                    //Destroy(fireballEffect, 0.4f);
                 }
 
                 // 범위 내의 적 찾기
                 foreach (GameObject enemy in enemies_fireball)
                 {
                     // 캐릭터 위치와 적의 거리 계산
-                    Vector3 directionToEnemy = enemy.transform.position - playerObject_fireball.transform.position; // 플레이어 기준으로 적까지의 방향 벡터
-                    float distance = directionToEnemy.magnitude; // 거리 계산
+                    Vector3 directionToEnemy = enemy.transform.position - playerObject_fireball.transform.position;
+                    float distance = directionToEnemy.magnitude;
 
                     // Y좌표 차이 계산
                     float yDifference = Mathf.Abs(enemy.transform.position.y - playerObject_fireball.transform.position.y);
-                    float maxYDifference = 3f; // 최대 허용 Y좌표 차이를 3으로 수정
-
-                    // 디버그 로그 추가
-                    Debug.Log($"Enemy: {enemy.name}, Distance: {distance}, Direction: {directionToEnemy}, isFlipped: {isFlipped_fireball}, Player Position: {playerObject_fireball.transform.position}, Enemy Position: {enemy.transform.position}");
+                    float maxYDifference = 2f;
 
                     // 적이 캐릭터가 바라보는 방향에 있는지 확인
                     bool isEnemyInDirection = false;
-                    if (isFlipped_fireball && directionToEnemy.x < 0) // 캐릭터가 왼쪽을 바라보고 적이 왼쪽에 있음
+                    if (isFlipped_fireball && directionToEnemy.x < 0)
                     {
                         isEnemyInDirection = true;
                     }
-                    else if (!isFlipped_fireball && directionToEnemy.x > 0) // 캐릭터가 오른쪽을 바라보고 적이 오른쪽에 있음
+                    else if (!isFlipped_fireball && directionToEnemy.x > 0)
                     {
                         isEnemyInDirection = true;
                     }
 
-                    // flipX 상태에 따라 거리 인식 조정 및 방향 확인
-                    if (distance <= skill.effectRadius && yDifference <= maxYDifference && isEnemyInDirection) // 범위 내에 있고, Y좌표 차이가 허용 범위 내이며, 캐릭터가 바라보는 방향에 있는 경우
+                    if (distance <= skill.effectRadius && yDifference <= maxYDifference && isEnemyInDirection)
                     {
-                        // 적에게 데미지 주기
+                        // 각 적마다 개별적으로 치명타 계산
+                        bool isCritical = Random.value <= casterData.criticalChance;
+                        int finalDamage = isCritical ? Mathf.RoundToInt(actualDamage * 1.5f) : actualDamage;
+
+                        // 데미지 인디케이터 표시
+                        ShowDamageIndicator(enemy.transform.position, finalDamage, isCritical);
+
                         if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                         {
-                            enemyCount_fireball++; // 카운터 증가
-                            meleeEnemy.TakeDamage(actualDamage); // MeleeEnemy의 currentHealth 감소 (STR 레벨 적용된 데미지)
+                            enemyCount_fireball++;
+                            meleeEnemy.TakeDamage(finalDamage);
                         }
                         else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                         {
-                            enemyCount_fireball++; // 카운터 증가
-                            rangedEnemy.TakeDamage(actualDamage); // RangedEnemy의 currentHealth 감소 (STR 레벨 적용된 데미지)
+                            enemyCount_fireball++;
+                            rangedEnemy.TakeDamage(finalDamage);
                         }
                         else if (enemy.TryGetComponent(out LavaGiant lavaGiant))
                         {
-                            enemyCount_fireball++; // 카운터 증가
-                            lavaGiant.TakeDamage(actualDamage);
+                            enemyCount_fireball++;
+                            lavaGiant.TakeDamage(finalDamage);
                         }
                         else if (enemy.TryGetComponent(out Slime slime))
                         {
-                            enemyCount_fireball++; // 카운터 증가
-                            slime.TakeDamage(actualDamage);
+                            enemyCount_fireball++;
+                            slime.TakeDamage(finalDamage);
                         }
                         else if (enemy.TryGetComponent(out Wolf wolf))
                         {
-                            enemyCount_fireball++; // 카운터 증가
-                            wolf.TakeDamage(actualDamage);
+                            enemyCount_fireball++;
+                            wolf.TakeDamage(finalDamage);
                         }
+                        Debug.Log($"Fireball - Attacking enemy: {enemy.name} with damage: {finalDamage}, Critical: {isCritical}");
                     }
                 }
 
@@ -358,42 +370,43 @@ public class SkillManager : MonoBehaviour
 
             case "Poison":
                 // 카메라의 위치를 사용하여 현재 씬에서 Tag가 Enemy인 오브젝트 감지
-                Vector3 cameraPosition = Camera.main.transform.position; // 카메라의 위치 가져오기
-                Vector3 poisonPosition = cameraPosition; // Poison 위치 저장
+                Vector3 cameraPosition = Camera.main.transform.position;
+                Vector3 poisonPosition = cameraPosition;
                 
                 // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_poison = GameObject.FindGameObjectsWithTag("Enemy");
-                int enemyCount_poison = 0; // 변수명 변경하여 중복 방지
+                int enemyCount_poison = 0;
                 
                 Debug.Log($"Found {enemies_poison.Length} enemies in the scene for Poison skill");
 
                 // 캐릭터가 바라보는 방향
-                Vector3 forwardDirection_poison = characterTransform.forward; // 변수명 변경하여 중복 방지
+                Vector3 forwardDirection_poison = characterTransform.forward;
 
                 // flipX 상태 확인
-                bool isFlipped_poison = characterTransform.localScale.x < 0; // 변수명 변경하여 중복 방지
+                bool isFlipped_poison = characterTransform.localScale.x < 0;
                 Debug.Log($"Character is flipped: {isFlipped_poison}, Forward direction: {forwardDirection_poison}");
 
                 // 범위 내의 적 찾기
                 foreach (GameObject enemy in enemies_poison)
                 {
                     // 카메라 위치와 적의 거리 계산
-                    Vector3 directionToEnemy = enemy.transform.position - cameraPosition; // 적까지의 방향 벡터
-                    float distance = directionToEnemy.magnitude; // 거리 계산
-
-                    // 거리와 방향을 기준으로 양수와 음수로 판단
+                    Vector3 directionToEnemy = enemy.transform.position - cameraPosition;
+                    float distance = directionToEnemy.magnitude;
                     float dotProduct = Vector3.Dot(forwardDirection_poison, directionToEnemy.normalized);
                     
                     Debug.Log($"Enemy: {enemy.name}, Distance: {distance}, Direction: {directionToEnemy}, DotProduct: {dotProduct}");
 
-                    // flipX 상태에 따라 거리 인식 조정
-                    if (distance <= skill.effectRadius && dotProduct > 0) // 범위 내에 있고, 바라보는 방향에 있는 경우
+                    if (distance <= skill.effectRadius && dotProduct > 0)
                     {
-                        // flipX가 되어있으면 왼쪽 방향만 인식
                         if (isFlipped_poison && directionToEnemy.x < 0)
                         {
                             enemyCount_poison++;
                             Debug.Log($"Enemy {enemy.name} is in range and to the left of flipped character");
+                            
+                            // 각 적마다 개별적으로 치명타 계산
+                            bool isCritical = Random.value <= casterData.criticalChance;
+                            int finalDamage = isCritical ? Mathf.RoundToInt(actualDamage * 1.5f) : actualDamage;
+                            
                             if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                             {
                                 Debug.Log($"Starting poison effect on MeleeEnemy: {enemy.name}");
@@ -405,11 +418,15 @@ public class SkillManager : MonoBehaviour
                                 StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
                             }
                         }
-                        // flipX가 안되어있으면 오른쪽 방향만 인식
                         else if (!isFlipped_poison && directionToEnemy.x > 0)
                         {
                             enemyCount_poison++;
                             Debug.Log($"Enemy {enemy.name} is in range and to the right of non-flipped character");
+                            
+                            // 각 적마다 개별적으로 치명타 계산
+                            bool isCritical = Random.value <= casterData.criticalChance;
+                            int finalDamage = isCritical ? Mathf.RoundToInt(actualDamage * 1.5f) : actualDamage;
+                            
                             if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                             {
                                 Debug.Log($"Starting poison effect on MeleeEnemy: {enemy.name}");
@@ -421,14 +438,6 @@ public class SkillManager : MonoBehaviour
                                 StartCoroutine(ApplyPoisonEffectRanged(skill, enemy, 5));
                             }
                         }
-                        else
-                        {
-                            Debug.Log($"Enemy {enemy.name} is in range but not in the correct direction. isFlipped: {isFlipped_poison}, directionToEnemy.x: {directionToEnemy.x}");
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log($"Enemy {enemy.name} is not in range or not in front of character. Distance: {distance}, DotProduct: {dotProduct}, EffectRadius: {skill.effectRadius}");
                     }
                 }
 
@@ -436,8 +445,6 @@ public class SkillManager : MonoBehaviour
                 break;
                 
             case "Ultimo":
-                // Player(Clone) 오브젝트 찾기
-                
                 GameObject playerObject_ultimo = GameObject.Find("Player(Clone)");
                 if (playerObject_ultimo == null)
                 {
@@ -446,151 +453,109 @@ public class SkillManager : MonoBehaviour
                 }
                 BGMManager.instance.PlaySE(BGMManager.instance.CowSE,1.5f);
 
-                // 플레이어의 위치를 기준으로 Ultimo 위치 설정
                 ultimoPosition = playerObject_ultimo.transform.position;
 
-                // Ultimo 이펙트 생성
-                //if (ultimoEffectPrefab != null)
                 GameObject ultimoFX = casterData.ultimoEffectOverride ?? ultimoEffectPrefab;
                 if (ultimoFX != null)
                 {
                     Vector3 cowSpawnPosition = playerObject_ultimo.transform.position + new Vector3(0f, 5f, 0f);
                     GameObject cowEffect = Instantiate(ultimoFX, cowSpawnPosition, Quaternion.identity);
 
-                    // 착지 기준을 플레이어 위치로
                     CowDrop cowDrop = cowEffect.GetComponent<CowDrop>();
                     if (cowDrop != null)
                     {
                         cowDrop.SetLandingY(playerObject_ultimo.transform.position.y + 1.5f);
-                        Debug.Log($"cowImpactFXPrefab: {(cowImpactFXPrefab == null ? "null" : cowImpactFXPrefab.name)}");
-
-                        cowDrop.impactFXPrefab = cowImpactFXPrefab; // 등록 필요
-
+                        cowDrop.impactFXPrefab = cowImpactFXPrefab;
                     }
-
-                    //Destroy(cowEffect, 1.5f); // 효과 시간 후 제거
                 }
 
-                // 모든 Enemy 오브젝트 찾기
                 GameObject[] enemies_ultimo = GameObject.FindGameObjectsWithTag("Enemy");
-                int enemyCount_ultimo = 0; // 변수명 변경하여 중복 방지
+                int enemyCount_ultimo = 0;
 
-                // 범위 내의 적 찾기 - 바라보는 방향 상관없이 모든 적에게 효과 적용
                 foreach (GameObject enemy in enemies_ultimo)
                 {
-                    // 카메라 위치와 적의 거리 계산
                     Vector3 directionToEnemy = enemy.transform.position - playerObject_ultimo.transform.position;
                     float distance = directionToEnemy.magnitude;
 
-                    // 범위 내에 있다면 방향에 상관없이 효과 적용
                     if (distance <= skill.effectRadius)
                     {
                         enemyCount_ultimo++;
+                        
+                        // 각 적마다 개별적으로 치명타 계산
+                        bool isCritical = Random.value <= casterData.criticalChance;
+                        int finalDamage = isCritical ? Mathf.RoundToInt(actualDamage * 1.5f) : actualDamage;
+                        
                         if (enemy.TryGetComponent(out MeleeEnemy meleeEnemy))
                         {
-                            // KnockBack 효과 먼저 적용
                             Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
                             if (enemyRb != null)
                             {
                                 Debug.Log($"Applying knockback to MeleeEnemy: {enemy.name}");
-                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                Vector2 knockbackDirection = new Vector2(0f, 1f);
                                 enemyRb.velocity = Vector2.zero;
                                 enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
-                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
-                                // 위치 고정 및 해제 코루틴 시작
                                 StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
                             }
-                            else
-                            {
-                                Debug.LogWarning($"MeleeEnemy {enemy.name} has no Rigidbody2D component!");
-                            }
-                            // 1초 후 데미지 적용
-                            StartCoroutine(DelayedDamage(meleeEnemy, actualDamage, 0.5f));
+                            StartCoroutine(DelayedDamage(meleeEnemy, finalDamage, 0.5f));
+                            ShowDamageIndicator(enemy.transform.position, finalDamage, isCritical);
                         }
                         else if (enemy.TryGetComponent(out LavaGiant lavaGiant))
                         {
-                            // KnockBack 효과 먼저 적용
                             Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
                             if (enemyRb != null)
                             {
-                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
-                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                Debug.Log($"Applying knockback to LavaGiant: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f);
                                 enemyRb.velocity = Vector2.zero;
                                 enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
-                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
-                                // 위치 고정 및 해제 코루틴 시작
                                 StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
                             }
-                            else
-                            {
-                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
-                            }
-                            // 1초 후 데미지 적용
-                            StartCoroutine(DelayedDamage(lavaGiant, actualDamage, 0.5f));
+                            StartCoroutine(DelayedDamage(lavaGiant, finalDamage, 0.5f));
+                            ShowDamageIndicator(enemy.transform.position, finalDamage, isCritical);
                         }
                         else if (enemy.TryGetComponent(out Wolf wolf))
                         {
-                            // KnockBack 효과 먼저 적용
                             Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
                             if (enemyRb != null)
                             {
-                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
-                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                Debug.Log($"Applying knockback to Wolf: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f);
                                 enemyRb.velocity = Vector2.zero;
                                 enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
-                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
-                                // 위치 고정 및 해제 코루틴 시작
                                 StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
                             }
-                            else
-                            {
-                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
-                            }
-                            // 1초 후 데미지 적용
-                            StartCoroutine(DelayedDamage(wolf, actualDamage, 0.5f));
+                            StartCoroutine(DelayedDamage(wolf, finalDamage, 0.5f));
+                            ShowDamageIndicator(enemy.transform.position, finalDamage, isCritical);
                         }
                         else if (enemy.TryGetComponent(out Slime slime))
                         {
-                            // KnockBack 효과 먼저 적용
                             Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
                             if (enemyRb != null)
                             {
-                                Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
-                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                Debug.Log($"Applying knockback to Slime: {enemy.name}");
+                                Vector2 knockbackDirection = new Vector2(0f, 1f);
                                 enemyRb.velocity = Vector2.zero;
                                 enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
-                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
-                                // 위치 고정 및 해제 코루틴 시작
                                 StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
                             }
-                            else
-                            {
-                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
-                            }
-                            // 1초 후 데미지 적용
-                            StartCoroutine(DelayedDamage(slime, actualDamage, 0.5f));
+                            StartCoroutine(DelayedDamage(slime, finalDamage, 0.5f));
+                            ShowDamageIndicator(enemy.transform.position, finalDamage, isCritical);
                         }
                         else if (enemy.TryGetComponent(out RangedEnemy rangedEnemy))
                         {
-                            // KnockBack 효과 먼저 적용
                             Rigidbody2D enemyRb = enemy.GetComponent<Rigidbody2D>();
                             if (enemyRb != null)
                             {
                                 Debug.Log($"Applying knockback to RangedEnemy: {enemy.name}");
-                                Vector2 knockbackDirection = new Vector2(0f, 1f); // 위로만 넉백
+                                Vector2 knockbackDirection = new Vector2(0f, 1f);
                                 enemyRb.velocity = Vector2.zero;
                                 enemyRb.AddForce(knockbackDirection * 10f, ForceMode2D.Impulse);
-                                Debug.Log($"Knockback applied to {enemy.name} - Direction: {knockbackDirection}, Force: {knockbackDirection * 10f}");
-                                // 위치 고정 및 해제 코루틴 시작
                                 StartCoroutine(FreezePosition(enemyRb, 0.3f, 0.4f));
                             }
-                            else
-                            {
-                                Debug.LogWarning($"RangedEnemy {enemy.name} has no Rigidbody2D component!");
-                            }
-                            // 1초 후 데미지 적용
-                            StartCoroutine(DelayedDamage(rangedEnemy, actualDamage, 0.5f));
+                            StartCoroutine(DelayedDamage(rangedEnemy, finalDamage, 0.5f));
+                            ShowDamageIndicator(enemy.transform.position, finalDamage, isCritical);
                         }
+                        Debug.Log($"Ultimo - Attacking enemy: {enemy.name} with damage: {finalDamage}, Critical: {isCritical}");
                     }
                 }
 
@@ -785,11 +750,37 @@ public class SkillManager : MonoBehaviour
         float initialHealth = meleeEnemy.currentHealth;
         Debug.Log($"MeleeEnemy {enemy.name} initial health: {initialHealth}");
 
+        // 캐릭터 데이터 가져오기
+        CharacterData casterData = GameManager.Instance.CurrentCharacter;
+        if (casterData == null)
+        {
+            Debug.LogError("Caster data not found!");
+            yield break;
+        }
+
         while (elapsedTime < effectTime && enemy != null && enemy.activeInHierarchy)
         {
+            // 매 틱마다 치명타 확인
+            bool isCritical = Random.value <= casterData.criticalChance;
+            float finalDamage = isCritical ? damagePerSecond * 1.5f : damagePerSecond;
+
             // 적에게 독 데미지 적용
-            meleeEnemy.TakeDamage(damagePerSecond);
-            Debug.Log($"MeleeEnemy {enemy.name} took {damagePerSecond} poison damage. Remaining time: {effectTime - elapsedTime}s, Current health: {meleeEnemy.currentHealth}, Health change: {initialHealth - meleeEnemy.currentHealth}");
+            meleeEnemy.TakeDamage(finalDamage);
+            
+            // 데미지 인디케이터 표시 (치명타 여부에 따라 다르게 표시)
+            if (DamageIndicatorManager.Instance != null)
+            {
+                if (isCritical)
+                {
+                    DamageIndicatorManager.Instance.ShowCriticalDamageIndicator(enemy.transform.position, Mathf.RoundToInt(finalDamage));
+                }
+                else
+                {
+                    DamageIndicatorManager.Instance.ShowDamageIndicator(enemy.transform.position, Mathf.RoundToInt(finalDamage), false);
+                }
+            }
+            
+            Debug.Log($"MeleeEnemy {enemy.name} took {finalDamage} poison damage (Critical: {isCritical}). Remaining time: {effectTime - elapsedTime}s, Current health: {meleeEnemy.currentHealth}, Health change: {initialHealth - meleeEnemy.currentHealth}");
 
             elapsedTime += 1f; // 1초 경과
             yield return new WaitForSeconds(1f); // 1초 대기
@@ -823,31 +814,42 @@ public class SkillManager : MonoBehaviour
         float initialHealth = rangedEnemy.currentHealth;
         Debug.Log($"RangedEnemy {enemy.name} initial health: {initialHealth}");
 
-        while (elapsedTime < effectTime)
+        // 캐릭터 데이터 가져오기
+        CharacterData casterData = GameManager.Instance.CurrentCharacter;
+        if (casterData == null)
         {
-            if (enemy == null || !enemy.activeInHierarchy)
-                break;
-
-            if (rangedEnemy == null)
-                break;
-
-            rangedEnemy.TakeDamage(damagePerSecond);
-
-            elapsedTime += 1f;
-            yield return new WaitForSeconds(1f);
+            Debug.LogError("Caster data not found!");
+            yield break;
         }
-
 
         while (elapsedTime < effectTime && enemy != null && enemy.activeInHierarchy)
         {
+            // 매 틱마다 치명타 확인
+            bool isCritical = Random.value <= casterData.criticalChance;
+            float finalDamage = isCritical ? damagePerSecond * 1.5f : damagePerSecond;
+
             // 적에게 독 데미지 적용
-            rangedEnemy.TakeDamage(damagePerSecond);
-            Debug.Log($"RangedEnemy {enemy.name} took {damagePerSecond} poison damage. Remaining time: {effectTime - elapsedTime}s, Current health: {rangedEnemy.currentHealth}, Health change: {initialHealth - rangedEnemy.currentHealth}");
+            rangedEnemy.TakeDamage(finalDamage);
+            
+            // 데미지 인디케이터 표시 (치명타 여부에 따라 다르게 표시)
+            if (DamageIndicatorManager.Instance != null)
+            {
+                if (isCritical)
+                {
+                    DamageIndicatorManager.Instance.ShowCriticalDamageIndicator(enemy.transform.position, Mathf.RoundToInt(finalDamage));
+                }
+                else
+                {
+                    DamageIndicatorManager.Instance.ShowDamageIndicator(enemy.transform.position, Mathf.RoundToInt(finalDamage), false);
+                }
+            }
+            
+            Debug.Log($"RangedEnemy {enemy.name} took {finalDamage} poison damage (Critical: {isCritical}). Remaining time: {effectTime - elapsedTime}s, Current health: {rangedEnemy.currentHealth}, Health change: {initialHealth - rangedEnemy.currentHealth}");
 
             elapsedTime += 1f; // 1초 경과
             yield return new WaitForSeconds(1f); // 1초 대기
         }
-
+        
         Debug.Log($"Poison effect on RangedEnemy: {enemy.name} has ended. Total damage: {initialHealth - rangedEnemy.currentHealth}");
     }
 

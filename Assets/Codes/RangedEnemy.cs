@@ -252,43 +252,6 @@ public class RangedEnemy : MonoBehaviour
     }
 
 
-    //protected virtual void ShootProjectile()
-    //{
-    //    // 플레이어가 죽었다면 발사하지 않음
-    //    if (PlayerController.IsDead) return;
-
-    //    GameObject projectile = PoolManager.Instance.GetObject(projectileKey);
-
-    //    // null 체크 추가
-    //    if (projectile == null)
-    //    {
-    //        Debug.LogError("발사체를 가져오는 데 실패했습니다.");
-    //        return;
-    //    }
-
-    //    Vector3 spawnPosition = firePoint.position;
-    //    projectile.transform.position = spawnPosition;
-
-    //    EnemyProjectile projectileComponent = projectile.GetComponent<EnemyProjectile>();
-    //    if (projectileComponent != null)
-    //    {
-    //        // 플레이어 위치에 y값을 0.4 더해서 조준점을 약간 위로 조정
-    //        Vector3 adjustedPlayerPosition = playerTransform.position + new Vector3(0f, 0.4f, 0f);
-    //        Vector2 direction = (adjustedPlayerPosition - spawnPosition).normalized;
-
-    //        // 중요: PoolManager와 poolKey 설정 (이 부분이 누락되었을 수 있음)
-    //        projectileComponent.SetPoolManager(PoolManager.Instance, projectileKey);
-
-    //        // 초기화는 풀 관리자 설정 후에 호출
-    //        projectileComponent.Initialize(direction, projectileSpeed, attackDamage);
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("EnemyProjectile 컴포넌트를 찾을 수 없습니다.");
-    //        projectile.SetActive(false); // 오류 시 발사체 비활성화
-    //    }
-    //}
-
     void MoveTowardsPlayer()
     {
         // x축 방향으로만 이동하도록 수정
@@ -329,13 +292,13 @@ public class RangedEnemy : MonoBehaviour
     {
         currentHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"RangedEnemy took damage: {damage}. Current health: {currentHealth}");
-        
+        /*
         // 데미지 인디케이터 표시
         if (DamageIndicatorManager.Instance != null)
         {
             DamageIndicatorManager.Instance.ShowDamageIndicator(transform.position, Mathf.RoundToInt(damage), false);
         }
-        
+        */
         int i = Random.Range(0, 2);
         if (i == 0)
         {

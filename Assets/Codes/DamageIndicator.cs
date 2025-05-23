@@ -7,7 +7,7 @@ public class DamageIndicator : MonoBehaviour
     private TextMeshPro damageText;
     private float moveSpeed = 1f;
     private float fadeSpeed = 1f;
-    private float lifeTime = 1f;
+    private float lifeTime = 2f;
 
     private void Awake()
     {
@@ -33,7 +33,7 @@ public class DamageIndicator : MonoBehaviour
     {
         float elapsedTime = 0f;
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = startPosition + Vector3.up * 2f; // 위로 1유닛 이동
+        Vector3 targetPosition = startPosition + Vector3.up * 5f; // 위로 5유닛 이동
         Color startColor = damageText.color;
 
         while (elapsedTime < lifeTime)

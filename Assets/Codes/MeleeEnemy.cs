@@ -255,13 +255,13 @@ public class MeleeEnemy : MonoBehaviour
     {
         currentHealth -= damage; // 데미지를 받아 현재 체력 감소
         Debug.Log($"MeleeEnemy took damage: {damage}. Current health: {currentHealth}");
-        
+        /*
         // 데미지 인디케이터 표시
         if (DamageIndicatorManager.Instance != null)
         {
             DamageIndicatorManager.Instance.ShowDamageIndicator(transform.position, Mathf.RoundToInt(damage), false);
         }
-        
+        */
         int i = Random.Range(0, 2);
         if (i == 0)
         {
