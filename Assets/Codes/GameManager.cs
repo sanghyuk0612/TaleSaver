@@ -379,6 +379,7 @@ public class GameManager : MonoBehaviour
             // 현재 선택된 캐릭터의 이름과 스킬 출력
             LogCurrentCharacterInfo();
         }
+        playTime += Time.deltaTime;
     }
 
     private void InitializeGameState()
@@ -964,11 +965,11 @@ public class GameManager : MonoBehaviour
     // 게임 재시작 메서드 (UI 버튼에 연결)
     public void RestartGame()
     {
+        // 플레이타임 초기화 추가
+        playTime = 0f;
         // 시간 스케일 복원
         Time.timeScale = 1f;
         location = 5;
-        // 플레이타임 초기화 추가
-        playTime = 0f;
         stage = 1;
         chapter = 1;
         score = 0;
