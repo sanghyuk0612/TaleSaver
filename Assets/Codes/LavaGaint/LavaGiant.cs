@@ -34,7 +34,7 @@ public class LavaGiant : MonoBehaviour
     private bool isFacingRight = true;
 
     [Header("Health")]
-    public float baseHealth = 2000f; // 기본 체력
+    public float baseHealth =1000f; // 기본 체력
     public HealthMultiplier healthMultiplier; // 체력 비율을 위한 ScriptableObject
     public float calculatedHealth;
     public float maxHP;
@@ -318,7 +318,7 @@ private IEnumerator StopMovement(float stopDuration)
         // 대시 속도 설정
         // 대시 속도 직접 설정
         // 대시 코루틴 시작
-        StartCoroutine(DashCoroutine(0.4f));
+        StartCoroutine(DashCoroutine(0.2f));
         // 쿨다운 시작
         canDash = false;
         Debug.Log($"보스몬스터 대쉬사용");

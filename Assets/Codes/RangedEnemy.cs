@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+using System.Collections.Generic;
 
 public class RangedEnemy : MonoBehaviour
 {
@@ -39,6 +39,21 @@ public class RangedEnemy : MonoBehaviour
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
+
+    [Header("AI Settings")]
+    public float optimalAttackDistance = 5f;
+    public float groupAttackRange = 3f;
+    
+    private List<RangedEnemy> nearbyAllies = new List<RangedEnemy>();
+    private EnemyState currentState = EnemyState.Idle;
+
+    private enum EnemyState
+    {
+        Idle,
+        Chase,
+        Attack,
+        MaintainDistance
+    }
 
     void Start()
     {
@@ -122,52 +137,163 @@ public class RangedEnemy : MonoBehaviour
 
     void Update()
     {
-        // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
             StopMoving();
             return;
         }
 
+        UpdateState();
+        ExecuteCurrentState();
+        UpdateNearbyAllies();
+    }
+
+    private void UpdateState()
+    {
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
+        // 플레이어가 감지 범위 안에 있으면
         if (distanceToPlayer <= detectionRange)
         {
-            if (distanceToPlayer > attackRange)
+            // 공격 범위 안에 있으면
+            if (distanceToPlayer <= attackRange)
             {
-                // 이동하기 전에 모서리 확인
-                bool canMove = CheckGroundAhead((playerTransform.position.x > transform.position.x) ? 1f : -1f);
+                // 최적의 공격 거리를 유지
+                float distanceDifference = Mathf.Abs(distanceToPlayer - optimalAttackDistance);
 
-                if (canMove)
+                // 거리가 최적 거리에서 벗어났는지 확인
+                if (distanceToPlayer < optimalAttackDistance - 0.5f || distanceToPlayer > optimalAttackDistance + 0.5f)
                 {
-                    MoveTowardsPlayer();
+                    currentState = EnemyState.MaintainDistance;
                 }
                 else
                 {
-                    StopMoving();
+                    currentState = EnemyState.Attack;
                 }
-                isPlayerInRange = false;
             }
+            // 그렇지 않으면 추적
             else
             {
-                StopMoving();
-                isPlayerInRange = true;
+                currentState = EnemyState.Chase;
+            }
+        }
+        // 감지 범위 밖이면 대기
+        else
+        {
+            currentState = EnemyState.Idle;
+        }
+    }
 
-                // 공격 범위 안에 있고 쿨다운이 끝났으면 발사
+    private void ExecuteCurrentState()
+    {
+        switch (currentState)
+        {
+            case EnemyState.Idle:
+                StopMoving();
+                break;
+
+            case EnemyState.Chase:
+                ChasePlayer();
+                break;
+
+            case EnemyState.Attack:
+                AttackPlayer();
+                break;
+
+            case EnemyState.MaintainDistance:
+                MaintainOptimalDistance();
+                // MaintainDistance 상태에서도 공격 가능
                 if (Time.time >= nextAttackTime)
                 {
-                    ShootProjectile();
-                    nextAttackTime = Time.time + attackCooldown;
-                    animator.SetTrigger("Attack");
+                    AttackPlayer();
                 }
-            }
+                break;
+        }
+    }
 
-            UpdateFacingDirection();
+    private void ChasePlayer()
+    {
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
+        if (CheckGroundAhead(direction.x))
+        {
+            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+            animator.SetTrigger("Walk");
         }
         else
         {
             StopMoving();
-            isPlayerInRange = false;
+        }
+    }
+
+    private void MaintainOptimalDistance()
+    {
+        float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+        Vector2 direction;
+        float moveSpeedMultiplier = 1.5f; // 이동 속도 증가
+
+        // 플레이어와의 거리가 최적 거리보다 가까우면
+        if (distanceToPlayer < optimalAttackDistance - 0.5f)
+        {
+            // 플레이어로부터 멀어지기
+            direction = (transform.position - playerTransform.position).normalized;
+            
+            // 거리가 매우 가까우면 더 빠르게 도망
+            if (distanceToPlayer < optimalAttackDistance * 0.3f)
+            {
+                moveSpeedMultiplier = 2.0f;
+            }
+        }
+        // 플레이어와의 거리가 최적 거리보다 멀면
+        else if (distanceToPlayer > optimalAttackDistance + 0.5f)
+        {
+            // 플레이어에게 가까워지기
+            direction = (playerTransform.position - transform.position).normalized;
+        }
+        else
+        {
+            // 최적 거리에 있으면 제자리에서 공격
+            StopMoving();
+            return;
+        }
+
+        // 이동 방향으로 지면이 있는지 확인
+        if (CheckGroundAhead(direction.x))
+        {
+            // 이동 속도 적용
+            float currentMoveSpeed = moveSpeed * moveSpeedMultiplier;
+            rb.velocity = new Vector2(direction.x * currentMoveSpeed, rb.velocity.y);
+            animator.SetTrigger("Walk");
+        }
+        else
+        {
+            StopMoving();
+        }
+
+        // 플레이어를 향해 바라보기
+        UpdateFacingDirection();
+    }
+
+    private void AttackPlayer()
+    {
+        StopMoving();
+        if (Time.time >= nextAttackTime)
+        {
+            ShootProjectile();
+            nextAttackTime = Time.time + attackCooldown;
+            animator.SetTrigger("Attack");
+        }
+    }
+
+    private void UpdateNearbyAllies()
+    {
+        nearbyAllies.Clear();
+        RangedEnemy[] allEnemies = FindObjectsOfType<RangedEnemy>();
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy != this && Vector2.Distance(transform.position, enemy.transform.position) <= groupAttackRange)
+            {
+                nearbyAllies.Add(enemy);
+            }
         }
     }
 
@@ -251,7 +377,6 @@ public class RangedEnemy : MonoBehaviour
         }
     }
 
-
     void MoveTowardsPlayer()
     {
         // x축 방향으로만 이동하도록 수정
@@ -268,8 +393,12 @@ public class RangedEnemy : MonoBehaviour
 
     void UpdateFacingDirection()
     {
-        // 플레이어가 왼쪽에 있으면 true, 오른쪽에 있으면 false
-        spriteRenderer.flipX = playerTransform.position.x > transform.position.x;
+        if (playerTransform != null)
+        {
+            // 플레이어가 왼쪽에 있으면 true, 오른쪽에 있으면 false
+            bool shouldFaceLeft = playerTransform.position.x < transform.position.x;
+            spriteRenderer.flipX = shouldFaceLeft;
+        }
     }
 
     // 디버그용 시각화

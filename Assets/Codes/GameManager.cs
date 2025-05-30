@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Melee Enemy Settings")]
     public float meleeEnemyMoveSpeed = 3f;
-    public float meleeEnemyDetectionRange = 5f;
+    public float meleeEnemyDetectionRange = 15f;
     public int meleeEnemyDamage = 10;
     public float meleeEnemyKnockbackForce = 9f;
     public float meleeEnemyDamageCooldown = 0.5f;

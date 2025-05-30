@@ -1,16 +1,23 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MeleeEnemy : MonoBehaviour
 {
     [Header("Movement")]
     private float moveSpeed;
     private float detectionRange;
+    private float jumpForce = 10f; // 점프 힘
+    private float minJumpHeight = 1.5f; // 최소 점프 시도 높이
+    private float maxJumpHeight = 6f; // 최대 점프 시도 높이
+    private float jumpCooldown = 1f; // 점프 쿨다운
+    private float lastJumpTime; // 마지막 점프 시간
 
     [Header("Ground Check")]
     public float groundCheckDistance = 0.2f;
     public LayerMask groundLayer;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
+    private bool isGrounded; // 지면 체크
 
     [Header("Edge Detection")]
     public float edgeCheckDistance = 1.0f; // 모서리 감지 거리
@@ -42,6 +49,19 @@ public class MeleeEnemy : MonoBehaviour
 
     [Header("Item Drop")]
     [SerializeField] private GameObject itemPrefab; // 아이템 프리팹
+
+    [Header("AI Settings")]
+    public float groupAttackRange = 3f;
+    
+    private List<MeleeEnemy> nearbyAllies = new List<MeleeEnemy>();
+    private EnemyState currentState = EnemyState.Idle;
+
+    private enum EnemyState
+    {
+        Idle,
+        Chase,
+        Attack
+    }
 
     void Start()
     {
@@ -102,70 +122,139 @@ public class MeleeEnemy : MonoBehaviour
 
     void Update()
     {
-        // 플레이어가 죽었거나 없으면 더 이상 진행하지 않음
         if (PlayerController.IsDead || playerTransform == null)
         {
-            // 정지
             StopMoving();
             return;
         }
 
-        // 플레이어와의 거리 체크
+        CheckGrounded();
+        UpdateState();
+        ExecuteCurrentState();
+        UpdateNearbyAllies();
+    }
+
+    private void CheckGrounded()
+    {
+        // 지면 체크를 위한 레이캐스트
+        RaycastHit2D hit = Physics2D.BoxCast(
+            transform.position,
+            groundCheckSize,
+            0f,
+            Vector2.down,
+            groundCheckDistance,
+            groundLayer
+        );
+        isGrounded = hit.collider != null;
+    }
+
+    private void UpdateState()
+    {
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+        float heightDifference = playerTransform.position.y - transform.position.y;
+        float xDistance = Mathf.Abs(transform.position.x - playerTransform.position.x);
+
+        Debug.Log($"MeleeEnemy - 현재 상태: {currentState}, 플레이어와의 거리: {distanceToPlayer:F2}, 높이 차이: {heightDifference:F2}, X축 거리: {xDistance:F2}, Y축 속도: {rb.velocity.y:F2}");
 
         if (distanceToPlayer <= detectionRange)
         {
-            // 플레이어 방향으로 이동
-            Vector2 direction = (playerTransform.position - transform.position).normalized;
-
-
-            // 이동하기 전에 모서리를 확인
-            bool canMove = CheckGroundAhead(direction.x);
-
-            // 모서리가 감지되지 않아 이동 가능한 경우에만 이동
-            if (canMove)
+            if (heightDifference > minJumpHeight && 
+                heightDifference < maxJumpHeight && 
+                Mathf.Abs(rb.velocity.y) < 0.1f && 
+                xDistance < 1.0f &&
+                Time.time >= lastJumpTime + jumpCooldown)
             {
-                animator.SetTrigger("Walk");
-                // x축 방향으로만 이동
-                rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
-
-                // 스프라이트 방향 전환
-                if (direction.x < 0 && !isFacingRight)
-                {
-                    Flip();
-                }
-                else if (direction.x > 0 && isFacingRight)
-                {
-                    Flip();
-                }
+                Debug.Log($"MeleeEnemy - 점프 시도 조건: 높이차이({heightDifference:F2}) > 최소높이({minJumpHeight}) && 높이차이({heightDifference:F2}) < 최대높이({maxJumpHeight}) && Y축속도({rb.velocity.y:F2}) && X축거리({xDistance:F2}) && 쿨다운({Time.time >= lastJumpTime + jumpCooldown})");
+                TryJump();
             }
             else
             {
-                // 플레이어가 감지 범위를 벗어나면 정지
-                StopMoving();
+                Debug.Log($"MeleeEnemy - 점프 조건 불충족: 높이차이({heightDifference:F2}), 최소높이({minJumpHeight}), 최대높이({maxJumpHeight}), Y축속도({rb.velocity.y:F2}), X축거리({xDistance:F2}), 쿨다운({Time.time >= lastJumpTime + jumpCooldown})");
             }
+
+            if (distanceToPlayer <= 1.5f)
+            {
+                currentState = EnemyState.Attack;
+            }
+            else
+            {
+                currentState = EnemyState.Chase;
+            }
+        }
+        else
+        {
+            currentState = EnemyState.Idle;
+        }
+    }
+
+    private void TryJump()
+    {
+        if (Mathf.Abs(rb.velocity.y) < 0.1f && Time.time >= lastJumpTime + jumpCooldown)
+        {
+            Debug.Log($"MeleeEnemy - 점프 실행: 현재시간({Time.time}), 마지막점프시간({lastJumpTime}), 쿨다운({jumpCooldown})");
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            lastJumpTime = Time.time;
+        }
+        else
+        {
+            Debug.Log($"MeleeEnemy - 점프 실행 실패: Y축속도({rb.velocity.y:F2}), 쿨다운체크({Time.time >= lastJumpTime + jumpCooldown})");
+        }
+    }
+
+    private void ExecuteCurrentState()
+    {
+        switch (currentState)
+        {
+            case EnemyState.Idle:
+                StopMoving();
+                break;
+
+            case EnemyState.Chase:
+                ChasePlayer();
+                break;
+
+            case EnemyState.Attack:
+                AttackPlayer();
+                break;
+        }
+    }
+
+    private void ChasePlayer()
+    {
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
+        float heightDifference = playerTransform.position.y - transform.position.y;
+
+        // 지면에 있고 이동 가능한 경우에만 이동
+        if (CheckGroundAhead(direction.x))
+        {
+            rb.velocity = new Vector2(direction.x * moveSpeed, rb.velocity.y);
+            animator.SetTrigger("Walk");
         }
         else
         {
             StopMoving();
         }
+    }
 
-        /*
-        // 체력 체크
-        if (calculatedHealth <= 0 && !isDead)
+    private void AttackPlayer()
+    {
+        StopMoving();
+        // 공격 애니메이션 재생
+        animator.SetTrigger("Attack");
+        // 실제 데미지는 OnCollisionEnter2D에서 처리됨
+    }
+
+    private void UpdateNearbyAllies()
+    {
+        nearbyAllies.Clear();
+        MeleeEnemy[] allEnemies = FindObjectsOfType<MeleeEnemy>();
+        foreach (var enemy in allEnemies)
         {
-            Die();
+            if (enemy != this && Vector2.Distance(transform.position, enemy.transform.position) <= groupAttackRange)
+            {
+                nearbyAllies.Add(enemy);
+            }
         }
-        */
-
-        //테스트용
-        // 디버그용: K 키를 누르면 몬스터 체력을 0으로 설정
-        if (Input.GetKeyDown(KeyCode.K) && !isDead)
-        {
-            Debug.Log("Debug: Monster health set to 0 manually.");
-            Die();
-        }
-
     }
 
     public void ApplyMonsterData(MonsterData data)
@@ -220,6 +309,13 @@ public class MeleeEnemy : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        // 지면 체크 영역 시각화
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(
+            transform.position + Vector3.down * groundCheckDistance,
+            groundCheckSize
+        );
     }
 
     // 새로 스폰되는 Enemy들과도 충돌을 무시하기 위한 트리거 체크
@@ -233,7 +329,7 @@ public class MeleeEnemy : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player") && currentState == EnemyState.Attack)
         {
             if (Time.time >= nextDamageTime)
             {
@@ -241,7 +337,7 @@ public class MeleeEnemy : MonoBehaviour
                 if (damageable != null)
                 {
                     Vector2 knockbackDir = (collision.transform.position - transform.position).normalized;
-                    knockbackDir.y = 0.5f;
+                    knockbackDir.y = 1f;
 
                     damageable.TakeDamage(attackDamage, knockbackDir, knockbackForce);
                     nextDamageTime = Time.time + damageCooldown;
