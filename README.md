@@ -1,4 +1,3 @@
-<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/98874b15-c440-435a-a3a1-82b0c61ec9ba" /># 로그라이크 게임 졸업작품
 <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/0170361c-4890-480e-b4e3-8e8027021cce" />
 
 
