@@ -1,4 +1,6 @@
-# 로그라이크 게임 졸업작품
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/98874b15-c440-435a-a3a1-82b0c61ec9ba" /># 로그라이크 게임 졸업작품
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/0170361c-4890-480e-b4e3-8e8027021cce" />
+
 
 ## 프로젝트 개요
 본 레포지토리는 졸업작품으로 제작한 로그라이크 게임 프로젝트입니다. 총 5명이 팀으로 참여하여 기획 및 개발을 진행했습니다.
